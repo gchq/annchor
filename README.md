@@ -31,7 +31,7 @@ ann = annchor.Annchor(X,
                       distance,
                       n_anchors=15,
                       n_neighbors=15,
-                      min_prob=0.05)
+                      p_work=0.1)
 ann.fit()
 
 print(ann.neighbor_graph)

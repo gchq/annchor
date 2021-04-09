@@ -323,12 +323,7 @@ class Annchor:
                                          p[mask])
             prob[mask]/=len(self.error_predictor.errs[label])
 
-<<<<<<< HEAD
-=======
-        # self.lower is the approximate distance less the error according to probability p and error partition
-        self.lower = self.LRApprox+hs[self.cluster_map]*(self.diff!=0)
-        self.lower = np.clip(self.lower,self.Bounds[:,:,0],None)
->>>>>>> 9b99c7bc447990c07b30c58fa4a0a0c08ddc71e8
+
 
         ixs = [i for i,name in enumerate(self.feature_names) if name in ['i','j']]
 
@@ -341,7 +336,6 @@ class Annchor:
         
         self.candidates = np.argsort(-prob)[:max_refine]
 
-        self.prob = prob#[max_refine:]
         
         self.IJs = self.features[self.not_computed_mask][self.candidates][:,ixs].astype(int)
         self.IJs = list(map(tuple,self.IJs))
