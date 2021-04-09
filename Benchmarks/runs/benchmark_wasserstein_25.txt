@@ -1,0 +1,175 @@
+pynn           |219.34  |11      |{'n_trees': 11, 'n_iters': 15, 'max_candidates': None}      
+pynn           |157.67  |31      |{'n_trees': 7, 'n_iters': 11, 'max_candidates': None}       
+pynn           |73.43   |524     |{'n_trees': 7, 'n_iters': 11, 'max_candidates': 5}          
+pynn           |37.59   |2420    |{'n_trees': 5, 'n_iters': 5, 'max_candidates': 5}                                  
+bruteforce     |201.27  |0       |{}                                                          
+pynn           |157.91  |13      |{'n_trees': 11, 'n_iters': 15, 'max_candidates': None}      
+pynn           |158.16  |28      |{'n_trees': 7, 'n_iters': 11, 'max_candidates': None}       
+pynn           |61.24   |458     |{'n_trees': 7, 'n_iters': 11, 'max_candidates': 5}          
+pynn           |37.57   |2028    |{'n_trees': 5, 'n_iters': 5, 'max_candidates': 5}                                
+bruteforce     |201.28  |0       |{}                                                          
+pynn           |157.01  |12      |{'n_trees': 11, 'n_iters': 15, 'max_candidates': None}      
+pynn           |163.13  |18      |{'n_trees': 7, 'n_iters': 11, 'max_candidates': None}       
+pynn           |61.03   |465     |{'n_trees': 7, 'n_iters': 11, 'max_candidates': 5}          
+pynn           |37.26   |2597    |{'n_trees': 5, 'n_iters': 5, 'max_candidates': 5}                               
+bruteforce     |201.12  |0       |{}                                                          
+pynn           |152.29  |25      |{'n_trees': 11, 'n_iters': 15, 'max_candidates': None}      
+pynn           |159.32  |32      |{'n_trees': 7, 'n_iters': 11, 'max_candidates': None}       
+pynn           |61.10   |466     |{'n_trees': 7, 'n_iters': 11, 'max_candidates': 5}          
+pynn           |37.60   |2292    |{'n_trees': 5, 'n_iters': 5, 'max_candidates': 5}           
+bruteforce     |201.05  |0       |{}                                                          
+pynn           |157.71  |17      |{'n_trees': 11, 'n_iters': 15, 'max_candidates': None}      
+pynn           |158.59  |21      |{'n_trees': 7, 'n_iters': 11, 'max_candidates': None}       
+pynn           |61.54   |509     |{'n_trees': 7, 'n_iters': 11, 'max_candidates': 5}          
+pynn           |38.38   |2180    |{'n_trees': 5, 'n_iters': 5, 'max_candidates': 5}                    
+bruteforce     |201.08  |0       |{}                                                          
+pynn           |156.95  |27      |{'n_trees': 11, 'n_iters': 15, 'max_candidates': None}      
+pynn           |159.31  |25      |{'n_trees': 7, 'n_iters': 11, 'max_candidates': None}       
+pynn           |74.23   |527     |{'n_trees': 7, 'n_iters': 11, 'max_candidates': 5}          
+pynn           |37.88   |2368    |{'n_trees': 5, 'n_iters': 5, 'max_candidates': 5}                  
+bruteforce     |201.41  |0       |{}                                                          
+pynn           |153.51  |18      |{'n_trees': 11, 'n_iters': 15, 'max_candidates': None}      
+pynn           |158.66  |22      |{'n_trees': 7, 'n_iters': 11, 'max_candidates': None}       
+pynn           |61.23   |454     |{'n_trees': 7, 'n_iters': 11, 'max_candidates': 5}          
+pynn           |38.06   |2573    |{'n_trees': 5, 'n_iters': 5, 'max_candidates': 5}                     
+bruteforce     |201.10  |0       |{}                                                          
+pynn           |158.26  |16      |{'n_trees': 11, 'n_iters': 15, 'max_candidates': None}      
+pynn           |161.17  |31      |{'n_trees': 7, 'n_iters': 11, 'max_candidates': None}       
+pynn           |74.59   |529     |{'n_trees': 7, 'n_iters': 11, 'max_candidates': 5}          
+pynn           |37.63   |2516    |{'n_trees': 5, 'n_iters': 5, 'max_candidates': 5}                 
+bruteforce     |201.41  |0       |{}                                                          
+pynn           |157.88  |19      |{'n_trees': 11, 'n_iters': 15, 'max_candidates': None}      
+pynn           |162.38  |25      |{'n_trees': 7, 'n_iters': 11, 'max_candidates': None}       
+pynn           |74.94   |469     |{'n_trees': 7, 'n_iters': 11, 'max_candidates': 5}          
+pynn           |37.48   |2466    |{'n_trees': 5, 'n_iters': 5, 'max_candidates': 5}               
+bruteforce     |201.10  |0       |{}                                                          
+pynn           |154.49  |24      |{'n_trees': 11, 'n_iters': 15, 'max_candidates': None}      
+pynn           |157.83  |18      |{'n_trees': 7, 'n_iters': 11, 'max_candidates': None}       
+pynn           |74.99   |560     |{'n_trees': 7, 'n_iters': 11, 'max_candidates': 5}          
+pynn           |37.36   |2549    |{'n_trees': 5, 'n_iters': 5, 'max_candidates': 5}                   
+bruteforce     |200.94  |0       |{}                                                          
+pynn           |155.66  |22      |{'n_trees': 11, 'n_iters': 15, 'max_candidates': None}      
+pynn           |161.75  |10      |{'n_trees': 7, 'n_iters': 11, 'max_candidates': None}       
+pynn           |74.61   |468     |{'n_trees': 7, 'n_iters': 11, 'max_candidates': 5}          
+pynn           |37.32   |2214    |{'n_trees': 5, 'n_iters': 5, 'max_candidates': 5}           
+bruteforce     |201.42  |0       |{}                                                          
+pynn           |153.84  |13      |{'n_trees': 11, 'n_iters': 15, 'max_candidates': None}      
+pynn           |161.56  |29      |{'n_trees': 7, 'n_iters': 11, 'max_candidates': None}       
+pynn           |60.72   |446     |{'n_trees': 7, 'n_iters': 11, 'max_candidates': 5}          
+pynn           |37.34   |2511    |{'n_trees': 5, 'n_iters': 5, 'max_candidates': 5}                     
+bruteforce     |201.60  |0       |{}                                                          
+pynn           |153.12  |15      |{'n_trees': 11, 'n_iters': 15, 'max_candidates': None}      
+pynn           |163.15  |21      |{'n_trees': 7, 'n_iters': 11, 'max_candidates': None}       
+pynn           |74.06   |514     |{'n_trees': 7, 'n_iters': 11, 'max_candidates': 5}          
+pynn           |37.49   |2461    |{'n_trees': 5, 'n_iters': 5, 'max_candidates': 5}                 
+bruteforce     |201.51  |0       |{}                                                          
+pynn           |156.39  |12      |{'n_trees': 11, 'n_iters': 15, 'max_candidates': None}      
+pynn           |161.93  |32      |{'n_trees': 7, 'n_iters': 11, 'max_candidates': None}       
+pynn           |74.10   |491     |{'n_trees': 7, 'n_iters': 11, 'max_candidates': 5}          
+pynn           |37.49   |2414    |{'n_trees': 5, 'n_iters': 5, 'max_candidates': 5}                              
+bruteforce     |200.83  |0       |{}                                                          
+pynn           |157.11  |22      |{'n_trees': 11, 'n_iters': 15, 'max_candidates': None}      
+pynn           |158.51  |20      |{'n_trees': 7, 'n_iters': 11, 'max_candidates': None}       
+pynn           |75.65   |552     |{'n_trees': 7, 'n_iters': 11, 'max_candidates': 5}          
+pynn           |37.63   |2168    |{'n_trees': 5, 'n_iters': 5, 'max_candidates': 5}                            
+bruteforce     |201.08  |0       |{}                                                          
+pynn           |153.11  |27      |{'n_trees': 11, 'n_iters': 15, 'max_candidates': None}      
+pynn           |163.20  |14      |{'n_trees': 7, 'n_iters': 11, 'max_candidates': None}       
+pynn           |74.15   |536     |{'n_trees': 7, 'n_iters': 11, 'max_candidates': 5}          
+pynn           |37.56   |2433    |{'n_trees': 5, 'n_iters': 5, 'max_candidates': 5}           
+bruteforce     |201.37  |0       |{}                                                          
+pynn           |152.90  |14      |{'n_trees': 11, 'n_iters': 15, 'max_candidates': None}      
+pynn           |158.60  |35      |{'n_trees': 7, 'n_iters': 11, 'max_candidates': None}       
+pynn           |61.65   |458     |{'n_trees': 7, 'n_iters': 11, 'max_candidates': 5}          
+pynn           |37.61   |2525    |{'n_trees': 5, 'n_iters': 5, 'max_candidates': 5}                         
+bruteforce     |201.70  |0       |{}                                                          
+pynn           |152.55  |16      |{'n_trees': 11, 'n_iters': 15, 'max_candidates': None}      
+pynn           |157.95  |16      |{'n_trees': 7, 'n_iters': 11, 'max_candidates': None}       
+pynn           |74.50   |497     |{'n_trees': 7, 'n_iters': 11, 'max_candidates': 5}          
+pynn           |37.52   |2592    |{'n_trees': 5, 'n_iters': 5, 'max_candidates': 5}            
+bruteforce     |201.74  |0       |{}                                                          
+pynn           |154.05  |18      |{'n_trees': 11, 'n_iters': 15, 'max_candidates': None}      
+pynn           |160.31  |12      |{'n_trees': 7, 'n_iters': 11, 'max_candidates': None}       
+pynn           |74.59   |562     |{'n_trees': 7, 'n_iters': 11, 'max_candidates': 5}          
+pynn           |37.67   |2449    |{'n_trees': 5, 'n_iters': 5, 'max_candidates': 5}                
+bruteforce     |200.36  |0       |{}
+annchor        |57.07   |432     |{'n_anchors': 15, 'min_prob': 0.2, 'low_cpu': True}         
+annchor        |37.19   |232     |{'n_anchors': 15, 'min_prob': 0.1, 'low_cpu': True}         
+annchor        |50.39   |2       |{'n_anchors': 15, 'min_prob': 0.01, 'low_cpu': True}        
+annchor        |60.43   |1       |{'n_anchors': 15, 'min_prob': 0.0025, 'low_cpu': True}      
+annchor        |35.61   |679     |{'n_anchors': 15, 'min_prob': 0.2, 'low_cpu': True}         
+annchor        |39.75   |133     |{'n_anchors': 15, 'min_prob': 0.1, 'low_cpu': True}         
+annchor        |50.98   |6       |{'n_anchors': 15, 'min_prob': 0.01, 'low_cpu': True}        
+annchor        |65.48   |0       |{'n_anchors': 15, 'min_prob': 0.0025, 'low_cpu': True}      
+annchor        |32.94   |613     |{'n_anchors': 15, 'min_prob': 0.2, 'low_cpu': True}         
+annchor        |38.43   |220     |{'n_anchors': 15, 'min_prob': 0.1, 'low_cpu': True}         
+annchor        |56.03   |3       |{'n_anchors': 15, 'min_prob': 0.01, 'low_cpu': True}        
+annchor        |62.79   |0       |{'n_anchors': 15, 'min_prob': 0.0025, 'low_cpu': True}      
+annchor        |30.43   |993     |{'n_anchors': 15, 'min_prob': 0.2, 'low_cpu': True}         
+annchor        |40.08   |182     |{'n_anchors': 15, 'min_prob': 0.1, 'low_cpu': True}         
+annchor        |68.97   |1       |{'n_anchors': 15, 'min_prob': 0.01, 'low_cpu': True}        
+annchor        |59.35   |0       |{'n_anchors': 15, 'min_prob': 0.0025, 'low_cpu': True}      
+annchor        |36.66   |709     |{'n_anchors': 15, 'min_prob': 0.2, 'low_cpu': True}         
+annchor        |36.85   |210     |{'n_anchors': 15, 'min_prob': 0.1, 'low_cpu': True}         
+annchor        |61.72   |3       |{'n_anchors': 15, 'min_prob': 0.01, 'low_cpu': True}        
+annchor        |52.76   |2       |{'n_anchors': 15, 'min_prob': 0.0025, 'low_cpu': True}      
+annchor        |35.62   |531     |{'n_anchors': 15, 'min_prob': 0.2, 'low_cpu': True}         
+annchor        |37.79   |155     |{'n_anchors': 15, 'min_prob': 0.1, 'low_cpu': True}         
+annchor        |50.24   |16      |{'n_anchors': 15, 'min_prob': 0.01, 'low_cpu': True}        
+annchor        |72.09   |0       |{'n_anchors': 15, 'min_prob': 0.0025, 'low_cpu': True}      
+annchor        |31.76   |710     |{'n_anchors': 15, 'min_prob': 0.2, 'low_cpu': True}         
+annchor        |43.77   |99      |{'n_anchors': 15, 'min_prob': 0.1, 'low_cpu': True}         
+annchor        |63.39   |0       |{'n_anchors': 15, 'min_prob': 0.01, 'low_cpu': True}        
+annchor        |61.16   |0       |{'n_anchors': 15, 'min_prob': 0.0025, 'low_cpu': True}      
+annchor        |31.82   |774     |{'n_anchors': 15, 'min_prob': 0.2, 'low_cpu': True}         
+annchor        |40.08   |127     |{'n_anchors': 15, 'min_prob': 0.1, 'low_cpu': True}         
+annchor        |55.38   |5       |{'n_anchors': 15, 'min_prob': 0.01, 'low_cpu': True}        
+annchor        |70.42   |0       |{'n_anchors': 15, 'min_prob': 0.0025, 'low_cpu': True}      
+annchor        |31.91   |925     |{'n_anchors': 15, 'min_prob': 0.2, 'low_cpu': True}         
+annchor        |37.53   |148     |{'n_anchors': 15, 'min_prob': 0.1, 'low_cpu': True}         
+annchor        |56.45   |0       |{'n_anchors': 15, 'min_prob': 0.01, 'low_cpu': True}        
+annchor        |58.08   |1       |{'n_anchors': 15, 'min_prob': 0.0025, 'low_cpu': True}      
+annchor        |32.69   |698     |{'n_anchors': 15, 'min_prob': 0.2, 'low_cpu': True}         
+annchor        |41.90   |191     |{'n_anchors': 15, 'min_prob': 0.1, 'low_cpu': True}         
+annchor        |55.97   |0       |{'n_anchors': 15, 'min_prob': 0.01, 'low_cpu': True}        
+annchor        |61.91   |0       |{'n_anchors': 15, 'min_prob': 0.0025, 'low_cpu': True}      
+annchor        |30.80   |866     |{'n_anchors': 15, 'min_prob': 0.2, 'low_cpu': True}         
+annchor        |38.71   |208     |{'n_anchors': 15, 'min_prob': 0.1, 'low_cpu': True}         
+annchor        |52.72   |14      |{'n_anchors': 15, 'min_prob': 0.01, 'low_cpu': True}        
+annchor        |57.46   |1       |{'n_anchors': 15, 'min_prob': 0.0025, 'low_cpu': True}      
+annchor        |35.76   |553     |{'n_anchors': 15, 'min_prob': 0.2, 'low_cpu': True}         
+annchor        |37.49   |180     |{'n_anchors': 15, 'min_prob': 0.1, 'low_cpu': True}         
+annchor        |50.68   |5       |{'n_anchors': 15, 'min_prob': 0.01, 'low_cpu': True}        
+annchor        |59.23   |2       |{'n_anchors': 15, 'min_prob': 0.0025, 'low_cpu': True}      
+annchor        |32.94   |794     |{'n_anchors': 15, 'min_prob': 0.2, 'low_cpu': True}         
+annchor        |46.00   |53      |{'n_anchors': 15, 'min_prob': 0.1, 'low_cpu': True}         
+annchor        |59.01   |1       |{'n_anchors': 15, 'min_prob': 0.01, 'low_cpu': True}        
+annchor        |57.83   |1       |{'n_anchors': 15, 'min_prob': 0.0025, 'low_cpu': True}      
+annchor        |32.46   |637     |{'n_anchors': 15, 'min_prob': 0.2, 'low_cpu': True}         
+annchor        |38.52   |199     |{'n_anchors': 15, 'min_prob': 0.1, 'low_cpu': True}         
+annchor        |50.54   |12      |{'n_anchors': 15, 'min_prob': 0.01, 'low_cpu': True}        
+annchor        |57.62   |5       |{'n_anchors': 15, 'min_prob': 0.0025, 'low_cpu': True}      
+annchor        |34.59   |543     |{'n_anchors': 15, 'min_prob': 0.2, 'low_cpu': True}         
+annchor        |35.86   |205     |{'n_anchors': 15, 'min_prob': 0.1, 'low_cpu': True}         
+annchor        |66.14   |3       |{'n_anchors': 15, 'min_prob': 0.01, 'low_cpu': True}        
+annchor        |55.92   |2       |{'n_anchors': 15, 'min_prob': 0.0025, 'low_cpu': True}      
+annchor        |32.36   |696     |{'n_anchors': 15, 'min_prob': 0.2, 'low_cpu': True}         
+annchor        |40.88   |117     |{'n_anchors': 15, 'min_prob': 0.1, 'low_cpu': True}         
+annchor        |50.65   |5       |{'n_anchors': 15, 'min_prob': 0.01, 'low_cpu': True}        
+annchor        |66.16   |1       |{'n_anchors': 15, 'min_prob': 0.0025, 'low_cpu': True}      
+annchor        |33.17   |672     |{'n_anchors': 15, 'min_prob': 0.2, 'low_cpu': True}         
+annchor        |36.87   |178     |{'n_anchors': 15, 'min_prob': 0.1, 'low_cpu': True}         
+annchor        |50.89   |8       |{'n_anchors': 15, 'min_prob': 0.01, 'low_cpu': True}        
+annchor        |68.10   |0       |{'n_anchors': 15, 'min_prob': 0.0025, 'low_cpu': True}      
+annchor        |32.82   |595     |{'n_anchors': 15, 'min_prob': 0.2, 'low_cpu': True}         
+annchor        |39.96   |152     |{'n_anchors': 15, 'min_prob': 0.1, 'low_cpu': True}         
+annchor        |56.59   |1       |{'n_anchors': 15, 'min_prob': 0.01, 'low_cpu': True}        
+annchor        |63.43   |2       |{'n_anchors': 15, 'min_prob': 0.0025, 'low_cpu': True}      
+annchor        |32.01   |734     |{'n_anchors': 15, 'min_prob': 0.2, 'low_cpu': True}         
+annchor        |40.46   |174     |{'n_anchors': 15, 'min_prob': 0.1, 'low_cpu': True}         
+annchor        |57.59   |3       |{'n_anchors': 15, 'min_prob': 0.01, 'low_cpu': True}        
+annchor        |64.77   |0       |{'n_anchors': 15, 'min_prob': 0.0025, 'low_cpu': True}      
+annchor        |33.51   |1092    |{'n_anchors': 15, 'min_prob': 0.2, 'low_cpu': True}         
+annchor        |37.85   |229     |{'n_anchors': 15, 'min_prob': 0.1, 'low_cpu': True}         
+annchor        |61.43   |0       |{'n_anchors': 15, 'min_prob': 0.01, 'low_cpu': True}        
+annchor        |62.46   |2       |{'n_anchors': 15, 'min_prob': 0.0025, 'low_cpu': True}

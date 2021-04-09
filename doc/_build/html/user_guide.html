@@ -1,0 +1,807 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>ANNchor User Guide &mdash; ANNchor  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="ANNchor API Guide" href="api.html" />
+    <link rel="prev" title="ANNchor: Fast Approximate k-NN Graph Construction for Slow Metrics" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/logo_yellow.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">User Guide:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">ANNchor User Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#example-wasserstein">Example: Wasserstein</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#brute-force-approach">Brute Force Approach</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#nearest-neighbor-descent">Nearest Neighbor Descent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#annchor">ANNchor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#a-larger-data-set">A Larger Data Set</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#example-levenshtein">Example: Levenshtein</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#brute-force">Brute Force</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#hnsw-nmslib">HNSW (nmslib)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">ANNchor</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#example-shortes-path-distance">Example: Shortes Path Distance</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Brute Force</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">ANNchor</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">API Reference:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">ANNchor API Guide</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ANNchor</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>ANNchor User Guide</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/user_guide.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="annchor-user-guide">
+<h1>ANNchor User Guide<a class="headerlink" href="#annchor-user-guide" title="Permalink to this headline">¶</a></h1>
+<p>Using ANNchor to find <em>k</em>-NN graphs is relatively straightforward.
+Let’s take a look at the general structure</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">annchor</span>
+
+<span class="n">X</span> <span class="o">=</span>          <span class="c1">#your data, list/np.array of items</span>
+
+<span class="n">distance</span> <span class="o">=</span>   <span class="c1">#your distance function, distance(x[i],x[j]) = d</span>
+
+<span class="c1">#Initialise the Annchor object with some parameters</span>
+<span class="n">ann</span> <span class="o">=</span> <span class="n">annchor</span><span class="o">.</span><span class="n">Annchor</span><span class="p">(</span><span class="n">X</span><span class="p">,</span>
+                      <span class="n">distance</span><span class="p">,</span>
+                      <span class="n">n_anchors</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
+                      <span class="n">n_neighbors</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+
+<span class="n">ann</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span> <span class="c1">#Find the k-NN graph</span>
+
+<span class="n">ann</span><span class="o">.</span><span class="n">neighbour_graph</span>
+</pre></div>
+</div>
+<p>That’s all there is to it!</p>
+<p>Feel free to take a look at some of the examples below. Bear in mind that
+the run-times quoted below will vary by machine: we used a MacBook Pro with
+2 GHz Quad-Core Intel i5 processor and 16 GB RAM. Any computations involving
+numba may want to be run twice to eliminate numba-jit compile times.</p>
+<div class="section" id="example-wasserstein">
+<h2>Example: Wasserstein<a class="headerlink" href="#example-wasserstein" title="Permalink to this headline">¶</a></h2>
+<p>Wasserstein distance, also known as Earth Mover’s distance, is a metric for
+comparing probability distributions.
+Practically speaking, it is also quite useful for comparing 2D images.
+Unfortunately, Wasserstein can be quite slow to compute. However, this makes
+it perfect to demonstrate the effectiveness of ANNchor!</p>
+<p>Let’s find the 25-NN graph for the sklearn digits dataset (from the UCI ML
+repository), under the Wasserstein metric. We’ll compare three methods:
+brute force, nearest neighbour descent, and ANNchor.</p>
+<p>Let’s start by importing some useful packages.</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">annchor.datasets</span> <span class="kn">import</span> <span class="n">load_digits</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+</pre></div>
+</div>
+<p>We’ll load the digits dataset and take a look.</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">k</span><span class="o">=</span><span class="mi">25</span>
+
+<span class="n">X</span> <span class="o">=</span> <span class="n">load_digits</span><span class="p">()[</span><span class="s1">&#39;X&#39;</span><span class="p">]</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">load_digits</span><span class="p">()[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span>
+<span class="n">neighbor_graph</span> <span class="o">=</span> <span class="n">load_digits</span><span class="p">()[</span><span class="s1">&#39;neighbor_graph&#39;</span><span class="p">]</span>
+
+<span class="n">nx</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="n">fig</span><span class="p">,</span><span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">axs</span> <span class="o">=</span> <span class="n">axs</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">ax</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">axs</span><span class="p">):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="n">y</span><span class="o">==</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">(</span><span class="n">h_pad</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">w_pad</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="_images/digits.png"><img alt="sklearn digits (UCI ML repository)" class="align-center" src="_images/digits.png" style="width: 300px;" /></a>
+<p>So we have a bunch of 8x8 images, 1797 to be exact.
+Let’s now import the Wasserstein distance. This implementation is borrowed
+from PyNNDescent, packaged with annchor for convenience. The cost matrix
+for the 8x8 images is also baked into the function.</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">annchor.distances</span> <span class="kn">import</span> <span class="n">wasserstein</span>
+</pre></div>
+</div>
+<p>The Wasserstein metric is quite slow to compute - compare it to the
+Euclidean metric on our data.</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">randX</span> <span class="o">=</span> <span class="k">lambda</span> <span class="p">:</span> <span class="n">X</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">nx</span><span class="p">)]</span>
+<span class="o">%</span><span class="n">timeit</span> <span class="n">wasserstein</span><span class="p">(</span><span class="n">randX</span><span class="p">(),</span><span class="n">randX</span><span class="p">())</span>
+<span class="o">%</span><span class="n">timeit</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">randX</span><span class="p">()</span><span class="o">-</span><span class="n">randX</span><span class="p">())</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>203 µs ± 5.37 µs per loop (mean ± std. dev. of 7 runs, 1000 loops each)
+12.3 µs ± 107 ns per loop (mean ± std. dev. of 7 runs, 100000 loops each)
+</pre></div>
+</div>
+<p>So Wasserstein is clocking in at around 20 times slower than Euclidean: We’re
+firmly in the territory of slow metrics.</p>
+<div class="section" id="brute-force-approach">
+<h3>Brute Force Approach<a class="headerlink" href="#brute-force-approach" title="Permalink to this headline">¶</a></h3>
+<p>If we wanted to brute-force the <em>k</em>-NN graph, then we must make around 1.6 million
+calls to the metric. Let’s try that, with a little  help from numba, and see how it goes</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">annchor</span> <span class="kn">import</span> <span class="n">BruteForce</span>
+<span class="kn">from</span> <span class="nn">annchor</span> <span class="kn">import</span> <span class="n">compare_neighbor_graphs</span>
+
+<span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+<span class="n">bruteforce</span> <span class="o">=</span> <span class="n">BruteForce</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">wasserstein</span><span class="p">)</span>
+<span class="n">bruteforce</span><span class="o">.</span><span class="n">get_neighbor_graph</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Brute Force Time: </span><span class="si">%5.3f</span><span class="s1"> seconds&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">start_time</span><span class="p">))</span>
+
+<span class="n">error</span> <span class="o">=</span> <span class="n">compare_neighbor_graphs</span><span class="p">(</span><span class="n">neighbor_graph</span><span class="p">,</span>
+                                <span class="n">bruteforce</span><span class="o">.</span><span class="n">neighbor_graph</span><span class="p">,</span>
+                                <span class="n">k</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Brute Force Accuracy: </span><span class="si">%d</span><span class="s1"> incorrect NN pairs (</span><span class="si">%5.3f%%</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">error</span><span class="p">,</span><span class="mi">100</span><span class="o">*</span><span class="n">error</span><span class="o">/</span><span class="p">(</span><span class="n">k</span><span class="o">*</span><span class="n">nx</span><span class="p">)))</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Brute</span> <span class="n">Force</span> <span class="n">Time</span><span class="p">:</span> <span class="mf">83.294</span> <span class="n">seconds</span>
+<span class="n">Brute</span> <span class="n">Force</span> <span class="n">Accuracy</span><span class="p">:</span> <span class="mi">0</span> <span class="n">incorrect</span> <span class="n">NN</span> <span class="n">pairs</span> <span class="p">(</span><span class="mf">0.000</span><span class="o">%</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Reasonably slow, but does have the merit of  giving the exact answer.</p>
+</div>
+<div class="section" id="nearest-neighbor-descent">
+<h3>Nearest Neighbor Descent<a class="headerlink" href="#nearest-neighbor-descent" title="Permalink to this headline">¶</a></h3>
+<p>Now let’s try a state-of-the-art <em>k</em>-NN graph construction method, Nearest
+Neighbour Descent.
+In particular, we’ll use the PyNNDescent python implementation (which is also
+used in the popular python library UMAP). We should expect this to do better
+than the brute force method.</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynndescent</span> <span class="kn">import</span> <span class="n">NNDescent</span>
+
+<span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+<span class="c1"># Call nearest neighbour descent</span>
+<span class="n">nndescent</span> <span class="o">=</span> <span class="n">NNDescent</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">n_neighbors</span><span class="o">=</span><span class="n">k</span><span class="p">,</span><span class="n">metric</span><span class="o">=</span><span class="n">wasserstein</span><span class="p">,</span><span class="n">random_state</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Time: </span><span class="si">%5.3f</span><span class="s1"> seconds&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">start_time</span><span class="p">))</span>
+
+<span class="c1"># Test accuracy</span>
+<span class="n">error</span> <span class="o">=</span> <span class="n">compare_neighbor_graphs</span><span class="p">(</span><span class="n">neighbor_graph</span><span class="p">,</span>
+                                <span class="n">nndescent</span><span class="o">.</span><span class="n">neighbor_graph</span><span class="p">,</span>
+                                <span class="n">k</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Accuracy: </span><span class="si">%d</span><span class="s1"> incorrect NN pairs (</span><span class="si">%5.3f%%</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">error</span><span class="p">,</span><span class="mi">100</span><span class="o">*</span><span class="n">error</span><span class="o">/</span><span class="p">(</span><span class="n">k</span><span class="o">*</span><span class="n">nx</span><span class="p">)))</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Time</span><span class="p">:</span> <span class="mf">69.561</span> <span class="n">seconds</span>
+<span class="n">Accuracy</span><span class="p">:</span> <span class="mi">29</span> <span class="n">incorrect</span> <span class="n">NN</span> <span class="n">pairs</span> <span class="p">(</span><span class="mf">0.064</span><span class="o">%</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Not bad, we trimmed 14 seconds from the run-time for a minimal hit to accuracy.</p>
+</div>
+<div class="section" id="annchor">
+<h3>ANNchor<a class="headerlink" href="#annchor" title="Permalink to this headline">¶</a></h3>
+<p>How does ANNchor compare? Remember, we are competing with 83s and 69s for brute
+force and PyNNDescent respectively. Can we do better?</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">annchor</span> <span class="kn">import</span> <span class="n">Annchor</span>
+
+<span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+<span class="c1"># Call ANNchor</span>
+<span class="n">ann</span> <span class="o">=</span> <span class="n">Annchor</span><span class="p">(</span><span class="n">X</span><span class="p">,</span>
+              <span class="n">wasserstein</span><span class="p">,</span>
+              <span class="n">n_anchors</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
+              <span class="n">n_neighbors</span><span class="o">=</span><span class="n">k</span><span class="p">,</span>
+              <span class="n">min_prob</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
+              <span class="n">random_seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+              <span class="n">n_samples</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+              <span class="n">partitions</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">ann</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ANNchor Time: </span><span class="si">%5.3f</span><span class="s1"> seconds&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">start_time</span><span class="p">))</span>
+
+
+<span class="c1"># Test accuracy</span>
+<span class="n">error</span> <span class="o">=</span> <span class="n">compare_neighbor_graphs</span><span class="p">(</span><span class="n">neighbor_graph</span><span class="p">,</span>
+                                <span class="n">ann</span><span class="o">.</span><span class="n">neighbor_graph</span><span class="p">,</span>
+                                <span class="n">k</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ANNchor Accuracy: </span><span class="si">%d</span><span class="s1"> incorrect NN pairs (</span><span class="si">%5.3f%%</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="n">error</span><span class="p">,</span><span class="n">error</span><span class="o">/</span><span class="p">(</span><span class="n">k</span><span class="o">*</span><span class="n">nx</span><span class="p">)))</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Time</span><span class="p">:</span> <span class="mf">27.009</span> <span class="n">seconds</span>
+<span class="n">Accuracy</span><span class="p">:</span> <span class="mi">4</span> <span class="n">incorrect</span> <span class="n">NN</span> <span class="n">pairs</span> <span class="p">(</span><span class="mf">0.009</span><span class="o">%</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Much better! We’ve got the 25-NN graph in less than half the time it took for
+PyNNDescent, with fewer errors to boot!</p>
+</div>
+<div class="section" id="a-larger-data-set">
+<h3>A Larger Data Set<a class="headerlink" href="#a-larger-data-set" title="Permalink to this headline">¶</a></h3>
+<p>What if we up the size of the data set? The previous set was quite small, so it’s
+important to see what happens when things get a bit bigger. Not much bigger, of course,
+since we don’t want to be waiting forever to run these tests!</p>
+<p>Let’s try the full UCI digits data set, 5620 8x8 images (<a class="reference external" href="https://archive.ics.uci.edu/ml/datasets/optical+recognition+of+handwritten+digits">https://archive.ics.uci.edu/ml/datasets/optical+recognition+of+handwritten+digits</a>).
+This could take some time to run (15 minutes on our machine!).</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load the data</span>
+<span class="kn">from</span> <span class="nn">annchor.datasets</span> <span class="kn">import</span> <span class="n">load_digits_large</span>
+
+<span class="n">k</span><span class="o">=</span><span class="mi">25</span>
+
+<span class="n">X</span> <span class="o">=</span> <span class="n">load_digits_large</span><span class="p">()[</span><span class="s1">&#39;X&#39;</span><span class="p">]</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">load_digits_large</span><span class="p">()[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span>
+<span class="n">neighbor_graph</span> <span class="o">=</span> <span class="n">load_digits_large</span><span class="p">()[</span><span class="s1">&#39;neighbor_graph&#39;</span><span class="p">]</span>
+
+<span class="n">nx</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+<span class="c1"># Call brute force</span>
+<span class="n">bruteforce</span> <span class="o">=</span> <span class="n">BruteForce</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">wasserstein</span><span class="p">)</span>
+<span class="n">bruteforce</span><span class="o">.</span><span class="n">get_neighbor_graph</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Brute Force Time: </span><span class="si">%5.3f</span><span class="s1"> seconds&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">start_time</span><span class="p">))</span>
+
+<span class="n">error</span> <span class="o">=</span> <span class="n">compare_neighbor_graphs</span><span class="p">(</span><span class="n">neighbor_graph</span><span class="p">,</span>
+                                <span class="n">bruteforce</span><span class="o">.</span><span class="n">neighbor_graph</span><span class="p">,</span>
+                                <span class="mi">25</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Brute Force Accuracy: </span><span class="si">%d</span><span class="s1"> incorrect NN pairs (</span><span class="si">%5.3f%%</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">error</span><span class="p">,</span><span class="mi">100</span><span class="o">*</span><span class="n">error</span><span class="o">/</span><span class="p">(</span><span class="n">k</span><span class="o">*</span><span class="n">nx</span><span class="p">)))</span>
+
+<span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+<span class="c1"># Call nearest neighbour descent</span>
+<span class="n">nndescent</span> <span class="o">=</span> <span class="n">NNDescent</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">n_neighbors</span><span class="o">=</span><span class="n">k</span><span class="p">,</span><span class="n">metric</span><span class="o">=</span><span class="n">wasserstein</span><span class="p">,</span><span class="n">random_state</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;PyNND Time: </span><span class="si">%5.3f</span><span class="s1"> seconds&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">start_time</span><span class="p">))</span>
+
+<span class="c1"># Test accuracy</span>
+<span class="n">error</span> <span class="o">=</span> <span class="n">compare_neighbor_graphs</span><span class="p">(</span><span class="n">neighbor_graph</span><span class="p">,</span>
+                                <span class="n">nndescent</span><span class="o">.</span><span class="n">neighbor_graph</span><span class="p">,</span>
+                                <span class="n">k</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;PyNND Accuracy: </span><span class="si">%d</span><span class="s1"> incorrect NN pairs (</span><span class="si">%5.3f%%</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">error</span><span class="p">,</span><span class="mi">100</span><span class="o">*</span><span class="n">error</span><span class="o">/</span><span class="p">(</span><span class="n">k</span><span class="o">*</span><span class="n">nx</span><span class="p">)))</span>
+
+
+<span class="kn">from</span> <span class="nn">annchor</span> <span class="kn">import</span> <span class="n">Annchor</span>
+
+<span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+<span class="c1"># Call ANNchor</span>
+<span class="n">ann</span> <span class="o">=</span> <span class="n">Annchor</span><span class="p">(</span><span class="n">X</span><span class="p">,</span>
+              <span class="n">wasserstein</span><span class="p">,</span>
+              <span class="n">n_anchors</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
+              <span class="n">n_neighbors</span><span class="o">=</span><span class="n">k</span><span class="p">,</span>
+              <span class="n">min_prob</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span>
+              <span class="n">random_seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+              <span class="n">n_samples</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span>
+              <span class="n">partitions</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+<span class="n">ann</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ANNchor Time: </span><span class="si">%5.3f</span><span class="s1"> seconds&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">start_time</span><span class="p">))</span>
+
+
+<span class="c1"># Test accuracy</span>
+<span class="n">error</span> <span class="o">=</span> <span class="n">compare_neighbor_graphs</span><span class="p">(</span><span class="n">neighbor_graph</span><span class="p">,</span>
+                                <span class="n">ann</span><span class="o">.</span><span class="n">neighbor_graph</span><span class="p">,</span>
+                                <span class="n">k</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ANNchor Accuracy: </span><span class="si">%d</span><span class="s1"> incorrect NN pairs (</span><span class="si">%5.3f%%</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">error</span><span class="p">,</span><span class="mi">100</span><span class="o">*</span><span class="n">error</span><span class="o">/</span><span class="p">(</span><span class="n">k</span><span class="o">*</span><span class="n">nx</span><span class="p">)))</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Brute</span> <span class="n">Force</span> <span class="n">Time</span><span class="p">:</span> <span class="mf">804.354</span> <span class="n">seconds</span>
+
+<span class="n">PyNND</span> <span class="n">Time</span><span class="p">:</span> <span class="mf">253.547</span> <span class="n">seconds</span>
+<span class="n">PyNND</span> <span class="n">Accuracy</span><span class="p">:</span> <span class="mi">86</span> <span class="n">incorrect</span> <span class="n">NN</span> <span class="n">pairs</span> <span class="p">(</span><span class="mf">0.061</span><span class="o">%</span><span class="p">)</span>
+
+<span class="n">ANNchor</span> <span class="n">Time</span><span class="p">:</span> <span class="mf">104.284</span> <span class="n">seconds</span>
+<span class="n">ANNchor</span> <span class="n">Accuracy</span><span class="p">:</span> <span class="mi">44</span> <span class="n">incorrect</span> <span class="n">NN</span> <span class="n">pairs</span> <span class="p">(</span><span class="mf">0.031</span><span class="o">%</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Again, we see that ANNchor can be much quicker than state-of-the-art!</p>
+</div>
+</div>
+<div class="section" id="example-levenshtein">
+<h2>Example: Levenshtein<a class="headerlink" href="#example-levenshtein" title="Permalink to this headline">¶</a></h2>
+<p>Levenshtein distance (or Edit distance) is a metric on strings. It is the number
+of insertions, substitutions and deletions required to change one word into an-
+other; for example, ‘cat’ is changed to ‘hat’ by substitution of the ‘c’ for an ‘h’,
+and thus they are Levenshtein distance one from each other. Levenshtein distance
+has found practical uses in a variety of fields, including natural language
+processing (e.g spell-check) and bioinformatics (e.g. DNA sequence similarity).
+While the Levenshtein distance is an intuitive metric on strings, it does come
+at a computational cost, especially on long strings where it can be difficult to
+find the minimal number of edits. This makes it another great candidate for ANNchor.</p>
+<p>To test how well ANNchor and other k-NN algorithms perform with respect
+to Levenshtein distance, we constructed a string data set for benchmarking purposes.
+The data set consists of 1600 strings of length 400-600, with 26 possible characters
+(i.e. the English alphabet). The 1600 strings can be separated into 8 clusters of
+two distinct varieties: filaments and clouds. The clouds are generated by taking a
+base string (the cloud ‘centre’) and performing a number of random edits to form a
+new string; thus every point in a cloud is ‘close’ to the base string. The filaments
+are generated in a similar way: take a base string to start the filament; create a
+new string by making a small number of random edits to the base string, and add the
+new string to the filament; continue to extend the filament by adding new strings a
+small number of edits from the last added string. In this way, the filament is made
+by traversing what is essentially a 1D path through the space of strings. The clouds
+and filaments can be clearly seen in a UMAP projection of the string data set, shown
+in below.</p>
+<a class="reference internal image-reference" href="_images/strings.png"><img alt="The string data set." class="align-center" src="_images/strings.png" style="width: 300px;" /></a>
+<p>A typical Levenshtein distance in this data set took about 33 times as
+long as calculating Euclidean distance on vectors of comparable length.
+It’s also worth noting that there aren’t any numba compiled Levenshtein
+routines (as of writing), which means that we can’t use PyNNDescent, or
+stick this problem directly into UMAP.</p>
+<p>First we’ll import some modules and look at the data.</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">Levenshtein</span> <span class="k">as</span> <span class="nn">lev</span>
+<span class="kn">from</span> <span class="nn">annchor.datasets</span> <span class="kn">import</span> <span class="n">load_strings</span>
+
+<span class="k">def</span> <span class="nf">levdist</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">lev</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span>
+
+<span class="n">strings_data</span> <span class="o">=</span> <span class="n">load_strings</span><span class="p">()</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">strings_data</span><span class="p">[</span><span class="s1">&#39;X&#39;</span><span class="p">]</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">strings_data</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span>
+<span class="n">neighbor_graph</span> <span class="o">=</span> <span class="n">strings_data</span><span class="p">[</span><span class="s1">&#39;neighbor_graph&#39;</span><span class="p">]</span>
+
+<span class="n">nx</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">X</span><span class="p">[::</span><span class="mi">100</span><span class="p">]:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">x</span><span class="p">[:</span><span class="mi">50</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;...&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cuiojvfnseoksugfcbwzrcoxtjxrvojrguqttjpeauenefmkmv</span><span class="o">...</span>
+<span class="n">uiofnsosungdgrxiiprvojrgujfdttjioqunknefamhlkyihvx</span><span class="o">...</span>
+<span class="n">cxumzfltweskptzwnlgojkdxidrebonxcmxvbgxayoachwfcsy</span><span class="o">...</span>
+<span class="n">cmjpuuozflodwqvkascdyeosakdupdoeovnbgxpajotahpwaqc</span><span class="o">...</span>
+<span class="n">vzdiefjmblnumdjeetvbvhwgyasygrzhuckvpclnmtviobpzvy</span><span class="o">...</span>
+<span class="n">nziejmbmknuxdhjbgeyvwgasygrhcpdxcgnmtviubjvyzjemll</span><span class="o">...</span>
+<span class="n">yhdpczcjxirmebhfdueskkjjtbclvncxjrstxhqvtoyamaiyyb</span><span class="o">...</span>
+<span class="n">yfhwczcxakdtenvbfctugnkkkjbcvxcxjwfrgcstahaxyiooeb</span><span class="o">...</span>
+<span class="n">yoftbrcmmpngdfzrbyltahrfbtyowpdjrnqlnxncutdovbgabo</span><span class="o">...</span>
+<span class="n">tyoqbywjhdwzoufzrqyltahrefbdzyunpdypdynrmchutdvsbl</span><span class="o">...</span>
+<span class="n">dopgwqjiehqqhmprvhqmnlbpuwszjkjjbshqofaqeoejtcegjt</span><span class="o">...</span>
+<span class="n">rahobdixljmjfysmegdwyzyezulajkzloaxqnipgxhhbyoztzn</span><span class="o">...</span>
+<span class="n">dfgxsltkbpxvgqptghjnkaoofbwqqdnqlbbzjsqubtfwovkbsk</span><span class="o">...</span>
+<span class="n">pjwamicvegedmfetridbijgafupsgieffcwnmgmptjwnmwegvn</span><span class="o">...</span>
+<span class="n">ovitcihpokhyldkuvgahnqnmixsakzbmsipqympnxtucivgqyi</span><span class="o">...</span>
+<span class="n">xvepnposhktvmutozuhkbqarqsbxjrhxuumofmtyaaeesbeuhf</span><span class="o">...</span>
+</pre></div>
+</div>
+<p>Let’s look at some different ways of computing the 15-NN graph.</p>
+<div class="section" id="brute-force">
+<h3>Brute Force<a class="headerlink" href="#brute-force" title="Permalink to this headline">¶</a></h3>
+<p>The brute force method is the same as above - compute the all-pairs distance matrix.
+Since we don’t have the help of numba this time round, we will use joblib to do
+some parallelisation.</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">annchor</span> <span class="kn">import</span> <span class="n">BruteForce</span>
+<span class="kn">from</span> <span class="nn">annchor</span> <span class="kn">import</span> <span class="n">compare_neighbor_graphs</span>
+
+<span class="n">k</span> <span class="o">=</span> <span class="mi">15</span>
+
+<span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+<span class="n">bruteforce</span> <span class="o">=</span> <span class="n">BruteForce</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">levdist</span><span class="p">)</span>
+<span class="n">bruteforce</span><span class="o">.</span><span class="n">get_neighbor_graph</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Brute Force Time: </span><span class="si">%5.3f</span><span class="s1"> seconds&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">start_time</span><span class="p">))</span>
+
+<span class="n">error</span> <span class="o">=</span> <span class="n">compare_neighbor_graphs</span><span class="p">(</span><span class="n">neighbor_graph</span><span class="p">,</span>
+                                <span class="n">bruteforce</span><span class="o">.</span><span class="n">neighbor_graph</span><span class="p">,</span>
+                                <span class="n">k</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Brute Force Accuracy: </span><span class="si">%d</span><span class="s1"> incorrect NN pairs (</span><span class="si">%5.3f%%</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">error</span><span class="p">,</span><span class="mi">100</span><span class="o">*</span><span class="n">error</span><span class="o">/</span><span class="p">(</span><span class="n">k</span><span class="o">*</span><span class="n">nx</span><span class="p">)))</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Brute</span> <span class="n">Force</span> <span class="n">Time</span><span class="p">:</span> <span class="mf">173.302</span> <span class="n">seconds</span>
+<span class="n">Brute</span> <span class="n">Force</span> <span class="n">Accuracy</span><span class="p">:</span> <span class="mi">0</span> <span class="n">incorrect</span> <span class="n">NN</span> <span class="n">pairs</span> <span class="p">(</span><span class="mf">0.000</span><span class="o">%</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Quite slow, especially when we consider that there are only 1600 strings in the data set!</p>
+</div>
+<div class="section" id="hnsw-nmslib">
+<h3>HNSW (nmslib)<a class="headerlink" href="#hnsw-nmslib" title="Permalink to this headline">¶</a></h3>
+<p>The nmslib implementation of HNSW is another state-of-the-art <em>k</em>-NN library,
+one of the few out there that can deal with Levenshtein distances. You might give
+this a go if you don’t want to do brute force, but how does it get on?</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">nmslib</span>
+
+<span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+<span class="n">CPU_COUNT</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
+<span class="c1"># specify some parameters</span>
+<span class="n">index_time_params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;M&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+                     <span class="s1">&#39;indexThreadQty&#39;</span><span class="p">:</span> <span class="n">CPU_COUNT</span><span class="p">,</span>
+                     <span class="s1">&#39;efConstruction&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+                     <span class="s1">&#39;post&#39;</span> <span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
+
+<span class="c1"># create the index</span>
+<span class="n">index</span> <span class="o">=</span> <span class="n">nmslib</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;hnsw&#39;</span><span class="p">,</span>
+                    <span class="n">space</span><span class="o">=</span><span class="s1">&#39;leven&#39;</span><span class="p">,</span>
+                    <span class="n">dtype</span><span class="o">=</span><span class="n">nmslib</span><span class="o">.</span><span class="n">DistType</span><span class="o">.</span><span class="n">INT</span><span class="p">,</span>
+                    <span class="n">data_type</span><span class="o">=</span><span class="n">nmslib</span><span class="o">.</span><span class="n">DataType</span><span class="o">.</span><span class="n">OBJECT_AS_STRING</span><span class="p">)</span>
+
+<span class="n">index</span><span class="o">.</span><span class="n">addDataPointBatch</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">X</span><span class="p">))</span>
+<span class="n">index</span><span class="o">.</span><span class="n">createIndex</span><span class="p">(</span><span class="n">index_time_params</span><span class="p">,</span><span class="n">print_progress</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># query the index</span>
+<span class="n">res</span> <span class="o">=</span> <span class="n">index</span><span class="o">.</span><span class="n">knnQueryBatch</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">X</span><span class="p">),</span> <span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">num_threads</span><span class="o">=</span><span class="n">CPU_COUNT</span><span class="p">)</span>
+<span class="n">hnsw_neighbor_graph</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">res</span><span class="p">]),</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">res</span><span class="p">])]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;HNSW Time: </span><span class="si">%5.3f</span><span class="s1"> seconds&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">start_time</span><span class="p">))</span>
+
+
+<span class="n">error</span> <span class="o">=</span> <span class="n">compare_neighbor_graphs</span><span class="p">(</span><span class="n">neighbor_graph</span><span class="p">,</span>
+                                <span class="n">hnsw_neighbor_graph</span><span class="p">,</span>
+                                <span class="n">k</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;HNSW Accuracy: </span><span class="si">%d</span><span class="s1"> incorrect NN pairs (</span><span class="si">%5.3f%%</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">error</span><span class="p">,</span><span class="mi">100</span><span class="o">*</span><span class="n">error</span><span class="o">/</span><span class="p">(</span><span class="n">k</span><span class="o">*</span><span class="n">nx</span><span class="p">)))</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">HNSW</span> <span class="n">Time</span><span class="p">:</span> <span class="mf">288.078</span> <span class="n">seconds</span>
+<span class="n">HNSW</span> <span class="n">Accuracy</span><span class="p">:</span> <span class="mi">9</span> <span class="n">incorrect</span> <span class="n">NN</span> <span class="n">pairs</span> <span class="p">(</span><span class="mf">0.037</span><span class="o">%</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Slower than brute force! What’s going on here? Well, it turns out that nmslib’s HNSW
+Levenshtein implementation only really shines when the data set is large and the
+strings are short.
+It also boasts quick query times once the index has been created; but for <em>k</em>-NN graph
+construction the index creation time is very important.</p>
+</div>
+<div class="section" id="id1">
+<h3>ANNchor<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>Now it’s ANNchor’s turn! How does it do?</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">annchor</span> <span class="kn">import</span> <span class="n">Annchor</span>
+
+<span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="n">ann</span> <span class="o">=</span> <span class="n">Annchor</span><span class="p">(</span><span class="n">X</span><span class="p">,</span>
+              <span class="n">levdist</span><span class="p">,</span>
+              <span class="n">n_anchors</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
+              <span class="n">n_neighbors</span><span class="o">=</span><span class="n">k</span><span class="p">,</span>
+              <span class="n">min_prob</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span>
+              <span class="n">random_seed</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+              <span class="n">n_samples</span><span class="o">=</span><span class="mi">3000</span><span class="p">,</span>
+              <span class="n">partitions</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="n">ann</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ANNchor Time: </span><span class="si">%5.3f</span><span class="s1"> seconds&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">start_time</span><span class="p">))</span>
+
+
+<span class="c1"># Test accuracy</span>
+<span class="n">error</span> <span class="o">=</span> <span class="n">compare_neighbor_graphs</span><span class="p">(</span><span class="n">neighbor_graph</span><span class="p">,</span>
+                                <span class="n">ann</span><span class="o">.</span><span class="n">neighbor_graph</span><span class="p">,</span>
+                                <span class="n">k</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ANNchor Accuracy: </span><span class="si">%d</span><span class="s1"> incorrect NN pairs (</span><span class="si">%5.3f%%</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">error</span><span class="p">,</span><span class="mi">100</span><span class="o">*</span><span class="n">error</span><span class="o">/</span><span class="p">(</span><span class="n">k</span><span class="o">*</span><span class="n">nx</span><span class="p">)))</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ANNchor</span> <span class="n">Time</span><span class="p">:</span> <span class="mf">27.116</span> <span class="n">seconds</span>
+<span class="n">ANNchor</span> <span class="n">Accuracy</span><span class="p">:</span> <span class="mi">7</span> <span class="n">incorrect</span> <span class="n">NN</span> <span class="n">pairs</span> <span class="p">(</span><span class="mf">0.029</span><span class="o">%</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Super speedy, and accurate too! That’s about 15% of the brute force run-time.</p>
+</div>
+</div>
+<div class="section" id="example-shortes-path-distance">
+<h2>Example: Shortes Path Distance<a class="headerlink" href="#example-shortes-path-distance" title="Permalink to this headline">¶</a></h2>
+<p>In this example, we want to showcase one of the worst possible scenarios: a
+custom distance function which is slow, and not easy to compile with numba.
+Why is this the worst case? Well, because it is a custom distance we can’t use
+any nice libraries like nmslib since they only work with common distance
+functions (e.g. Euclidean, cosine).
+Also, since we can’t easily numba-jit this function, we can’t use PyNNDescent
+either, so it’s starting to look grim for computing the <em>k</em>-NN graph quickly.
+Fortunately, ANNchor comes to the rescue!</p>
+<p>The distance we look at here is a shortest path distance in a weighted graph.
+Our data set consists of the vertices of this graph, and the metric is the
+shortest path: i.e. d(x,y) = shortest path from x to y. We compute this distance
+using networkx’s <code class="docutils literal notranslate"><span class="pre">dijkstra_path_length</span></code> function. (Note there are probably better
+ways to compute <em>k</em>-NN graphs under this metric, but we’re looking at the general
+slow-custom-metric problem, and shouldn’t get bogged down in specifics about this
+metric!).</p>
+<p>Let’s load up and look at the data.</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nkx</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">annchor.datasets</span> <span class="kn">import</span> <span class="n">load_graph_sp</span>
+
+<span class="n">k</span><span class="o">=</span><span class="mi">15</span>
+
+
+<span class="n">graph_sp_data</span> <span class="o">=</span> <span class="n">load_graph_sp</span><span class="p">()</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">graph_sp_data</span><span class="p">[</span><span class="s1">&#39;X&#39;</span><span class="p">]</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">graph_sp_data</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span>
+<span class="n">neighbor_graph</span> <span class="o">=</span> <span class="n">graph_sp_data</span><span class="p">[</span><span class="s1">&#39;neighbor_graph&#39;</span><span class="p">]</span>
+<span class="n">G</span> <span class="o">=</span> <span class="n">graph_sp_data</span><span class="p">[</span><span class="s1">&#39;G&#39;</span><span class="p">]</span>
+<span class="n">nx</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="n">edges</span><span class="p">,</span><span class="n">weights</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">nkx</span><span class="o">.</span><span class="n">get_edge_attributes</span><span class="p">(</span><span class="n">G</span><span class="p">,</span><span class="s1">&#39;w&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+
+<span class="n">pos</span> <span class="o">=</span> <span class="n">nkx</span><span class="o">.</span><span class="n">spring_layout</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">12</span><span class="p">))</span>
+<span class="n">nkx</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">G</span><span class="p">,</span>
+         <span class="n">pos</span><span class="p">,</span>
+         <span class="n">node_color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span>
+         <span class="n">node_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+         <span class="n">edgelist</span><span class="o">=</span><span class="n">edges</span><span class="p">,</span>
+         <span class="n">edge_color</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span>
+         <span class="n">width</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+         <span class="n">edge_cmap</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">viridis</span><span class="p">,</span>
+         <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="_images/graph_sp.png"><img alt="Shortest Path Graph data set" class="align-center" src="_images/graph_sp.png" style="width: 500px;" /></a>
+<p>Our graph is a partition graph (10 partitions) with 800 edges, where edges inside
+the partitions have lower weight than edges between partitions.
+The colour highlighting shows the edge-weights: darker is smaller.
+You can just about make out the 10 partitions as darker clouds amongst the lighter
+edges.</p>
+<p>Now let’s look at our distance.</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">sp_dist</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">nkx</span><span class="o">.</span><span class="n">dijkstra_path_length</span><span class="p">(</span><span class="n">G</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">weight</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+
+<span class="n">randX</span> <span class="o">=</span> <span class="k">lambda</span> <span class="p">:</span> <span class="n">X</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">nx</span><span class="p">)]</span>
+<span class="o">%</span><span class="n">timeit</span> <span class="n">sp_dist</span><span class="p">(</span><span class="n">randX</span><span class="p">(),</span><span class="n">randX</span><span class="p">())</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>2.63 ms ± 254 µs per loop (mean ± std. dev. of 7 runs, 100 loops each)
+</pre></div>
+</div>
+<p>That’s quite slow - around 250 times as slow as the Euclidean distance we calculated earlier!
+Now let’s compare our options: brute-force and ANNchor.</p>
+<div class="section" id="id2">
+<h3>Brute Force<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<p>Given that we can’t use PyNNDescent, or nmslib, we may well use brute-force simply because
+there’s not another option available to us.</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">annchor</span> <span class="kn">import</span> <span class="n">BruteForce</span>
+<span class="kn">from</span> <span class="nn">annchor</span> <span class="kn">import</span> <span class="n">compare_neighbor_graphs</span>
+
+<span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+<span class="n">bruteforce</span> <span class="o">=</span> <span class="n">BruteForce</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">sp_dist</span><span class="p">)</span>
+<span class="n">bruteforce</span><span class="o">.</span><span class="n">get_neighbor_graph</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Brute Force Time: </span><span class="si">%5.3f</span><span class="s1"> seconds&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">start_time</span><span class="p">))</span>
+
+<span class="n">error</span> <span class="o">=</span> <span class="n">compare_neighbor_graphs</span><span class="p">(</span><span class="n">neighbor_graph</span><span class="p">,</span>
+                                <span class="n">bruteforce</span><span class="o">.</span><span class="n">neighbor_graph</span><span class="p">,</span>
+                                <span class="n">k</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Brute Force Accuracy: </span><span class="si">%d</span><span class="s1"> incorrect NN pairs (</span><span class="si">%5.3f%%</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">error</span><span class="p">,</span><span class="mi">100</span><span class="o">*</span><span class="n">error</span><span class="o">/</span><span class="p">(</span><span class="n">k</span><span class="o">*</span><span class="n">nx</span><span class="p">)))</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Brute</span> <span class="n">Force</span> <span class="n">Time</span><span class="p">:</span> <span class="mf">304.143</span> <span class="n">seconds</span>
+<span class="n">Brute</span> <span class="n">Force</span> <span class="n">Accuracy</span><span class="p">:</span> <span class="mi">0</span> <span class="n">incorrect</span> <span class="n">NN</span> <span class="n">pairs</span> <span class="p">(</span><span class="mf">0.000</span><span class="o">%</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>That’s about 5 minutes. Remember, we only have 800 points in our data set! Imagine how
+badly approach will scale.</p>
+</div>
+<div class="section" id="id3">
+<h3>ANNchor<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<p>ANNchor should take this problem in its stride. Let’s see how it compares.</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">annchor</span> <span class="kn">import</span> <span class="n">Annchor</span>
+
+<span class="n">k</span><span class="o">=</span><span class="mi">15</span>
+
+<span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+<span class="c1"># Call ANNchor</span>
+<span class="n">ann</span> <span class="o">=</span> <span class="n">Annchor</span><span class="p">(</span><span class="n">X</span><span class="p">,</span>
+              <span class="n">sp_dist</span><span class="p">,</span>
+              <span class="n">n_anchors</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
+              <span class="n">n_neighbors</span><span class="o">=</span><span class="n">k</span><span class="p">,</span>
+              <span class="n">min_prob</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+              <span class="n">partitions</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+              <span class="n">n_samples</span><span class="o">=</span><span class="mi">3000</span>
+              <span class="p">)</span>
+
+<span class="n">ann</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ANNchor Time: </span><span class="si">%5.3f</span><span class="s1"> seconds&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">start_time</span><span class="p">))</span>
+
+
+<span class="c1"># Test accuracy</span>
+<span class="n">error</span> <span class="o">=</span> <span class="n">compare_neighbor_graphs</span><span class="p">(</span><span class="n">neighbor_graph</span><span class="p">,</span>
+                                <span class="n">ann</span><span class="o">.</span><span class="n">neighbor_graph</span><span class="p">,</span>
+                                <span class="n">k</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ANNchor Accuracy: </span><span class="si">%d</span><span class="s1"> incorrect NN pairs (</span><span class="si">%5.3f%%</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">error</span><span class="p">,</span><span class="mi">100</span><span class="o">*</span><span class="n">error</span><span class="o">/</span><span class="p">(</span><span class="n">k</span><span class="o">*</span><span class="n">nx</span><span class="p">)))</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ANNchor</span> <span class="n">Time</span><span class="p">:</span> <span class="mf">29.700</span> <span class="n">seconds</span>
+<span class="n">ANNchor</span> <span class="n">Accuracy</span><span class="p">:</span> <span class="mi">35</span> <span class="n">incorrect</span> <span class="n">NN</span> <span class="n">pairs</span> <span class="p">(</span><span class="mf">0.292</span><span class="o">%</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>That’s an order of magnitude faster than brute-force, with an acceptably small knock to accuracy.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="api.html" class="btn btn-neutral float-right" title="ANNchor API Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="index.html" class="btn btn-neutral float-left" title="ANNchor: Fast Approximate k-NN Graph Construction for Slow Metrics" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Jonathan H.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
