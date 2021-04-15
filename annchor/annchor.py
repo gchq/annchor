@@ -433,90 +433,8 @@ class Annchor:
 #      The low mem routines try the algorithm without storing things in nx*nx matrices.
 #      Necessary when nx gets big (>7000 or so).
 
-    def get_sample_lm(self):
-        
-        '''
-        Get the sample pairs and their bounds and true distances.
-        
-        self.G: np.array, shape=(n_samples,3)
-            Array storing the sample distances and bounds (for future regression).
-            G[i,0] is the lower bound for sample pair i.
-            G[i,1] is the upper bound for sample pair i.
-            G[i,2] is the true distance for sample pair i.
-        '''
 
-
-        start = time.time()
-        np.random.seed(self.random_seed)
-        n = self.n_samples
-        self.G = np.zeros((n, 3))
-
-
-        non_anchors = np.array([ix for ix in set(np.arange(self.nx)).difference(set(self.A))])
-        IJs = np.array([np.random.choice(non_anchors, replace=False, size=2) for k in range(n)])
-        approx = get_approx_njit_ijs(IJs,self.D)
-        self.G[:,:2] = approx
-        self.G[:,2] = self.get_exact_ijs(self.f, self.X, IJs)
-        #for k in range(n):
-        #    i, j = np.random.choice(non_anchors, replace=False, size=2)
-        #    G[k][:2] = [ab.Approx[i, j, 0], ab.Approx[i, j, 1]]
-        #    d = ab.f(ab.X[i], ab.X[j])
-        #    G[k][2] = d
-        #    ab.Q.append((i, j, d))
-
-        self.evals += n
-        #print('get_sample: %5.3f' % (time.time()-start))
-
-
-    def get_lr_partitions_lm(self):
-        
-        ''' 
-        Finds the error distributions.
-        Low memory partitions based on Width alone for now
-            
-        self.LR: sklearn.linear_model.LinearRegression
-            Linear Regression model fitted by samples in G.
-            
-        self.dts: List of floats
-            Partition edges for width space.
-            E.g. partition 0 holds widths between dts[0] and dts[1],
-                 partition 1 holds widths between dts[1] and dts[2].
-                 etc
-                 
-        self.hs: List of arrays
-            List containing the distribution of errors for different partitions.
-            hs[i] is the sorted errors for sample pairs belonging to partition i.
-            
-   
-        '''
-        start = time.time()
-
-
-        # Fit linear regression according to samples stored in G
-        self.LR = self.regression
-        self.LR.fit(self.G[:, :2], self.G[:, 2])
-
-        # Calculate the widths (diff)
-        diff = self.G[:,1]-self.G[:,0]
-        ixs = np.argsort(diff)
-        ng = len(ixs)
-
-        splits=self.partitions
-        
-        # Partition based on linear splitting of the distribution of widths
-        self.dts = [0]+[diff[ixs[i*ng//splits]] for i in range(1,splits)]+[np.infty]
-
-        # Calculate the error distributions in each partition
-        self.hs = []
-        for ix in [ ixs[i*ng//splits:(i+1)*ng//splits] for i in range(splits)]:
-        #ix = np.argsort(G[:, 2])[: n // 3]
-            r = np.clip(self.LR.predict(self.G[ix, :2]),self.G[ix, 0],self.G[ix, 1]) - self.G[ix, 2]
-        #ab.r1, ab.r2 = np.mean(r), np.std(r)
-            self.hs.append(np.sort(r))
-        #print('get_lr_partitions: %5.3f' % (time.time()-start))
-
-
-    def get_locality_lm(self):
+    def get_locality(self):
         
         '''
         Uses basic permutation/set method to find candidate nearest neighbours.
@@ -548,7 +466,7 @@ class Annchor:
             value_type=types.int64[:],
         )
 
-        ix = np.arange(nx)
+        ix = np.arange(nx,dtype=np.int64)
         A = np.zeros((na,nx)).astype(int)
         for i in prange(sid.shape[0]):
             for j in sid[i]:
@@ -559,130 +477,143 @@ class Annchor:
         self.check = check
         #print('get_locality: %5.3f' % (time.time()-start))
             
-
-
-    def get_LRApprox_lo_mem(self):
+    def get_features_lm(self):
         
-        # In the low mem version, the approximate distances are stored in a long list
+
+        IJs = np.hstack([ np.vstack([self.check[i],
+                                             np.ones(self.check[i].shape)*i]).astype(int) 
+                                 for i in range(self.nx)])
+
+
+        mask = IJs[0]>IJs[1]
+        IJs = np.hstack([np.flipud(IJs[:,mask]),(IJs[:,~mask])])
+        IJs = IJs[:,IJs[0]!=IJs[1]]
+
+
+        sorted_IJs =  IJs.T[np.lexsort(IJs),:]
+        row_mask = np.append([True],np.any(np.diff(sorted_IJs,axis=0),1))
+
+        IJs = IJs.T[np.lexsort(IJs),:][row_mask]
+
+
+        n = IJs.shape[0]
         
-        '''
-        Get the approximate distances
-        
-        self.IXs: np.array, shape=(nx,max_checks)
-            Array of candidate nn-pair indices. 
-            IXs[i,j] is the index of the jth closest element to i according to the approximation.
-            A value of IXs[i,j]=-1 denotes that there were fewer than j elements in check[i].
-            
-        self.LRApprox: np.array, shape=(nx,max_checks)
-            Array of approx distances. 
-            LRApprox[i,j] is the approx distance between index i and index IXs[i,j].
-            
-        self.thresh: np.array, shape=(nx,)
-            Array of thresholds (i.e. distance of the k-th approx nearest neighbour.
+        isort = np.argsort( IJs[:,0]).astype(np.int64)
+        jsort = np.argsort( IJs[:,1]).astype(np.int64)
+        fi = IJs[isort,0]
+        fj = IJs[jsort,1]
 
-        '''
-        self.get_sample_lm()
+        ixs = np.arange(n-1)[(fi[1:]-fi[:-1]).astype(bool)]+1
+        ixs = np.insert(ixs,0,0)
+        ixs = np.append(ixs,[ixs[-1]+1,ixs[-1]+1])
+        jxs = np.arange(n-1)[(fj[1:]-fj[:-1]).astype(bool)]+1
+        jxs = np.insert(jxs,0,[0,0])
+        jxs = np.append(jxs,ixs[-1]+1)
+
+        assert ixs.shape==jxs.shape
+        assert ixs.shape[0]==self.nx+1
 
 
-        self.get_lr_partitions_lm() 
-
-        self.get_locality_lm()
-
-        s = time.time()
-        IJs = []
-        ix_dict = Dict.empty(
+        self.I = Dict.empty(
             key_type=types.int64,
             value_type=types.int64[:],
         )
-        k=0
-        for i in (range(self.nx)):
-            q = self.check[i]
-            IJs.append(np.vstack([(i+np.zeros(q.shape)).astype(int),q]))
-            ix_dict[i] = (np.arange(k,len(q)+k))
-            k+=len(q)
-        IJs = np.hstack(IJs).T
-
-        #print('get IJs and indices %5.3f' % (time.time()-s) )
-
-        Approx = get_approx_njit_ijs(IJs,self.D)
-        #print('get approx IJs %5.3f' % (time.time()-s) )
+        for i in range(self.nx):
+            self.I[i] = np.hstack([isort[ixs[i]:ixs[i+1]],jsort[jxs[i]:jxs[i+1]]])
 
 
-        diff = Approx[:,1]-Approx[:,0]
-
-        coef = self.LR.coef_
-        intercept = self.LR.intercept_
-
-        d_hat = np.sum(Approx*coef,axis=1)+intercept
-        #print('do lin reg %5.3f' % (time.time()-s) )
-
-        d_hat_adj=d_hat.copy()
-
-        #adjust d by partition #thistakeslongest
-        for i,h in enumerate(self.hs):
-            nh = h.shape[0]
-            adj = h[int(self.min_prob*nh)]
-            mask1 = d_hat_adj>self.dts[i]
-            mask2 = d_hat_adj<self.dts[i+1] 
-            d_hat_adj[mask1*mask2]+=adj
-
-        #print('adjust by partition %5.3f' % (time.time()-s) )
-
-
-
-        b1 = (d_hat<Approx[:,0])
-        b2 = (d_hat>Approx[:,1])
-        d_hat = b1*Approx[:,0]+b2*Approx[:,1]+(1-b1)*(1-b2)*d_hat
-
-        #print('clip by bounds %5.3f' % (time.time()-s) )
-
-        #from numba import prange,njit
-        self.IXs = np.zeros(shape=(self.nx,self.max_checks),dtype=int)-1
-        self.LRApprox = np.zeros(shape=(self.nx,self.max_checks))+9999
-        self.thresh = np.empty(shape=(self.nx))
-
-
-        get_LRApprox_lomem(d_hat_adj,
-                            d_hat,
-                            self.n_neighbors,
-                            self.IXs,
-                            self.LRApprox,
-                            self.thresh,
-                            self.check,
-                            ix_dict)
-        #print('get_LRApprox_lomem %5.3f' % (time.time()-s) )
-
-
-    def get_candidate_nns_lo_mem(self):
         
-        '''
-            Refines the approximation by calculating true distances for
-            all pairs deemed close enough to be nearest neighbours.
-        '''
-        IYs = []
+        bounds = get_approx_njit_ijs(IJs,self.D)
+        W = bounds[:,1]-bounds[:,0]
+        anchors = np.zeros(shape=n)
+        anchors[(bounds[:,1]-bounds[:,0])==0]=1
+        F = get_F_ijs(IJs,self.D)
 
-        for i in (range(self.nx)):
-            q = self.IXs[i][self.LRApprox[i]<self.thresh[i]]
-            IYs.append(np.vstack([(i+np.zeros(q.shape)).astype(int),q]))
+        self.features = np.vstack([IJs.T,
+                                   bounds.T,
+                                   F,
+                                   anchors]).T
 
-        IYs = np.hstack(IYs)
+        self.feature_names = ['i',
+                              'j',
+                              'lower bound',
+                              'upper bound',
+                              'double anchor distance',
+                              'is anchor'
+                             ]
+        
+        i_is_anchor = self.feature_names.index('is anchor')
+        self.not_computed_mask = self.features[:,i_is_anchor]<1
 
-        mask = IYs[0]>IYs[1]
-        IJs = np.hstack([np.flipud(IYs[:,mask]),(IYs[:,~mask])])
-        IJs = IJs[:,IJs[0]!=IJs[1]]
-        IJs = lexsort_based(IJs.T)
+    def fit_predict_regression_lm(self):
+            #fit
 
-        exact = self.get_exact_ijs(self.f,self.X,IJs)
-        self.evals += IJs.shape[0]
-        nns,dists = search_evaluated_ijs(self.n_neighbors,self.nx,IJs,exact)
+            self.regression.fit(self.sample_features,
+                                self.feature_names,
+                                self.sample_y)
 
-        nns = np.hstack([np.reshape(np.arange(self.nx),(-1,1)),nns])
-        dists = np.hstack([np.reshape(np.zeros(self.nx),(-1,1)),dists])
+            #predict
+            self.pred = self.regression.predict(self.features,
+                                                self.feature_names)
+            self.sample_predict = self.pred[self.sample_ixs]
 
-        self.neighbor_graph = nns,dists
+            self.pred[self.sample_ixs]=self.sample_y
+
+
+            self.pred = np.clip(self.pred,self.features[:,2],self.features[:,3])
+            self.RefineApprox = self.pred.copy()
+
+    def select_refine_candidate_pairs_lm(self,w=0.5):
+
+        t = self.threshold
+
+
+        thresh = np.array([np.partition(self.RefineApprox[self.I[i]],t)[t] for i in range(self.nx)])
+
+        p0 = (thresh[self.features[:,0].astype(int)] - self.RefineApprox )[self.not_computed_mask]
+        p1 = (thresh[self.features[:,1].astype(int)] - self.RefineApprox )[self.not_computed_mask]
+        p = np.max(np.vstack([p0,p1]),axis=0)
+        prob = np.empty(shape=p.shape)
+        for label in self.error_predictor.labels:
+            mask = self.errors[self.not_computed_mask]==label
+            prob[mask] = np.searchsorted(self.error_predictor.errs[label],
+                                         p[mask])
+            prob[mask]/=len(self.error_predictor.errs[label])
+
+
+        ixs = [i for i,name in enumerate(self.feature_names) if name in ['i','j']]
+
+        p_work = self.p_work
+        N = self.nx*(self.nx-1)/2
+        max_refine = int((p_work*N-self.n_anchors*self.nx-self.n_samples)*w)
+
+        max_refine = 0 if (max_refine<0) else max_refine
+
+
+        self.candidates = np.argsort(-prob)[:max_refine]
+        mapback = np.arange(self.not_computed_mask.shape[0])[self.not_computed_mask][self.candidates]
+
+
+        self.IJs = self.features[self.not_computed_mask][self.candidates][:,ixs].astype(int)
+
+
+        exact = self.get_exact_ijs(self.f,self.X,self.IJs)
+
+        self.RefineApprox[mapback]=exact
+        self.not_computed_mask[mapback]=False
+        
+    def get_ann_lm(self):
+        
+        # Get the nn-graph. Can probably optimise this more.
+
+        #ng = search_evaluated_ijs(self.n_neighbors,self.nx,self.features[:,:2],self.RefineApprox)
+        #start = time.time()
+
+        ng = get_nn_lm(self.nx,self.n_neighbors,self.RefineApprox,self.features[:,:2],self.I)
+        self.neighbor_graph = (np.vstack([np.arange(self.nx),ng[0].T]).T,np.vstack([np.zeros(self.nx),ng[1].T]).T)
+
             
-            
-    def fit_lo_mem(self):
+    def fit_lm(self):
         
         '''
         Finds the approx nearest neighbour graph in the low memory regime.
@@ -692,13 +623,37 @@ class Annchor:
         self.get_anchors()
         if self.verbose: print('get_anchors:', time.time()-start)
             
-        if self.verbose: print('getting LRApprox...')
-        self.get_LRApprox_lo_mem()
-        if self.verbose: print('get_LRApprox_lo_mem:', time.time()-start)
+        if self.verbose: print('computing locality...')
+        self.get_locality()
+        if self.verbose: print('get_locality:', time.time()-start)
+            
+        if self.verbose: print('computing features...')
+        self.get_features_lm()
+        if self.verbose: print('get_features_lm:', time.time()-start)
+            
+        if self.verbose: print('computing sample...')
+        self.get_sample()
+        if self.verbose: print('get_sample:', time.time()-start)
+            
+        if self.verbose: print('fitting regression...')
+        self.fit_predict_regression_lm()
+        if self.verbose: print('fit_predict_regression_lm:', time.time()-start)
 
-        if self.verbose: print('evaluating cnns...')
-        self.get_candidate_nns_lo_mem()
-        if self.verbose: print('get_candidate_nns_lo_mem:', time.time()-start)
+        if self.verbose: print('fitting errors...')
+        self.fit_predict_errors()
+        if self.verbose: print('fit_predict_errors:', time.time()-start)
+            
+        if self.verbose: print('selecting/refining candidate pairs (1)')
+        self.select_refine_candidate_pairs_lm()
+        if self.verbose: print('select_refine_candidate_pairs_lm:', time.time()-start)
+           
+        if self.verbose: print('selecting/refining candidate pairs (2)')
+        self.select_refine_candidate_pairs_lm()
+        if self.verbose: print('select_refine_candidate_pairs_lm:', time.time()-start)
+
+        if self.verbose: print('generating neighbour graph')
+        self.get_ann_lm()
+        if self.verbose: print('get_ann_lm:', time.time()-start)
 
 
     

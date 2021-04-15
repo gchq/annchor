@@ -255,4 +255,36 @@ def get_F(nx,D):
     F = F+F.T
     return F/2
 
+@njit(fastmath=True)
+def get_F_ijs(IJs,D):
+    n=IJs.shape[0]
+    F = np.zeros(shape=(n))
+    cA = np_argmin(D,1)
+    for k in range(n):
+        i,j = IJs[k]
+        F[k] = D[i,int(cA[j])]+D[j,int(cA[i])]
+    
+    return F/2
+
+
+@njit(parallel=True)
+def get_imask(apred, f0,f1,i):
+    return apred[(f0==i)^(f1==i)]
+
+
+
+@njit(parallel=True)
+def get_nn_lm(nx,t,RA,IJs,I):
+    ngi = np.zeros(shape = (nx,t),dtype=np.int64)
+    ngd = np.zeros(shape = (nx,t))
+    for i in (prange(nx)):
+        ix = np.argsort(RA[I[np.int64(i)]])[:t] 
+        iy = I[np.int64(i)][ix]
+        ngd[i,:] = RA[iy]
+
+        f = IJs[iy]
+        mask = f[:,0]==i
+        ngi[i,:] = f[:,1]*mask+f[:,0]*(1-mask)
+    return ngi,ngd
+
 
