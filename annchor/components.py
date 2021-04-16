@@ -100,39 +100,6 @@ class SelectedAnchorPicker:
         return A,D.T,na*nx      
     
 
-class MaxBoundAnchorPicker:
-    
-    def __init__(self):
-        pass
-    
-    def init_ann(self,ann):
-        self.ann = ann
-        
-    def get_anchors(self):
-        ann= self.ann
-        nx = ann.nx
-        na = ann.n_anchors
-        np.random.seed(ann.random_seed)
-        
-        # D stores distances to anchor points
-        # note: at this point D is shape (n_anchors, nx),
-        #       but we transpose this after calculations.
-        D = np.zeros((na, nx)) + np.infty
-
-        # A stores anchor indices        
-        A = np.zeros(na).astype(int)
-        ix = np.random.randint(nx)
-
-        get_dists = get_dists_(ann.f,ann.low_cpu)
-        
-        for i in range(na):
-            A[i] = ix  
-            D[i] = get_dists(ix,ann.f,ann.X,nx)
-            ix = get_approx_njit_W(D.T[:,:i+1],ann.nx)
-            #ix = np.argmax(npsum(bounds[:,:,1]-bounds[:,:,0],axis=0))
-            
-        return A,D.T,na*nx
-
 class SimpleStratifiedSampler:
     
     def __init__(self,

@@ -129,7 +129,7 @@ calls to the metric. Let's try that, with a little  help from numba, and see how
 
 .. parsed-literal::
 
-    Brute Force Time: 83.294 seconds
+    Brute Force Time: 108.233 seconds
     Brute Force Accuracy: 0 incorrect NN pairs (0.000%)
 
 Reasonably slow, but does have the merit of  giving the exact answer.
@@ -151,20 +151,20 @@ than the brute force method.
     
     # Call nearest neighbour descent
     nndescent = NNDescent(X,n_neighbors=k,metric=wasserstein,random_state=1)
-    print('Time: %5.3f seconds' % (time.time()-start_time))
+    print('PyNND Time: %5.3f seconds' % (time.time()-start_time))
     
     # Test accuracy
     error = compare_neighbor_graphs(neighbor_graph,
                                     nndescent.neighbor_graph,
                                     k)
-    print('Accuracy: %d incorrect NN pairs (%5.3f%%)' % (error,100*error/(k*nx)))
+    print('PyNND Accuracy: %d incorrect NN pairs (%5.3f%%)' % (error,100*error/(k*nx)))
 
 .. parsed-literal::
 
-    Time: 69.561 seconds
-    Accuracy: 29 incorrect NN pairs (0.064%)
+    PyNND Time: 70.988 seconds
+PyNND Accuracy: 23 incorrect NN pairs (0.051%)
 
-Not bad, we trimmed 14 seconds from the run-time for a minimal hit to accuracy.
+Not bad, we trimmed 38 seconds from the run-time for a minimal hit to accuracy.
 
 ANNchor
 ^^^^^^^
@@ -183,11 +183,9 @@ force and PyNNDescent respectively. Can we do better?
                   wasserstein,
                   n_anchors=25,
                   n_neighbors=k,
-                  min_prob=0.01,
-                  random_seed=0,
-                  n_samples=1000,
-                  partitions=1)
-    
+                  n_samples=5000,
+                  p_work=0.16)
+
     ann.fit()
     print('ANNchor Time: %5.3f seconds' % (time.time()-start_time))
     
@@ -200,11 +198,11 @@ force and PyNNDescent respectively. Can we do better?
 
 .. parsed-literal::
 
-    Time: 27.009 seconds
-    Accuracy: 4 incorrect NN pairs (0.009%)
+    ANNchor Time: 23.623 seconds
+    ANNchor Accuracy: 23 incorrect NN pairs (0.051%)
 
 Much better! We've got the 25-NN graph in less than half the time it took for 
-PyNNDescent, with fewer errors to boot! 
+PyNNDescent, with comparable accuracy! 
 
 A Larger Data Set
 ^^^^^^^^^^^^^^^^^
@@ -220,60 +218,45 @@ This could take some time to run (15 minutes on our machine!).
    
     # Load the data
     from annchor.datasets import load_digits_large
-    
+
     k=25
-    
+
     X = load_digits_large()['X']
     y = load_digits_large()['y']
     neighbor_graph = load_digits_large()['neighbor_graph']
-    
+
     nx = X.shape[0]
-    
+
+
     start_time = time.time()
-    
-    # Call brute force
-    bruteforce = BruteForce(X,wasserstein)
-    bruteforce.get_neighbor_graph()
-    
-    print('Brute Force Time: %5.3f seconds' % (time.time()-start_time))
-    
-    error = compare_neighbor_graphs(neighbor_graph,
-                                    bruteforce.neighbor_graph,
-                                    25)
-    
-    print('Brute Force Accuracy: %d incorrect NN pairs (%5.3f%%)' % (error,100*error/(k*nx)))
-    
-    start_time = time.time()
-    
+
     # Call nearest neighbour descent
     nndescent = NNDescent(X,n_neighbors=k,metric=wasserstein,random_state=1)
     print('PyNND Time: %5.3f seconds' % (time.time()-start_time))
-    
+
     # Test accuracy
     error = compare_neighbor_graphs(neighbor_graph,
                                     nndescent.neighbor_graph,
                                     k)
     print('PyNND Accuracy: %d incorrect NN pairs (%5.3f%%)' % (error,100*error/(k*nx)))
-    
-    
+
+
     from annchor import Annchor
-    
+
     start_time = time.time()
-    
+
     # Call ANNchor
     ann = Annchor(X,
                   wasserstein,
-                  n_anchors=25,
+                  n_anchors=30,
                   n_neighbors=k,
-                  min_prob=0.02,
-                  random_seed=0,
                   n_samples=5000,
-                  partitions=5)
-    
+                  p_work=0.1)
+
     ann.fit()
     print('ANNchor Time: %5.3f seconds' % (time.time()-start_time))
-    
-    
+
+
     # Test accuracy
     error = compare_neighbor_graphs(neighbor_graph,
                                     ann.neighbor_graph,
@@ -281,14 +264,11 @@ This could take some time to run (15 minutes on our machine!).
     print('ANNchor Accuracy: %d incorrect NN pairs (%5.3f%%)' % (error,100*error/(k*nx)))
     
 .. parsed-literal::
-    
-    Brute Force Time: 804.354 seconds
-    
-    PyNND Time: 253.547 seconds
+        
+    PyNND Time: 225.864 seconds
     PyNND Accuracy: 86 incorrect NN pairs (0.061%)
-    
-    ANNchor Time: 104.284 seconds
-    ANNchor Accuracy: 44 incorrect NN pairs (0.031%)
+    ANNchor Time: 105.233 seconds
+    ANNchor Accuracy: 77 incorrect NN pairs (0.055%)
 
 Again, we see that ANNchor can be much quicker than state\-of\-the\-art!
 
@@ -474,17 +454,16 @@ Now it's ANNchor's turn! How does it do?
     start_time = time.time()
     ann = Annchor(X,
                   levdist,
-                  n_anchors=15,
+                  n_anchors=23,
                   n_neighbors=k,
-                  min_prob=0.02,
-                  random_seed=1,
-                  n_samples=3000,
-                  partitions=3)
-    
+                  random_seed=5,
+                  n_samples=5000,
+                  p_work=0.12)
+
     ann.fit()
     print('ANNchor Time: %5.3f seconds' % (time.time()-start_time))
-    
-    
+
+
     # Test accuracy
     error = compare_neighbor_graphs(neighbor_graph,
                                     ann.neighbor_graph,
@@ -493,10 +472,10 @@ Now it's ANNchor's turn! How does it do?
 
 .. parsed-literal::
 
-    ANNchor Time: 27.116 seconds
-    ANNchor Accuracy: 7 incorrect NN pairs (0.029%)
+    ANNchor Time: 27.296 seconds
+    ANNchor Accuracy: 8 incorrect NN pairs (0.033%)
 
-Super speedy, and accurate too! That's about 15% of the brute force run-time.
+Super speedy, and accurate too! 
 
 Example: Shortes Path Distance
 ------------------------------
@@ -629,12 +608,11 @@ ANNchor should take this problem in its stride. Let's see how it compares.
     # Call ANNchor
     ann = Annchor(X,
                   sp_dist,
-                  n_anchors=15,
+                  n_anchors=20,
                   n_neighbors=k,
-                  min_prob=0.05,
-                  partitions=3,
-                  n_samples=3000
-                  )
+                  random_seed=5,
+                  n_samples=5000,
+                  p_work=0.15)
     
     ann.fit()
     print('ANNchor Time: %5.3f seconds' % (time.time()-start_time))
@@ -648,7 +626,7 @@ ANNchor should take this problem in its stride. Let's see how it compares.
 
 .. parsed-literal::
 
-    ANNchor Time: 29.700 seconds
-    ANNchor Accuracy: 35 incorrect NN pairs (0.292%)
+    ANNchor Time: 31.005 seconds
+    ANNchor Accuracy: 1 incorrect NN pairs (0.008%)
 
-That's an order of magnitude faster than brute-force, with an acceptably small knock to accuracy.
+That's an order of magnitude faster than brute-force.

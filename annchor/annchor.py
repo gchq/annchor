@@ -45,17 +45,13 @@ class Annchor:
         The regression class which predicts distances from features.
     error_predictor: ErrorRegression (optional, default SimpleStratifiedErrorRegression())
         The error regression class which predicts error distributions.
-    threshold: int (optional, default None)
-        The neighbor threshold at which we prune the candidate nearest
-        neighbour set.
     locality: int (optional, default 5)
         The number of anchor points to use in the permutation based k-NN
         (dhat) step.
-    loc_thresh: int (optional, default 2)
+    loc_thresh: int (optional, default 1)
         The minimum number of anchors in common for which we allow an item
         into NN_x.
-    max_checks: int (optional, default nx/5)
-        The max number of candidates per index.
+
     verbose: bool (optional, default False)
         Set verbose=True for more interim output.
 
@@ -74,14 +70,11 @@ class Annchor:
         sampler=SimpleStratifiedSampler(),
         regression=SimpleStratifiedDistanceRegression(),
         error_predictor=SimpleStratifiedErrorRegression(),
-        threshold=None,
         random_seed=42,
         locality=5,
-        loc_thresh=2,
-        max_checks=None,
+        loc_thresh=1,
         verbose=False,
         low_cpu=False,
-        ww=0.5
     ):  
 
         self.X = X
@@ -105,13 +98,11 @@ class Annchor:
         self.sampler = sampler
         self.regression = regression
         self.error_predictor = error_predictor
-        self.threshold = self.n_neighbors if (threshold==None) else threshold
         self.random_seed = random_seed
         self.verbose=verbose
         self.low_cpu=low_cpu
         self.locality = locality
         self.loc_thresh = loc_thresh
-        self.max_checks = self.nx//5 if (max_checks==None) else max_checks
         
         self.Q = []
         self.LRApprox = None
@@ -121,7 +112,7 @@ class Annchor:
         self.IJs = []
         self.nn = np.zeros((self.nx, self.n_neighbors))
 
-        self.get_RA = get_RA_(self.f)
+        #self.get_RA = get_RA_(self.f)
         self.get_exact_ijs = get_exact_ijs_(self.f)
         self.ww=ww
         
@@ -145,294 +136,6 @@ class Annchor:
         self.A,self.D,evals = self.anchor_picker.get_anchors()
                   
         self.evals+=evals
-  
-       
-    def get_features(self):
-        
-        '''
-        Gets the features required for predicting approximate distances.
-        
-        self.Bounds: np.array, shape=(nx,nx,2)
-            Array storing triangle inequality bounds. 
-            Bounds[i,j,0] is the lower bound on distance ij.
-            Bounds[i,j,1] is the upper bound on distance ij.
-            
-        self.W: np.array, shape=(nx,nx)
-            Array of widths, i.e. difference between upper and lower bounds.
-            diff[i,j] is the width of the bounds on distance ij.
-            
-        self.F: np.array, shape=(nx,nx)
-            Array of very approximate double distances. 
-            F[i,j] is d(x_i,a_j)+d(x_j,a_i), 
-            where a_k is the closest anchor to x_k.
-            
-            
-        self.features: np.array, shape=(nx*(nx-1)/2,?)
-            Array of features on which to sample, predict, etc.
-            Indices correspond to the upper right diagonal of all-pairs matrices.
-            
-        '''
-    
-        
-        # Get upper/lower bounds
-        # upper bound -> Bounds[:,:,1]
-        # lower bound -> Bounds[:,:,0]
-        self.Bounds = get_approx_njit(self.D,self.nx)
-        
-        # Width of bounds
-        self.W = self.Bounds[:,:,1]-self.Bounds[:,:,0]
-        
-        #
-        self.F = get_F(self.nx,self.D)
-                
-        
-        anchors = np.zeros(self.nx)
-        anchors[self.A[self.A<self.nx]]=1
-        IA,JA = np.meshgrid(anchors,anchors)
-        
-        
-        II,JJ = np.meshgrid(np.arange(self.nx),np.arange(self.nx))
-        self.features = np.vstack([II[II>JJ].T,
-                                   JJ[II>JJ].T,
-                                   self.Bounds[II>JJ,:].T,
-                                   self.F[II>JJ].T,
-                                   (IA+JA)[II>JJ]
-                                  ]).T
-
-        self.feature_names = ['i',
-                              'j',
-                              'lower bound',
-                              'upper bound',
-                              'double anchor distance',
-                              'is anchor'
-                             ]
-        
-        i_is_anchor = self.feature_names.index('is anchor')
-        self.not_computed_mask = self.features[:,i_is_anchor]<1
-        
-    def get_sample(self):
-        
-        '''
-        Gets the sample of pairwise distances on which to train dhat/errors.
-        
-        self.G: np.array, shape=(n_samples,3)
-            Array storing the sample distances and features (for future regression).
-            G[i,:-1] are the features for sample pair i.
-            G[i,-1] is the true distance for sample pair i.
-        '''
-
-        
-        self.sample_ixs = self.sampler.sample(self.features,
-                                              self.feature_names,
-                                              self.n_samples,
-                                             self.not_computed_mask)
-        self.sample_features = self.features[self.sample_ixs]
-                  
-        ixs = [i for i,name in enumerate(self.feature_names) if name in ['i','j']]
-        self.sample_ijs = sample_ijs = self.sample_features[:,ixs].astype(int)       
-
-        if self.low_cpu:
-            # If you have few CPU cores, calling self.get_exact_ijs is slow,
-            # better to just iterate without numba assistance
-            self.sample_y = np.array([self.f(self.X[ij[0]],
-                                             self.X[ij[1]]
-                                            ) 
-                                      for ij in self.sample_ijs
-                                     ])
-   
-        else:
-
-            self.sample_y = self.get_exact_ijs(self.f,
-                                               self.X,
-                                               self.sample_ijs)
-        
-        self.not_computed_mask[self.sample_ixs]=False
-        self.evals+=self.sample_y.shape[0]
-        
-        
-    def fit_predict_regression(self):
-        #fit
-
-        self.regression.fit(self.sample_features,
-                            self.feature_names,
-                            self.sample_y)
-        
-        #predict
-        self.pred = self.regression.predict(self.features,
-                                            self.feature_names)
-        self.sample_predict = self.pred[self.sample_ixs]
-        
-        self.pred[self.sample_ixs]=self.sample_y
-        
-        self.LRApprox = np.zeros(shape=(self.nx,self.nx))
-            
-        II,JJ = np.meshgrid(np.arange(self.nx),np.arange(self.nx))
-        self.LRApprox[II>JJ] = self.pred
-        self.LRApprox += self.LRApprox.T
-        
-        self.LRApprox = np.clip(
-            self.LRApprox, self.Bounds[:, :, 0], self.Bounds[:, :, 1]
-        )
-        
-        # Instantiate the nx*nx all-pairs refined distance matrix
-        # This will be updated later with refinements
-        if not np.any(self.RefineApprox):
-            self.RefineApprox = self.LRApprox.copy()
-        else:
-            c = self.RefineApprox[II>JJ][~self.not_computed_mask]
-            nc = self.pred[self.not_computed_mask]
-            e = np.zeros(shape=self.N)
-            e[self.not_computed_mask] = nc
-            e[~self.not_computed_mask] = c
-            e[self.sample_ixs]=self.sample_y
-            self.RefineApprox = np.zeros(shape=(self.nx,self.nx))
-            self.RefineApprox[II>JJ] = e
-            self.RefineApprox += self.RefineApprox.T
-            print(self.RefineApprox[20,126])
-            
-        
-    def fit_predict_errors(self):
-        
-        self.error_predictor.fit(self.sample_features,
-                                 self.feature_names,
-                                 self.sample_y-self.sample_predict
-                                )
-                
-        self.errors = self.error_predictor.predict(self.features,
-                                                   self.feature_names)
-        #self.errors = np.zeros(shape=(self.nx,self.nx))
-        #II,JJ = np.meshgrid(np.arange(self.nx),np.arange(self.nx))
-        #self.errors[II>JJ] = error_predictor.predict(self.features[:,4])
-        #self.errors += self.errors.T
-        
-    def select_candidate_pairs(self,w=0.5):
-
-        II,JJ = np.meshgrid(np.arange(self.nx),np.arange(self.nx))
-
-        rasort  = np.sort(self.RefineApprox,axis=1)[:,self.threshold]
-
-
-
-        p0 = (rasort - self.RefineApprox )[II>JJ][self.not_computed_mask]
-        p1 = (rasort - self.RefineApprox ).T[II>JJ][self.not_computed_mask]
-        p = np.max(np.vstack([p0,p1]),axis=0)
-        prob = np.empty(shape=p.shape)
-        for label in self.error_predictor.labels:
-            mask = self.errors[self.not_computed_mask]==label
-            prob[mask] = np.searchsorted(self.error_predictor.errs[label],
-                                         p[mask])
-            prob[mask]/=len(self.error_predictor.errs[label])
-
-
-
-        ixs = [i for i,name in enumerate(self.feature_names) if name in ['i','j']]
-
-        p_work = self.p_work
-        N = self.nx*(self.nx-1)/2
-        max_refine = int((p_work*N-self.n_anchors*self.nx-self.n_samples)*w)
-        
-        max_refine = 0 if (max_refine<0) else max_refine
-            
-        
-        self.candidates = np.argsort(-prob)[:max_refine]
-
-        
-        self.IJs = self.features[self.not_computed_mask][self.candidates][:,ixs].astype(int)
-        self.IJs = list(map(tuple,self.IJs))
-           
-        self._IJS = self.features[self.not_computed_mask][self.candidates][:,ixs].astype(int)
-        mapback = np.arange(self.not_computed_mask.shape[0])[self.not_computed_mask][self.candidates]
-        self.not_computed_mask[mapback]=False
-    
-    def refine_candidate_pairs(self):
-        '''
-        Iterate over the pairs in self.IJ and evaluate them exactly.
-        
-        self.IJs: list of tuples
-            The list of candidate pairs which we will refine, i.e. calculate the
-            exact distance.
-            
-        self.RefineApprox: np.array, shape=(nx,nx)
-            Array to hold the refined distances. 
-            Initially a copy of LRApprox, RefineApprox will be updated to hold 
-            true distances for pairs deemed close enough to potentially be nearest
-            neighbours.
-        '''
-        if len(self.IJs)>0:
-            self.RefineApprox = self.get_RA(self.f, self.X, np.array(self.IJs),self.RefineApprox)
-
-        self.evals +=len(self.IJs)
-
-
-            
-    def get_ann(self):
-        
-        # Get the nn-graph. Can probably optimise this more.
-
-        nnixs = np.argsort(self.RefineApprox, axis=1)[:, : self.n_neighbors]
-        I = np.meshgrid(np.arange(self.nx), np.arange(self.nx))[1][
-            :, : self.n_neighbors
-        ]
-        
-        self.neighbor_graph = (nnixs, self.RefineApprox[I, nnixs])
-        return nnixs, self.RefineApprox[I, nnixs]
-
-    
-    def fit(self):
-        """fit
-
-            Calls the ANNchor algorithm for the parameters supplied to the class.
-            
-            Once called, the neighbor graph is available in Annchor.neighbor_graph.
-
-        """
-        start = time.time()
-
-        if self.verbose: print('computing anchors...')
-        self.get_anchors()
-        if self.verbose: print('get_anchors:', time.time()-start)
-
-        if self.verbose: print('computing features...')
-        self.get_features()
-        if self.verbose: print('get_features:', time.time()-start)
-
-        if self.verbose: print('computing sample...')
-        self.get_sample()
-        if self.verbose: print('get_sample:', time.time()-start)
-
-        if self.verbose: print('fitting regression...')
-        self.fit_predict_regression()
-        if self.verbose: print('fit_predict_regression:', time.time()-start)
-
-        if self.verbose: print('fitting errors...')
-        self.fit_predict_errors()
-        if self.verbose: print('fit_predict_errors:', time.time()-start)
-            
-        if self.verbose: print('selecting candidate pairs (1)')
-        self.select_candidate_pairs()
-        if self.verbose: print('select_candidate_pairs:', time.time()-start)
-
-        if self.verbose: print('refining candidate pairs (1)')
-        self.refine_candidate_pairs()
-        if self.verbose: print('refine_candidate_pairs:', time.time()-start)
-            
-        if self.verbose: print('selecting candidate pairs (2)')
-        self.select_candidate_pairs()
-        if self.verbose: print('select_candidate_pairs:', time.time()-start)
-
-        if self.verbose: print('refining candidate pairs (2)')
-        self.refine_candidate_pairs()
-        if self.verbose: print('refine_candidate_pairs:', time.time()-start)
-            
-        if self.verbose: print('generating neighbour graph')
-        self.get_ann()
-        if self.verbose: print('get_ann:', time.time()-start)
-
-
-### Low mem
-#      The low mem routines try the algorithm without storing things in nx*nx matrices.
-#      Necessary when nx gets big (>7000 or so).
-
 
     def get_locality(self):
         
@@ -477,7 +180,7 @@ class Annchor:
         self.check = check
         #print('get_locality: %5.3f' % (time.time()-start))
             
-    def get_features_lm(self):
+    def get_features(self):
         
 
         IJs = np.hstack([ np.vstack([self.check[i],
@@ -505,33 +208,38 @@ class Annchor:
 
         ixs = np.arange(n-1)[(fi[1:]-fi[:-1]).astype(bool)]+1
         ixs = np.insert(ixs,0,0)
-        ixs = np.append(ixs,[ixs[-1]+1,ixs[-1]+1])
+        ixs = np.append(ixs,ixs[-1]+1)
         jxs = np.arange(n-1)[(fj[1:]-fj[:-1]).astype(bool)]+1
-        jxs = np.insert(jxs,0,[0,0])
+        jxs = np.insert(jxs,0,0)
         jxs = np.append(jxs,ixs[-1]+1)
 
-        assert ixs.shape==jxs.shape
-        assert ixs.shape[0]==self.nx+1
+        ufi = np.unique(fi)
+        ufj = np.unique(fj)
 
+        J = {i:np.array([]).astype(np.int64) for i in range(self.nx)}
+        for i,j in enumerate(ufj):
+            J[j]=jsort[jxs[i]:jxs[i+1]]
+        I = {i:np.array([]).astype(np.int64) for i in range(self.nx)}
+        for i,j in enumerate(ufi):
+            I[j]=isort[ixs[i]:ixs[i+1]]
 
         self.I = Dict.empty(
             key_type=types.int64,
             value_type=types.int64[:],
         )
         for i in range(self.nx):
-            self.I[i] = np.hstack([isort[ixs[i]:ixs[i+1]],jsort[jxs[i]:jxs[i+1]]])
-
+            self.I[i] = np.hstack([I[i],J[i]])
 
         
-        bounds = get_approx_njit_ijs(IJs,self.D)
+        bounds = get_bounds_njit_ijs(IJs,self.D)
         W = bounds[:,1]-bounds[:,0]
         anchors = np.zeros(shape=n)
         anchors[(bounds[:,1]-bounds[:,0])==0]=1
-        F = get_F_ijs(IJs,self.D)
+        dad = get_dad_ijs(IJs,self.D)
 
         self.features = np.vstack([IJs.T,
                                    bounds.T,
-                                   F,
+                                   dad,
                                    anchors]).T
 
         self.feature_names = ['i',
@@ -544,8 +252,60 @@ class Annchor:
         
         i_is_anchor = self.feature_names.index('is anchor')
         self.not_computed_mask = self.features[:,i_is_anchor]<1
+        
+      
+    def get_sample(self):
+        
+        '''
+        Gets the sample of pairwise distances on which to train dhat/errors.
+        
+        self.G: np.array, shape=(n_samples,3)
+            Array storing the sample distances and features (for future regression).
+            G[i,:-1] are the features for sample pair i.
+            G[i,-1] is the true distance for sample pair i.
+        '''
 
-    def fit_predict_regression_lm(self):
+        
+        self.sample_ixs = self.sampler.sample(self.features,
+                                              self.feature_names,
+                                              self.n_samples,
+                                             self.not_computed_mask)
+        self.sample_features = self.features[self.sample_ixs]
+                  
+        ixs = [i for i,name in enumerate(self.feature_names) if name in ['i','j']]
+        self.sample_ijs = sample_ijs = self.sample_features[:,ixs].astype(int)       
+
+        if self.low_cpu:
+            # If you have few CPU cores, calling self.get_exact_ijs is slow,
+            # better to just iterate without numba assistance
+            self.sample_y = np.array([self.f(self.X[ij[0]],
+                                             self.X[ij[1]]
+                                            ) 
+                                      for ij in self.sample_ijs
+                                     ])
+   
+        else:
+
+            self.sample_y = self.get_exact_ijs(self.f,
+                                               self.X,
+                                               self.sample_ijs)
+        
+        self.not_computed_mask[self.sample_ixs]=False
+        self.evals+=self.sample_y.shape[0]
+        
+        
+    def fit_predict_errors(self):
+        
+        self.error_predictor.fit(self.sample_features,
+                                 self.feature_names,
+                                 self.sample_y-self.sample_predict
+                                )
+                
+        self.errors = self.error_predictor.predict(self.features,
+                                                   self.feature_names)
+
+
+    def fit_predict_regression(self):
             #fit
 
             self.regression.fit(self.sample_features,
@@ -563,12 +323,13 @@ class Annchor:
             self.pred = np.clip(self.pred,self.features[:,2],self.features[:,3])
             self.RefineApprox = self.pred.copy()
 
-    def select_refine_candidate_pairs_lm(self,w=0.5):
+    def select_refine_candidate_pairs(self,w=0.5):
 
-        t = self.threshold
+        nn = self.n_neighbors
 
 
-        thresh = np.array([np.partition(self.RefineApprox[self.I[i]],t)[t] for i in range(self.nx)])
+        thresh = np.array([np.partition(self.RefineApprox[self.I[i]],nn)[nn] for i in range(self.nx)])
+        self.thresh=thresh
 
         p0 = (thresh[self.features[:,0].astype(int)] - self.RefineApprox )[self.not_computed_mask]
         p1 = (thresh[self.features[:,1].astype(int)] - self.RefineApprox )[self.not_computed_mask]
@@ -602,21 +363,18 @@ class Annchor:
         self.RefineApprox[mapback]=exact
         self.not_computed_mask[mapback]=False
         
-    def get_ann_lm(self):
+    def get_ann(self):
         
         # Get the nn-graph. Can probably optimise this more.
 
-        #ng = search_evaluated_ijs(self.n_neighbors,self.nx,self.features[:,:2],self.RefineApprox)
-        #start = time.time()
-
-        ng = get_nn_lm(self.nx,self.n_neighbors,self.RefineApprox,self.features[:,:2],self.I)
+        ng = get_nn(self.nx,self.n_neighbors,self.RefineApprox,self.features[:,:2],self.I)
         self.neighbor_graph = (np.vstack([np.arange(self.nx),ng[0].T]).T,np.vstack([np.zeros(self.nx),ng[1].T]).T)
 
             
-    def fit_lm(self):
+    def fit(self):
         
         '''
-        Finds the approx nearest neighbour graph in the low memory regime.
+        Finds the approx nearest neighbour graph.
         '''
         start = time.time()
         if self.verbose: print('computing anchors...')
@@ -628,32 +386,32 @@ class Annchor:
         if self.verbose: print('get_locality:', time.time()-start)
             
         if self.verbose: print('computing features...')
-        self.get_features_lm()
-        if self.verbose: print('get_features_lm:', time.time()-start)
+        self.get_features()
+        if self.verbose: print('get_features:', time.time()-start)
             
         if self.verbose: print('computing sample...')
         self.get_sample()
         if self.verbose: print('get_sample:', time.time()-start)
             
         if self.verbose: print('fitting regression...')
-        self.fit_predict_regression_lm()
-        if self.verbose: print('fit_predict_regression_lm:', time.time()-start)
+        self.fit_predict_regression()
+        if self.verbose: print('fit_predict_regression:', time.time()-start)
 
         if self.verbose: print('fitting errors...')
         self.fit_predict_errors()
         if self.verbose: print('fit_predict_errors:', time.time()-start)
             
         if self.verbose: print('selecting/refining candidate pairs (1)')
-        self.select_refine_candidate_pairs_lm()
-        if self.verbose: print('select_refine_candidate_pairs_lm:', time.time()-start)
+        self.select_refine_candidate_pairs()
+        if self.verbose: print('select_refine_candidate_pairs:', time.time()-start)
            
         if self.verbose: print('selecting/refining candidate pairs (2)')
-        self.select_refine_candidate_pairs_lm()
-        if self.verbose: print('select_refine_candidate_pairs_lm:', time.time()-start)
+        self.select_refine_candidate_pairs()
+        if self.verbose: print('select_refine_candidate_pairs:', time.time()-start)
 
         if self.verbose: print('generating neighbour graph')
-        self.get_ann_lm()
-        if self.verbose: print('get_ann_lm:', time.time()-start)
+        self.get_ann()
+        if self.verbose: print('get_ann:', time.time()-start)
 
 
     

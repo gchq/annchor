@@ -26,11 +26,9 @@ def np_apply_along_axis(func1d, axis, arr):
             result[i] = func1d(arr[i, :])
     return result
 
-
 @njit
 def np_max(array, axis):
     return np_apply_along_axis(np.max, axis, array)
-
 
 @njit
 def np_min(array, axis):
@@ -40,7 +38,31 @@ def np_min(array, axis):
 def np_sum(array, axis):
     return np_apply_along_axis(np.sum, axis, array)
 
+@njit
+def np_argmin(array, axis):
+    return np_apply_along_axis(np.argmin, axis, array)
+
+
+
 def get_dists_(f,low_cpu):
+    '''
+    Takes the metric f and returns the function get_dists(ix,f,X,nx), which
+    calculates the distance from all data points to X[ix]. 
+    Useful for getting distances to anchor points.
+    
+    Parameters
+    ----------
+    f: function
+        The metric. Takes two points from the data set and calculates their distance.
+    low_cpu: bool
+        Flag which shows whether the user wants low_cpu mode (some numba functions slow on few cores).
+        
+    Outputs
+    -------
+    get_dists: function
+        get_dists(ix,f,X,nx) is the function that returns an array of distances to data point X[ix],
+        i.e. np.array([f(X[ix],y) for y in X]).
+    '''
 
     if "numba" in str(type(f)):
         
@@ -63,47 +85,28 @@ def get_dists_(f,low_cpu):
                 return f(X[j],X[ix])
 
             d = np.array(Parallel(n_jobs=CPU_COUNT)(delayed(_f)(j) for j in range(nx)))
-            #d = np.empty(shape=(nx))
-            #for j in prange(nx):
-            #    d[j] = f(X[j],X[ix])
             return d
         
     return get_dists
 
 
-def get_RA_(f):
-    
-    if "numba" in str(type(f)):
-
-        @njit(parallel=True)
-        def get_RA(f, X, IJ, RefineApprox):
-            for ix in prange(len(IJ)):
-                i, j = IJ[ix]
-                RefineApprox[i, j] = RefineApprox[j, i] = f(X[i], X[j])
-            return RefineApprox
-
-    else:
-
-        def get_RA(f, X, IJ, RefineApprox):
-            
-            def _f(ij):
-                i,j=ij
-                return f(X[i],X[j])
-
-            fIJ = Parallel(n_jobs=CPU_COUNT)(delayed(_f)(ij) for ij in IJ)
-            
-            for ij,f in zip(IJ,fIJ):
-                i, j = ij
-                RefineApprox[i, j] = RefineApprox[j, i] = f
-                
-            #for ix in prange(len(IJ)):
-            #    i, j = IJ[ix]
-            #    RefineApprox[i, j] = RefineApprox[j, i] = f(X[i], X[j])
-            return RefineApprox
-
-    return get_RA
-
 def get_exact_ijs_(f):
+    '''
+    Takes the metric f and returns the function get_exact_ijs(f,X,IJ), which
+    calculates the distances between pairs given in array IJ.
+    
+    Parameters
+    ----------
+    f: function
+        The metric. Takes two points from the data set and calculates their distance.
+
+        
+    Outputs
+    -------
+    get_exact_ijs: function
+        get_exact_ijs(f,X,IJ) is the function that returns distances between pairs given in array IJ,
+        i.e. np.array([f(X[i],X[j]) for i,j in IJ]).
+    '''
     
     if "numba" in str(type(f)):
 
@@ -125,160 +128,102 @@ def get_exact_ijs_(f):
             
             fIJ = np.array(Parallel(n_jobs=CPU_COUNT)(delayed(_f)(ij) for ij in IJ))
             
-            #exact = np.zeros(len(IJ))
-            #for ix in prange(len(IJ)):
-            #    i, j = IJ[ix]
-            #    exact[ix] = f(X[i], X[j])
             return fIJ
 
     return get_exact
 
 
-
 @njit(parallel=True,fastmath=True)
-def get_approx_njit(D,nx):
-    Approx = np.zeros(shape=(nx, nx, 2))
-    for i in prange(nx-1):
-        for j in prange(i+1,nx):
-            lb = np.max(np.abs(D[i] - D[j]))
-            ub = np.min(D[i] + D[j])
+def get_bounds_njit_ijs(IJs,D):
+    '''
+    Calculates the triangle inequality bounds for pair (i,j).
+    
+    Parameters
+    ----------
+    IJs: np.array, shape=(?,2)
+        Array of i,j pairs
+    D: np.array, shape=(nx,na)
+        Array of distances to anchor points
 
-
-            Approx[i,j,0] = lb
-            Approx[j,i,0] = lb
-            Approx[i, j, 1] = ub
-            Approx[j,i,1] = ub
-
-    return Approx
-
-
-@njit(parallel=True,fastmath=True)
-def get_approx_njit_W(D,nx):
-    Approx = np.zeros(shape=(nx, nx, 2))
-    for i in prange(nx-1):
-        for j in prange(i+1,nx):
-            lb = np.max(np.abs(D[i] - D[j]))
-            ub = np.min(D[i] + D[j])
-
-
-            Approx[i,j,0] = lb
-            Approx[j,i,0] = lb
-            Approx[i, j, 1] = ub
-            Approx[j,i,1] = ub
-
-    return np.argmax(np_sum(Approx[:,:,1]-Approx[:,:,0],0))
-
-@njit(parallel=True,fastmath=True)
-def get_approx_njit_ijs(ijs,D):
-    n = ijs.shape[0]
-    Approx = np.zeros(shape=(n,2))
-    for k in prange(n):
-        i = ijs[k][0]
-        j = ijs[k][1]
-        Approx[k,0] = np.max(np.abs(D[i] - D[j]))
-        Approx[k,1] = np.min(D[i] + D[j])
-
-    return Approx
-
-
-@njit(fastmath=True)
-def get_approx_njit_ij(i,j,D):
-    approx=np.zeros(2)
-    approx[0]=np.max(np.abs(D[i] - D[j]))
-    approx[1]=np.min(D[i] + D[j])
-    return approx
-
-
-@njit(fastmath=True)
-def lrf(i,j,D,coef,intercept):
-    approx = get_approx_njit_ij(i,j,D)
-    d= np.sum(approx*coef)+intercept
-    b1 = (d<approx[0])
-    b2 = (d>approx[1])
-
-
-    return approx[0],approx[1],b1*approx[0] + b2*approx[1] + (1-b1)*(1-b2)*d
-
-@njit()
-def f(i,d_hat_adj,d_hat,k,IXs,LRApprox,thresh,check,ix_dict):
-    # check are ijs to be checked
-    # d_hat_adj array of vals corresponding to 
-    dsort = np.argsort((d_hat_adj[ix_dict[i]]))  # argsorts d_hat_adj
-    nn = check[i][dsort]                         # sorts check by d_hat_adj
-    a0 = IXs.shape[1]   
-    a1 = nn.shape[0]
-    IXs[i,:a1] = nn[:a0]                         # top a0 indices go into IXs
-    LRApprox[i,:a1] = d_hat_adj[ix_dict[i]][dsort][:a0] # top a0/a1 distances into LRApprox
-    thresh[i] = np.sort(d_hat[ix_dict[i]])[k]
-
-@njit(parallel=True)
-def get_LRApprox_lomem(d_hat_adj,d_hat,k,IXs,LRApprox,thresh,check,ix_dict):
-    n = LRApprox.shape[0]
-    for i in prange(n):
-        f(i,d_hat_adj,d_hat,k,IXs,LRApprox,thresh,check,ix_dict)
         
+    Outputs
+    -------
+    bounds: np.array, shape=(?,2)
+        Array of lower and upper bounds for pairs in IJs.
+    '''
+    
+    n = IJs.shape[0]
+    bounds = np.zeros(shape=(n,2))
+    for k in prange(n):
+        i = IJs[k][0]
+        j = IJs[k][1]
+        bounds[k,0] = np.max(np.abs(D[i] - D[j]))
+        bounds[k,1] = np.min(D[i] + D[j])
 
-def lexsort_based(data):
-    #From stackoverflow: https://stackoverflow.com/questions/31097247/remove-duplicate-rows-of-a-numpy-array/31097277
-    sorted_data =  data[np.lexsort(data.T),:]
-    row_mask = np.append([True],np.any(np.diff(sorted_data,axis=0),1))
-    return sorted_data[row_mask]
-
-@njit(parallel=True)
-def search_evaluated_ijs(k,nx,IJs,exact):
-    nns = np.empty(shape=(nx,k-1),dtype=np.int32)
-    dists = np.empty(shape=(nx,k-1))
-
-
-    for ix in prange(nx):
-        mask0 = IJs[:,0]==ix
-        mask1 = IJs[:,1]==ix
-
-        exact_ix = np.hstack((exact[mask0],exact[mask1]))
-        isort = np.argsort(exact_ix)[:(k-1)]
-        nns[ix] = np.vstack((IJs[mask0],np.fliplr(IJs[mask1]))).T[1][isort]
-        dists[ix] = exact_ix[isort]
-    return nns,dists
-
-@njit
-def np_argmin(array, axis):
-    return np_apply_along_axis(np.argmin, axis, array)
+    return bounds
 
 
 @njit(fastmath=True)
-def get_F(nx,D):
-    F = np.zeros(shape=(nx,nx))
-    cA = np_argmin(D,1)
-    for i in range(nx):
-        for j in range(nx):
-            F[i,j] = D[i,int(cA[j])]
-    F = F+F.T
-    return F/2
+def get_dad_ijs(IJs,D):
+    '''
+    Calculates the double anchor distance for pair (i,j).
+    
+    Parameters
+    ----------
+    IJs: np.array, shape=(?,2)
+        Array of i,j pairs
+    D: np.array, shape=(nx,na)
+        Array of distances to anchor points
 
-@njit(fastmath=True)
-def get_F_ijs(IJs,D):
+        
+    Outputs
+    -------
+    dad: np.array, shape=(?,2)
+        Array of double anchor distances for pairs in IJs.
+    '''
     n=IJs.shape[0]
-    F = np.zeros(shape=(n))
+    dad = np.zeros(shape=(n))
     cA = np_argmin(D,1)
     for k in range(n):
         i,j = IJs[k]
-        F[k] = D[i,int(cA[j])]+D[j,int(cA[i])]
+        dad[k] = D[i,int(cA[j])]+D[j,int(cA[i])]
     
-    return F/2
-
-
-@njit(parallel=True)
-def get_imask(apred, f0,f1,i):
-    return apred[(f0==i)^(f1==i)]
-
-
+    return dad/2
 
 @njit(parallel=True)
-def get_nn_lm(nx,t,RA,IJs,I):
-    ngi = np.zeros(shape = (nx,t),dtype=np.int64)
-    ngd = np.zeros(shape = (nx,t))
+def get_nn(nx,nn,RA,IJs,I):
+    '''
+    Calculates the nearest neighbor graph.
+    
+    Parameters
+    ----------
+    nx: int
+        Number of points in the data set. 
+    nn: int
+        Number of nearest neighbors.
+    RA: np.array
+        Array of refine approximate distances
+    IJs: np.array
+        Array of pairs i,j corresponding to the approx distances
+    I: dict
+        Dictionary mapping indices of the data set to indices in IJs/RA.
+
+        
+    Outputs
+    -------
+    ngi: np.array, shape=(nx,nn)
+        neighbor graph indices. 
+        ngi[i][j] is the index of the jth closest point to index i.
+        
+    ngd: np.array, shape=(nx,nn)
+        neighbor graph distances. 
+        ngd[i][j] is the distance of the jth closest point to index i.
+
+    '''
+    ngi = np.zeros(shape = (nx,nn),dtype=np.int64)
+    ngd = np.zeros(shape = (nx,nn))
     for i in (prange(nx)):
-        ix = np.argsort(RA[I[np.int64(i)]])[:t] 
+        ix = np.argsort(RA[I[np.int64(i)]])[:nn] 
         iy = I[np.int64(i)][ix]
         ngd[i,:] = RA[iy]
 
