@@ -104,19 +104,17 @@ class Annchor:
         self.locality = locality
         self.loc_thresh = loc_thresh
         
-        self.Q = []
-        self.LRApprox = None
+        #self.Q = []
+        #self.LRApprox = None
         self.RefineApprox = None
         self.LRDict = {i: {i: 0} for i in range(self.nx)}
-        self.IJ = {}
-        self.IJs = []
-        self.nn = np.zeros((self.nx, self.n_neighbors))
+        #self.IJ = {}
+        #self.IJs = []
+        #self.nn = np.zeros((self.nx, self.n_neighbors))
 
         #self.get_RA = get_RA_(self.f)
         self.get_exact_ijs = get_exact_ijs_(self.f)
-        self.ww=ww
-        
-        
+
     def get_anchors(self):
         
 
@@ -182,28 +180,21 @@ class Annchor:
             
     def get_features(self):
         
-
-        IJs = np.hstack([ np.vstack([self.check[i],
-                                             np.ones(self.check[i].shape)*i]).astype(int) 
-                                 for i in range(self.nx)])
-
-
-        mask = IJs[0]>IJs[1]
-        IJs = np.hstack([np.flipud(IJs[:,mask]),(IJs[:,~mask])])
-        IJs = IJs[:,IJs[0]!=IJs[1]]
-
-
-        sorted_IJs =  IJs.T[np.lexsort(IJs),:]
-        row_mask = np.append([True],np.any(np.diff(sorted_IJs,axis=0),1))
-
-        IJs = IJs.T[np.lexsort(IJs),:][row_mask]
+        start = time.time()
+        IJs = np.hstack([ create_IJs(self.check,i) for i in range(self.nx)])
+        IJs = unique_IJs(IJs,self.nx)
+        IJs = IJs.T
 
 
         n = IJs.shape[0]
+
+        # IJs[:,0] should be sorted at this point
+        #assert np.all(IJs[:,0]==np.sort(IJs[:,0]))
+        #
         
-        isort = np.argsort( IJs[:,0]).astype(np.int64)
+        isort = np.arange(n).astype(np.int64)
         jsort = np.argsort( IJs[:,1]).astype(np.int64)
-        fi = IJs[isort,0]
+        fi = IJs[:,0]
         fj = IJs[jsort,1]
 
         ixs = np.arange(n-1)[(fi[1:]-fi[:-1]).astype(bool)]+1
@@ -216,12 +207,13 @@ class Annchor:
         ufi = np.unique(fi)
         ufj = np.unique(fj)
 
-        J = {i:np.array([]).astype(np.int64) for i in range(self.nx)}
-        for i,j in enumerate(ufj):
-            J[j]=jsort[jxs[i]:jxs[i+1]]
         I = {i:np.array([]).astype(np.int64) for i in range(self.nx)}
+        for i,j in enumerate(ufj):
+            I[j]=jsort[jxs[i]:jxs[i+1]]
+        J = {i:np.array([]).astype(np.int64) for i in range(self.nx)}
         for i,j in enumerate(ufi):
-            I[j]=isort[ixs[i]:ixs[i+1]]
+            J[j]=isort[ixs[i]:ixs[i+1]]
+
 
         self.I = Dict.empty(
             key_type=types.int64,
@@ -229,8 +221,8 @@ class Annchor:
         )
         for i in range(self.nx):
             self.I[i] = np.hstack([I[i],J[i]])
+            
 
-        
         bounds = get_bounds_njit_ijs(IJs,self.D)
         W = bounds[:,1]-bounds[:,0]
         anchors = np.zeros(shape=n)
@@ -252,7 +244,8 @@ class Annchor:
         
         i_is_anchor = self.feature_names.index('is anchor')
         self.not_computed_mask = self.features[:,i_is_anchor]<1
-        
+
+
       
     def get_sample(self):
         

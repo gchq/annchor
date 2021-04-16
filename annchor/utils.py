@@ -233,3 +233,20 @@ def get_nn(nx,nn,RA,IJs,I):
     return ngi,ngd
 
 
+from numba import njit,prange
+@njit
+def create_IJs(check,i):
+    mask = check[i]!=i
+    ones = (np.ones(check[i][mask].shape)*i).astype(np.int64)
+    IJs = np.vstack((check[i][mask],
+                     ones
+                    ))
+    return IJs
+   
+@njit(parallel=True)
+def unique_IJs(IJs,nx):
+    a = IJs[1]*nx + IJs[0]
+    b = IJs[0]*nx + IJs[1]
+    mask = a<b
+    m = np.unique(a*mask+b*(~mask))
+    return np.vstack((m//nx,m%nx))
