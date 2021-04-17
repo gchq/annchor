@@ -182,9 +182,7 @@ class Annchor:
         
         start = time.time()
         IJs = np.hstack([ create_IJs(self.check,i) for i in range(self.nx)])
-        IJs = unique_IJs(IJs,self.nx)
-        IJs = IJs.T
-
+        IJs = np.fliplr(IJs.T)
 
         n = IJs.shape[0]
 
