@@ -11,19 +11,18 @@ CPU_COUNT = os.cpu_count()
 
 
 class MaxMinAnchorPicker:
-    
     def __init__(self):
         pass
-    
-    def init_ann(self,ann):
+
+    def init_ann(self, ann):
         self.ann = ann
-        
+
     def get_anchors(self):
-        ann= self.ann
+        ann = self.ann
         nx = ann.nx
         na = ann.n_anchors
         np.random.seed(ann.random_seed)
-        
+
         # D stores distances to anchor points
         # note: at this point D is shape (n_anchors, nx),
         #       but we transpose this after calculations.
@@ -33,59 +32,59 @@ class MaxMinAnchorPicker:
         A = np.zeros(na).astype(int)
         ix = np.random.randint(nx)
 
-        get_dists = get_dists_(ann.f,ann.low_cpu)
-        
+        get_dists = get_dists_(ann.f, ann.low_cpu)
+
         for i in range(na):
-            A[i] = ix  
-            D[i] = get_dists(ix,ann.f,ann.X,nx)
+            A[i] = ix
+            D[i] = get_dists(ix, ann.f, ann.X, nx)
             ix = np.argmax(np_min(D, 0))
-            
-        return A,D.T,na*nx
+
+        return A, D.T, na * nx
+
 
 class RandomAnchorPicker:
-    
     def __init__(self):
         pass
-    
-    def init_ann(self,ann):
+
+    def init_ann(self, ann):
         self.ann = ann
-        
+
     def get_anchors(self):
-        ann= self.ann
+        ann = self.ann
         nx = ann.nx
         na = ann.n_anchors
         np.random.seed(ann.random_seed)
-        
+
         # D stores distances to anchor points
         # note: at this point D is shape (n_anchors, nx),
         #       but we transpose this after calculations.
         D = np.zeros((na, nx)) + np.infty
 
         # A stores anchor indices
-        A = np.random.choice(ann.nx,size=na,replace=False)
+        A = np.random.choice(ann.nx, size=na, replace=False)
 
-        get_dists = get_dists_(ann.f,ann.low_cpu)
-        
+        get_dists = get_dists_(ann.f, ann.low_cpu)
+
         for i in range(na):
-            D[i] = get_dists(A[i],ann.f,ann.X,nx)
-            
-        return A,D.T,na*nx
+            D[i] = get_dists(A[i], ann.f, ann.X, nx)
+
+        return A, D.T, na * nx
+
 
 class SelectedAnchorPicker:
-    
-    def __init__(self,A):
-        self.A=A
+    def __init__(self, A):
+        self.A = A
         pass
-    
-    def init_ann(self,ann):
+
+    def init_ann(self, ann):
         self.ann = ann
-        
+
     def get_anchors(self):
-        ann= self.ann
+        ann = self.ann
         nx = ann.nx
         na = ann.n_anchors
         np.random.seed(ann.random_seed)
-        
+
         # D stores distances to anchor points
         # note: at this point D is shape (n_anchors, nx),
         #       but we transpose this after calculations.
@@ -94,185 +93,173 @@ class SelectedAnchorPicker:
         # A stores anchor indices
         A = self.A
 
-        get_dists = get_dists_(ann.f,ann.low_cpu)
-        
+        get_dists = get_dists_(ann.f, ann.low_cpu)
+
         for i in range(na):
-            D[i] = get_dists(A[i],ann.f,ann.X,nx)
-            
-        return A,D.T,na*nx      
-    
+            D[i] = get_dists(A[i], ann.f, ann.X, nx)
+
+        return A, D.T, na * nx
+
 
 class SimpleStratifiedSampler:
-    
-    def __init__(self,
-                 partition_feature_name='double anchor distance',
-                 n_partitions=7):
+    def __init__(self, partition_feature_name="double anchor distance", n_partitions=7):
 
         self.partition_feature_name = partition_feature_name
         self.n_partitions = n_partitions
 
+    def sample(self, features, feature_names, n_samples, not_computed_mask):
 
-    def sample(self,features,feature_names,n_samples,not_computed_mask):
-        
-        #i_na = feature_names.index('is anchor')
+        # i_na = feature_names.index('is anchor')
         i_feature = feature_names.index(self.partition_feature_name)
-        #no_anchor_mask = features[:,i_na]==0
-        sample_feature = features[not_computed_mask][:,i_feature]
+        # no_anchor_mask = features[:,i_na]==0
+        sample_feature = features[not_computed_mask][:, i_feature]
 
         indices = np.arange(not_computed_mask.shape[0])[not_computed_mask]
-        
-        
+
         n = sample_feature.shape[0]
-        iq1 = int(n/100)
-        iq3 = int(99*n/100)
-        q1 = np.partition(sample_feature,iq1)[iq1]
-        q3 = np.partition(sample_feature,iq3)[iq3]
+        iq1 = int(n / 100)
+        iq3 = int(99 * n / 100)
+        q1 = np.partition(sample_feature, iq1)[iq1]
+        q3 = np.partition(sample_feature, iq3)[iq3]
 
+        sample_bins = np.linspace(q1, q3, self.n_partitions - 1)
+        sample_bins = np.hstack([-np.infty, sample_bins, np.infty])
 
-        sample_bins = np.linspace(q1,q3,self.n_partitions-1)
-        sample_bins=np.hstack([-np.infty,sample_bins,np.infty])
+        bin_size = n_samples // self.n_partitions
+        remainder = n_samples % self.n_partitions
 
-        bin_size = n_samples//self.n_partitions
-        remainder = n_samples%self.n_partitions
-
-
-        
-        samples = Dict.empty(key_type=types.int64,
-                     value_type=types.int64[:],)
-        loop_partitions(samples,
-                         indices,
-                         sample_feature,
-                         sample_bins,
-                         self.n_partitions,
-                         bin_size,
-                         remainder)
-    
+        samples = Dict.empty(
+            key_type=types.int64,
+            value_type=types.int64[:],
+        )
+        loop_partitions(
+            samples,
+            indices,
+            sample_feature,
+            sample_bins,
+            self.n_partitions,
+            bin_size,
+            remainder,
+        )
 
         sample_ixs = np.hstack([samples[i] for i in range(self.n_partitions)])
 
-       
         return sample_ixs
-    
-        
+
+
 class SamplingError(Exception):
     def __init__(self, message):
         super().__init__(message)
+
 
 #    def __str__(self):
 #        return f'{self.salary} -> {self.message}'
 
 
 class SimpleStratifiedLinearRegression:
-    def __init__(self,
-                 reg_feature_names=['lower bound','upper bound',
-                                      'double anchor distance'],
-                 partition_feature_name='double anchor distance',
-                 n_partitions=7):
-                 #regression = LinearRegression,
-                 #regression_kwargs={}):
-        
+    def __init__(
+        self,
+        reg_feature_names=["lower bound", "upper bound", "double anchor distance"],
+        partition_feature_name="double anchor distance",
+        n_partitions=7,
+    ):
+        # regression = LinearRegression,
+        # regression_kwargs={}):
+
         self.n_partitions = n_partitions
         self.LRs = [LinearRegression() for n in range(self.n_partitions)]
         self.partition_feature_name = partition_feature_name
-        self.reg_feature_names =  reg_feature_names
-
+        self.reg_feature_names = reg_feature_names
 
         return
-    
-    def fit(self,sample_features,feature_names,sample_y):
-    
-        i_partition_feature = feature_names.index(self.partition_feature_name)
-        i_features = [i for i,name in enumerate(feature_names) 
-                      if name in self.reg_feature_names]
 
-        
-        F = sample_features[:,i_partition_feature]
-        
+    def fit(self, sample_features, feature_names, sample_y):
+
+        i_partition_feature = feature_names.index(self.partition_feature_name)
+        i_features = [
+            i for i, name in enumerate(feature_names) if name in self.reg_feature_names
+        ]
+
+        F = sample_features[:, i_partition_feature]
+
         n = F.shape[0]
-        iq1 = int(n/100)
-        iq3 = int(99*n/100)
-        q1 = np.partition(F,iq1)[iq1]
-        q3 = np.partition(F,iq3)[iq3]
+        iq1 = int(n / 100)
+        iq3 = int(99 * n / 100)
+        q1 = np.partition(F, iq1)[iq1]
+        q3 = np.partition(F, iq3)[iq3]
 
+        sample_bins = np.linspace(q1, q3, self.n_partitions - 1)
+        self.sample_bins = np.hstack([-np.infty, sample_bins, np.infty])
 
-        sample_bins = np.linspace(q1,q3,self.n_partitions-1)
-        self.sample_bins=np.hstack([-np.infty,sample_bins,np.infty])    
-        
-
-        F = sample_features[:,i_partition_feature]
+        F = sample_features[:, i_partition_feature]
         for nbin in range(self.n_partitions):
-            mask = ((F>self.sample_bins[nbin]) * (F<=self.sample_bins[nbin+1]))           
-            self.LRs[nbin].fit(sample_features[mask][:,i_features],sample_y[mask])
-        
+            mask = (F > self.sample_bins[nbin]) * (F <= self.sample_bins[nbin + 1])
+            self.LRs[nbin].fit(sample_features[mask][:, i_features], sample_y[mask])
 
-    def predict(self,features,feature_names):
-        
+    def predict(self, features, feature_names):
+
         i_partition_feature = feature_names.index(self.partition_feature_name)
-        i_features = [i for i,name in enumerate(feature_names) 
-                      if name in self.reg_feature_names]
-        
-        X = features[:,i_features]
+        i_features = [
+            i for i, name in enumerate(feature_names) if name in self.reg_feature_names
+        ]
+
+        X = features[:, i_features]
         y = np.zeros(X.shape[0])
-        F = features[:,i_partition_feature]
+        F = features[:, i_partition_feature]
 
         def predict_bin(nbin):
-            mask = ((F>self.sample_bins[nbin]) * (F<=self.sample_bins[nbin+1]))
+            mask = (F > self.sample_bins[nbin]) * (F <= self.sample_bins[nbin + 1])
             return self.LRs[nbin].predict(X[mask])
+
         preds = Parallel(n_jobs=CPU_COUNT)(
-                    delayed(predict_bin)(nbin) for nbin in range(self.n_partitions)
-                )
-        
-        
-        for nbin,pred in enumerate(preds):
-            mask = ((F>self.sample_bins[nbin]) * (F<=self.sample_bins[nbin+1]))
-            y[mask]=pred
-            #self.LRs[nbin].predict(X[mask])
+            delayed(predict_bin)(nbin) for nbin in range(self.n_partitions)
+        )
+
+        for nbin, pred in enumerate(preds):
+            mask = (F > self.sample_bins[nbin]) * (F <= self.sample_bins[nbin + 1])
+            y[mask] = pred
+            # self.LRs[nbin].predict(X[mask])
         return y
-    
+
+
 class SimpleStratifiedErrorRegression:
-    def __init__(self,
-                 partition_feature_name='double anchor distance',
-                 n_partitions=7
-                ):
-        self.n_partitions=n_partitions
+    def __init__(self, partition_feature_name="double anchor distance", n_partitions=7):
+        self.n_partitions = n_partitions
         self.partition_feature_name = partition_feature_name
         self.labels = range(n_partitions)
-        
-    def fit(self,sample_features,feature_names,sample_error):
-        
+
+    def fit(self, sample_features, feature_names, sample_error):
+
         i_feature = feature_names.index(self.partition_feature_name)
 
-
-        sample_feature = sample_features[:,i_feature]
+        sample_feature = sample_features[:, i_feature]
         n = sample_feature.shape[0]
-        iq1 = int(n/100)
-        iq3 = int(99*n/100)
-        q1 = np.partition(sample_feature,iq1)[iq1]
-        q3 = np.partition(sample_feature,iq3)[iq3]
+        iq1 = int(n / 100)
+        iq3 = int(99 * n / 100)
+        q1 = np.partition(sample_feature, iq1)[iq1]
+        q3 = np.partition(sample_feature, iq3)[iq3]
 
+        sample_bins = np.linspace(q1, q3, self.n_partitions - 1)
+        self.partition_bins = np.hstack([-np.infty, sample_bins, np.infty])
 
-        sample_bins = np.linspace(q1,q3,self.n_partitions-1)
-        self.partition_bins=np.hstack([-np.infty,sample_bins,np.infty])
-
-
-        self.errs = {}#np.zeros(shape=self.n_partitions)
+        self.errs = {}  # np.zeros(shape=self.n_partitions)
         for nbin in range(self.n_partitions):
-            
-            mask = ((sample_feature>=self.partition_bins[nbin]) *
-                    (sample_feature<=self.partition_bins[nbin+1]))
-            err = np.sort(sample_error[mask] )
-            self.errs[nbin]=err
 
-    def predict(self,features,feature_names):
+            mask = (sample_feature >= self.partition_bins[nbin]) * (
+                sample_feature <= self.partition_bins[nbin + 1]
+            )
+            err = np.sort(sample_error[mask])
+            self.errs[nbin] = err
+
+    def predict(self, features, feature_names):
         labels = np.empty(shape=features.shape[0]).astype(int)
         i_feature = feature_names.index(self.partition_feature_name)
-        feature = features[:,i_feature]
+        feature = features[:, i_feature]
 
         for nbin in range(self.n_partitions):
 
-            mask = ((feature>=self.partition_bins[nbin]) *
-                    (feature<=self.partition_bins[nbin+1]))
-            labels[mask]=nbin
+            mask = (feature >= self.partition_bins[nbin]) * (
+                feature <= self.partition_bins[nbin + 1]
+            )
+            labels[mask] = nbin
         return labels
-
-

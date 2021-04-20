@@ -1,5 +1,5 @@
-#numba jitted wasserstein (from pynndescent library)
-#https://github.com/lmcinnes/pynndescent/blob/master/pynndescent/distances.py
+# numba jitted wasserstein (from pynndescent library)
+# https://github.com/lmcinnes/pynndescent/blob/master/pynndescent/distances.py
 import numpy as np
 from pynndescent.optimal_transport import (
     allocate_graph_structures,
@@ -20,6 +20,8 @@ FLOAT32_MAX = np.finfo(np.float32).max
 
 
 from numba import njit
+
+
 @njit(nogil=True)
 def kantorovich(x, y, cost=_dummy_cost, max_iter=100000):
 
@@ -76,14 +78,14 @@ def kantorovich(x, y, cost=_dummy_cost, max_iter=100000):
     return result
 
 
-
-
 import os
-package_directory = os.path.dirname(os.path.abspath(__file__))
-cost_matrix = os.path.join(package_directory, 'data', 'wasserstein_matrix.npz')
 
-M = np.load(cost_matrix)['arr_0']
+package_directory = os.path.dirname(os.path.abspath(__file__))
+cost_matrix = os.path.join(package_directory, "data", "wasserstein_matrix.npz")
+
+M = np.load(cost_matrix)["arr_0"]
+
 
 @njit
-def wasserstein(x,y):
-    return kantorovich(x,y,cost=M)
+def wasserstein(x, y):
+    return kantorovich(x, y, cost=M)
