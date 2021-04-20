@@ -1,4 +1,6 @@
 import numpy as np
+
+
 from joblib import Parallel, delayed
 from sklearn.linear_model import LinearRegression
 import os
@@ -108,7 +110,8 @@ class SimpleStratifiedSampler:
 
         self.partition_feature_name = partition_feature_name
         self.n_partitions = n_partitions
-        
+
+
     def sample(self,features,feature_names,n_samples,not_computed_mask):
         
         #i_na = feature_names.index('is anchor')
@@ -118,9 +121,12 @@ class SimpleStratifiedSampler:
 
         indices = np.arange(not_computed_mask.shape[0])[not_computed_mask]
         
-        sorted_sample_feature = np.sort(sample_feature)
-        q1 = sorted_sample_feature[int(sample_feature.shape[0]/100)]
-        q3 = sorted_sample_feature[int(99*sample_feature.shape[0]/100)]
+        
+        n = sample_feature.shape[0]
+        iq1 = int(n/100)
+        iq3 = int(99*n/100)
+        q1 = np.partition(sample_feature,iq1)[iq1]
+        q3 = np.partition(sample_feature,iq3)[iq3]
 
 
         sample_bins = np.linspace(q1,q3,self.n_partitions-1)
@@ -131,28 +137,23 @@ class SimpleStratifiedSampler:
 
 
         
-        samples = {}
-        for nbin in range(self.n_partitions):
-
-            mask = ((sample_feature>=sample_bins[nbin]) *
-                    (sample_feature<=sample_bins[nbin+1]))
-            n_mask = np.sum(mask)
-            if n_mask==0:
-                raise SamplingError(
-                                'No samples in bin (%5.3f,%5.3f). Reduce n_partitions.'
-                                % (sample_bins[nbin],sample_bins[nbin+1]))
-
-            samples[nbin] = np.random.choice(indices[mask],
-                                             size=(bin_size+(nbin<remainder)),
-                                             replace=False)
+        samples = Dict.empty(key_type=types.int64,
+                     value_type=types.int64[:],)
+        loop_partitions(samples,
+                         indices,
+                         sample_feature,
+                         sample_bins,
+                         self.n_partitions,
+                         bin_size,
+                         remainder)
+    
 
         sample_ixs = np.hstack([samples[i] for i in range(self.n_partitions)])
 
        
         return sample_ixs
-        
     
-
+        
 class SamplingError(Exception):
     def __init__(self, message):
         super().__init__(message)
@@ -161,17 +162,17 @@ class SamplingError(Exception):
 #        return f'{self.salary} -> {self.message}'
 
 
-class SimpleStratifiedDistanceRegression:
+class SimpleStratifiedLinearRegression:
     def __init__(self,
                  reg_feature_names=['lower bound','upper bound',
                                       'double anchor distance'],
                  partition_feature_name='double anchor distance',
-                 n_partitions=7,
-                 regression = LinearRegression,
-                 regression_kwargs={}):
+                 n_partitions=7):
+                 #regression = LinearRegression,
+                 #regression_kwargs={}):
         
         self.n_partitions = n_partitions
-        self.LRs = [regression(**regression_kwargs) for n in range(self.n_partitions)]
+        self.LRs = [LinearRegression() for n in range(self.n_partitions)]
         self.partition_feature_name = partition_feature_name
         self.reg_feature_names =  reg_feature_names
 
@@ -186,9 +187,12 @@ class SimpleStratifiedDistanceRegression:
 
         
         F = sample_features[:,i_partition_feature]
-        sorted_sample_feature = np.sort(F)
-        q1 = sorted_sample_feature[int(F.shape[0]/100)]
-        q3 = sorted_sample_feature[int(99*F.shape[0]/100)]
+        
+        n = F.shape[0]
+        iq1 = int(n/100)
+        iq3 = int(99*n/100)
+        q1 = np.partition(F,iq1)[iq1]
+        q3 = np.partition(F,iq3)[iq3]
 
 
         sample_bins = np.linspace(q1,q3,self.n_partitions-1)
@@ -240,9 +244,11 @@ class SimpleStratifiedErrorRegression:
 
 
         sample_feature = sample_features[:,i_feature]
-        sorted_sample_feature = np.sort(sample_feature)
-        q1 = sorted_sample_feature[int(sample_feature.shape[0]/100)]
-        q3 = sorted_sample_feature[int(99*sample_feature.shape[0]/100)]
+        n = sample_feature.shape[0]
+        iq1 = int(n/100)
+        iq3 = int(99*n/100)
+        q1 = np.partition(sample_feature,iq1)[iq1]
+        q3 = np.partition(sample_feature,iq3)[iq3]
 
 
         sample_bins = np.linspace(q1,q3,self.n_partitions-1)

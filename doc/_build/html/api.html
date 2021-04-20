@@ -173,7 +173,7 @@ brute force class <code class="xref py py-class docutils literal notranslate"><s
 <h2>Annchor<a class="headerlink" href="#annchor" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="annchor.Annchor">
-<em class="property">class </em><code class="sig-prename descclassname">annchor.</code><code class="sig-name descname">Annchor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">X</span></em>, <em class="sig-param"><span class="n">func</span></em>, <em class="sig-param"><span class="n">n_anchors</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">n_neighbors</span><span class="o">=</span><span class="default_value">15</span></em>, <em class="sig-param"><span class="n">n_samples</span><span class="o">=</span><span class="default_value">5000</span></em>, <em class="sig-param"><span class="n">partitions</span><span class="o">=</span><span class="default_value">5</span></em>, <em class="sig-param"><span class="n">min_prob</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">threshold</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">refine_cycles</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">random_seed</span><span class="o">=</span><span class="default_value">42</span></em>, <em class="sig-param"><span class="n">locality</span><span class="o">=</span><span class="default_value">5</span></em>, <em class="sig-param"><span class="n">loc_thresh</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">max_checks</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">low_cpu</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">annchor.</code><code class="sig-name descname">Annchor</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">func</em>, <em class="sig-param">n_anchors=20</em>, <em class="sig-param">n_neighbors=15</em>, <em class="sig-param">n_samples=5000</em>, <em class="sig-param">p_work=0.1</em>, <em class="sig-param">anchor_picker=&lt;annchor.components.MaxMinAnchorPicker object&gt;</em>, <em class="sig-param">sampler=&lt;annchor.components.SimpleStratifiedSampler object&gt;</em>, <em class="sig-param">regression=&lt;annchor.components.SimpleStratifiedLinearRegression object&gt;</em>, <em class="sig-param">error_predictor=&lt;annchor.components.SimpleStratifiedErrorRegression object&gt;</em>, <em class="sig-param">random_seed=42</em>, <em class="sig-param">locality=5</em>, <em class="sig-param">loc_thresh=1</em>, <em class="sig-param">verbose=False</em>, <em class="sig-param">low_cpu=False</em><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Quickly computes the approximate k-NN graph for slow metrics</p>
 <dl class="simple">
 <dt>X: np.array or list (required)</dt><dd><p>The data set for which we want to find the k-NN graph.</p>
@@ -189,62 +189,28 @@ for the k-NN graph).</p>
 <dt>n_samples: int (optional, default 5000) </dt><dd><p>The number of sample distances used to compute the error distribution
 (E = dhat-d).</p>
 </dd>
-<dt>partitions: int (optional, default 5)</dt><dd><p>The number of partitions into which we separate the n_samples in the
-W-dhat plane.</p>
+<dt>p_work: float (optional, default 0.1)</dt><dd><p>The approximate percentage of brute force calculations which
+we are willing to make.</p>
 </dd>
-<dt>min_prob: float (optional, default 0.1)</dt><dd><p>The probability threshold at which we prune the candidate nearest
-neighbour set.</p>
+<dt>sampler: Sampler (optional, default SimpleStratifiedSampler())</dt><dd><p>The sampler class which chooses the sample pairs.</p>
 </dd>
-<dt>threshold: int (optional, default None)</dt><dd><p>The neighbor threshold at which we prune the candidate nearest
-neighbour set.</p>
+<dt>regression: Regression (optional, default SimpleStratifiedDistanceRegression())</dt><dd><p>The regression class which predicts distances from features.</p>
+</dd>
+<dt>error_predictor: ErrorRegression (optional, default SimpleStratifiedErrorRegression())</dt><dd><p>The error regression class which predicts error distributions.</p>
 </dd>
 <dt>locality: int (optional, default 5)</dt><dd><p>The number of anchor points to use in the permutation based k-NN
 (dhat) step.</p>
 </dd>
-<dt>loc_thresh: int (optional, default 2)</dt><dd><p>The minimum number of anchors in common for which we allow an item
+<dt>loc_thresh: int (optional, default 1)</dt><dd><p>The minimum number of anchors in common for which we allow an item
 into NN_x.</p>
-</dd>
-<dt>max_checks: int (optional, default nx/5)</dt><dd><p>The max number of candidates per index.</p>
 </dd>
 <dt>verbose: bool (optional, default False)</dt><dd><p>Set verbose=True for more interim output.</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="annchor.Annchor.adjust_p">
-<code class="sig-name descname">adjust_p</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor.adjust_p" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adjusts the user specified probability. 
-If the user specifies probability 0.1, sometimes it doesn’t require many
-more function evaluations to lower the probability to e.g. 0.01.</p>
-</dd></dl>
-
-<dl class="py method">
 <dt id="annchor.Annchor.fit">
 <code class="sig-name descname">fit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor.fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calls the ANNchor algorithm for the parameters supplied to the class.</p>
-<p>Once called, the neighbor graph is available in Annchor.neighbor_graph.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="annchor.Annchor.fit_lo_mem">
-<code class="sig-name descname">fit_lo_mem</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor.fit_lo_mem" title="Permalink to this definition">¶</a></dt>
-<dd><p>Finds the approx nearest neighbour graph in the low memory regime.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="annchor.Annchor.get_LRApprox_lo_mem">
-<code class="sig-name descname">get_LRApprox_lo_mem</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor.get_LRApprox_lo_mem" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the approximate distances</p>
-<dl class="simple">
-<dt>self.IXs: np.array, shape=(nx,max_checks)</dt><dd><p>Array of candidate nn-pair indices. 
-IXs[i,j] is the index of the jth closest element to i according to the approximation.
-A value of IXs[i,j]=-1 denotes that there were fewer than j elements in check[i].</p>
-</dd>
-<dt>self.LRApprox: np.array, shape=(nx,max_checks)</dt><dd><p>Array of approx distances. 
-LRApprox[i,j] is the approx distance between index i and index IXs[i,j].</p>
-</dd>
-<dt>self.thresh: np.array, shape=(nx,)</dt><dd><p>Array of thresholds (i.e. distance of the k-th approx nearest neighbour.</p>
-</dd>
-</dl>
+<dd><p>Finds the approx nearest neighbour graph.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -261,80 +227,13 @@ Anchors are stored in self.A, distances in self.D.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="annchor.Annchor.get_approx">
-<code class="sig-name descname">get_approx</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor.get_approx" title="Permalink to this definition">¶</a></dt>
-<dd><p>Gets the upper/lower bounds (self.Bounds), 
-and approximate distances (self.LRApprox).</p>
-<dl class="simple">
-<dt>self.Bounds: np.array, shape=(nx,nx,2)</dt><dd><p>Array storing triangle inequality bounds. 
-Bounds[i,j,0] is the lower bound on distance ij.
-Bounds[i,j,1] is the upper bound on distance ij.</p>
-</dd>
-<dt>self.diff: np.array, shape=(nx,nx)</dt><dd><p>Array of widths, i.e. difference between upper and lower bounds.
-diff[i,j] is the width of the bounds on distance ij.</p>
-</dd>
-<dt>self.G: np.array, shape=(n_samples,3)</dt><dd><p>Array storing the sample distances and bounds (for future regression).
-G[i,0] is the lower bound for sample pair i.
-G[i,1] is the upper bound for sample pair i.
-G[i,2] is the true distance for sample pair i.</p>
-</dd>
-<dt>self.LR: sklearn.linear_model.LinearRegression</dt><dd><p>Linear Regression model fitted by samples in G.</p>
-</dd>
-<dt>self.LRApprox: np.array, shape=(nx,nx)</dt><dd><p>Array to hold the approximate distances, as computed by linear regression.
-LRApprox[i,j] is the approximate distance for distance ij.</p>
-</dd>
-<dt>self.RefineApprox: np.array, shape=(nx,nx)</dt><dd><p>Array to hold the refined distances. 
-Initially a copy of LRApprox, RefineApprox will be updated to hold 
-true distances for pairs deemed close enough to potentially be nearest
-neighbours.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="annchor.Annchor.get_candidate_nns_lo_mem">
-<code class="sig-name descname">get_candidate_nns_lo_mem</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor.get_candidate_nns_lo_mem" title="Permalink to this definition">¶</a></dt>
-<dd><p>Refines the approximation by calculating true distances for
-all pairs deemed close enough to be nearest neighbours.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="annchor.Annchor.get_error_distributions">
-<code class="sig-name descname">get_error_distributions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor.get_error_distributions" title="Permalink to this definition">¶</a></dt>
-<dd><p>Gets the error distributions based on a partitioning of the
-Width-ApproximateDistance plane</p>
-<dl class="simple">
-<dt>u: np.array, shape=(n_samples,)</dt><dd><p>Widths of the bounds of the sample pairs, min-max scaled.</p>
-</dd>
-<dt>v: np.array, shape=(n_samples,)</dt><dd><p>Approximate distance of the sample pairs, min-max scaled.</p>
-</dd>
-<dt>self.kmeans: sklearn.cluster.KMeans</dt><dd><p>K-Means classifier for partitioning of the uv plane.</p>
-</dd>
-<dt>self.cluster_map: np.array, shape=(nx,nx)</dt><dd><p>Array containing the partition to which a pair belongs.
-cluster_map[i,j] is the partition for distance ij.</p>
-</dd>
-<dt>self.hhs: list of arrays</dt><dd><p>List containing the distribution of errors for different partitions.
-hhs[i] is the sorted errors for sample pairs belonging to partition i.</p>
-</dd>
-<dt>self.lower: np.array, shape=(nx,nx)</dt><dd><p>Array of the approximate distance adjusted by the error distribution
-according to specified min_prob. The idea is that the true distance
-should only have a min_prob probability of being lower than the value
-in this array. We use this to identify candidate pairs to refine.</p>
-</dd>
-<dt>self.IJs: list of tuples</dt><dd><p>The list of candidate pairs which we will refine, i.e. calculate the
-exact distance.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="annchor.Annchor.get_locality_lm">
-<code class="sig-name descname">get_locality_lm</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor.get_locality_lm" title="Permalink to this definition">¶</a></dt>
+<dt id="annchor.Annchor.get_locality">
+<code class="sig-name descname">get_locality</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor.get_locality" title="Permalink to this definition">¶</a></dt>
 <dd><p>Uses basic permutation/set method to find candidate nearest neighbours.</p>
 <dl class="simple">
 <dt>Current Technique (Use something better in future):</dt><dd><p>For each point i, find the set S_i of its nearest l=locality anchor points.
 For each other point j, calculate (S_i intersect S_j).
-Only consider pairs ij where <a href="#id7"><span class="problematic" id="id8">|(S_i intersect S_j)|</span></a>&gt;=loc_thresh.</p>
+Only consider pairs ij where <a href="#id1"><span class="problematic" id="id2">|(S_i intersect S_j)|</span></a>&gt;=loc_thresh.</p>
 </dd>
 <dt>self.check: Dict, keys=int64, val=int64[:]</dt><dd><p>check[i] is the array of candidate nearest neighbour indices for index j.</p>
 </dd>
@@ -342,64 +241,15 @@ Only consider pairs ij where <a href="#id7"><span class="problematic" id="id8">|
 </dd></dl>
 
 <dl class="py method">
-<dt id="annchor.Annchor.get_lr_partitions_lm">
-<code class="sig-name descname">get_lr_partitions_lm</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor.get_lr_partitions_lm" title="Permalink to this definition">¶</a></dt>
-<dd><p>Finds the error distributions.
-Low memory partitions based on Width alone for now</p>
-<dl>
-<dt>self.LR: sklearn.linear_model.LinearRegression</dt><dd><p>Linear Regression model fitted by samples in G.</p>
-</dd>
-<dt>self.dts: List of floats</dt><dd><p>Partition edges for width space.
-E.g. partition 0 holds widths between dts[0] and dts[1],</p>
-<blockquote>
-<div><p>partition 1 holds widths between dts[1] and dts[2].
-etc</p>
-</div></blockquote>
-</dd>
-<dt>self.hs: List of arrays</dt><dd><p>List containing the distribution of errors for different partitions.
-hs[i] is the sorted errors for sample pairs belonging to partition i.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="annchor.Annchor.get_sample_lm">
-<code class="sig-name descname">get_sample_lm</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor.get_sample_lm" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the sample pairs and their bounds and true distances.</p>
+<dt id="annchor.Annchor.get_sample">
+<code class="sig-name descname">get_sample</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor.get_sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the sample of pairwise distances on which to train dhat/errors.</p>
 <dl class="simple">
-<dt>self.G: np.array, shape=(n_samples,3)</dt><dd><p>Array storing the sample distances and bounds (for future regression).
-G[i,0] is the lower bound for sample pair i.
-G[i,1] is the upper bound for sample pair i.
-G[i,2] is the true distance for sample pair i.</p>
+<dt>self.G: np.array, shape=(n_samples,3)</dt><dd><p>Array storing the sample distances and features (for future regression).
+G[i,:-1] are the features for sample pair i.
+G[i,-1] is the true distance for sample pair i.</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="annchor.Annchor.refine_approx">
-<code class="sig-name descname">refine_approx</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor.refine_approx" title="Permalink to this definition">¶</a></dt>
-<dd><p>Iterate over the pairs in self.IJ and evaluate them exactly.</p>
-<dl class="simple">
-<dt>self.IJs: list of tuples</dt><dd><p>The list of candidate pairs which we will refine, i.e. calculate the
-exact distance.</p>
-</dd>
-<dt>self.RefineApprox: np.array, shape=(nx,nx)</dt><dd><p>Array to hold the refined distances. 
-Initially a copy of LRApprox, RefineApprox will be updated to hold 
-true distances for pairs deemed close enough to potentially be nearest
-neighbours.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="annchor.Annchor.refine_part_two">
-<code class="sig-name descname">refine_part_two</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor.refine_part_two" title="Permalink to this definition">¶</a></dt>
-<dd><p>Refine part two does another loop of refining.</p>
-<p>Explanation by example:</p>
-<p>suppose the LRApprox has a row like         [0, 0.1,  0.2,  0.2, 0.3, 0.4, 0.4, 0.6, ….]</p>
-<p>maybe we select the first 4 for refinement  [<em>, ***</em>, <a href="#id1"><span class="problematic" id="id2">**</span></a><strong>, *</strong>, —, —, —, —, ….]</p>
-<p>after refine maybe this looks like          [0, 0.14, 0.17, 0.5, 0.3, 0.4, 0.4, 0.6, ….]</p>
-<p>then we probably want to refine some more   [-, —-, —-, —, <strong>*, *</strong>, <a href="#id3"><span class="problematic" id="id4">**</span></a><a href="#id5"><span class="problematic" id="id6">*</span></a>, —, ….]</p>
 </dd></dl>
 
 </dd></dl>

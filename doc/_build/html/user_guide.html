@@ -285,7 +285,7 @@ calls to the metric. Let’s try that, with a little  help from numba, and see h
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Brute Force Accuracy: </span><span class="si">%d</span><span class="s1"> incorrect NN pairs (</span><span class="si">%5.3f%%</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">error</span><span class="p">,</span><span class="mi">100</span><span class="o">*</span><span class="n">error</span><span class="o">/</span><span class="p">(</span><span class="n">k</span><span class="o">*</span><span class="n">nx</span><span class="p">)))</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Brute</span> <span class="n">Force</span> <span class="n">Time</span><span class="p">:</span> <span class="mf">83.294</span> <span class="n">seconds</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Brute</span> <span class="n">Force</span> <span class="n">Time</span><span class="p">:</span> <span class="mf">108.233</span> <span class="n">seconds</span>
 <span class="n">Brute</span> <span class="n">Force</span> <span class="n">Accuracy</span><span class="p">:</span> <span class="mi">0</span> <span class="n">incorrect</span> <span class="n">NN</span> <span class="n">pairs</span> <span class="p">(</span><span class="mf">0.000</span><span class="o">%</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -304,20 +304,20 @@ than the brute force method.</p>
 
 <span class="c1"># Call nearest neighbour descent</span>
 <span class="n">nndescent</span> <span class="o">=</span> <span class="n">NNDescent</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">n_neighbors</span><span class="o">=</span><span class="n">k</span><span class="p">,</span><span class="n">metric</span><span class="o">=</span><span class="n">wasserstein</span><span class="p">,</span><span class="n">random_state</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Time: </span><span class="si">%5.3f</span><span class="s1"> seconds&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">start_time</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;PyNND Time: </span><span class="si">%5.3f</span><span class="s1"> seconds&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">start_time</span><span class="p">))</span>
 
 <span class="c1"># Test accuracy</span>
 <span class="n">error</span> <span class="o">=</span> <span class="n">compare_neighbor_graphs</span><span class="p">(</span><span class="n">neighbor_graph</span><span class="p">,</span>
                                 <span class="n">nndescent</span><span class="o">.</span><span class="n">neighbor_graph</span><span class="p">,</span>
                                 <span class="n">k</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Accuracy: </span><span class="si">%d</span><span class="s1"> incorrect NN pairs (</span><span class="si">%5.3f%%</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">error</span><span class="p">,</span><span class="mi">100</span><span class="o">*</span><span class="n">error</span><span class="o">/</span><span class="p">(</span><span class="n">k</span><span class="o">*</span><span class="n">nx</span><span class="p">)))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;PyNND Accuracy: </span><span class="si">%d</span><span class="s1"> incorrect NN pairs (</span><span class="si">%5.3f%%</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">error</span><span class="p">,</span><span class="mi">100</span><span class="o">*</span><span class="n">error</span><span class="o">/</span><span class="p">(</span><span class="n">k</span><span class="o">*</span><span class="n">nx</span><span class="p">)))</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Time</span><span class="p">:</span> <span class="mf">69.561</span> <span class="n">seconds</span>
-<span class="n">Accuracy</span><span class="p">:</span> <span class="mi">29</span> <span class="n">incorrect</span> <span class="n">NN</span> <span class="n">pairs</span> <span class="p">(</span><span class="mf">0.064</span><span class="o">%</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">PyNND</span> <span class="n">Time</span><span class="p">:</span> <span class="mf">70.988</span> <span class="n">seconds</span>
 </pre></div>
 </div>
-<p>Not bad, we trimmed 14 seconds from the run-time for a minimal hit to accuracy.</p>
+<p>PyNND Accuracy: 23 incorrect NN pairs (0.051%)</p>
+<p>Not bad, we trimmed 38 seconds from the run-time for a minimal hit to accuracy.</p>
 </div>
 <div class="section" id="annchor">
 <h3>ANNchor<a class="headerlink" href="#annchor" title="Permalink to this headline">¶</a></h3>
@@ -332,10 +332,8 @@ force and PyNNDescent respectively. Can we do better?</p>
               <span class="n">wasserstein</span><span class="p">,</span>
               <span class="n">n_anchors</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
               <span class="n">n_neighbors</span><span class="o">=</span><span class="n">k</span><span class="p">,</span>
-              <span class="n">min_prob</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
-              <span class="n">random_seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-              <span class="n">n_samples</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
-              <span class="n">partitions</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+              <span class="n">n_samples</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span>
+              <span class="n">p_work</span><span class="o">=</span><span class="mf">0.16</span><span class="p">)</span>
 
 <span class="n">ann</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ANNchor Time: </span><span class="si">%5.3f</span><span class="s1"> seconds&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">start_time</span><span class="p">))</span>
@@ -348,12 +346,12 @@ force and PyNNDescent respectively. Can we do better?</p>
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ANNchor Accuracy: </span><span class="si">%d</span><span class="s1"> incorrect NN pairs (</span><span class="si">%5.3f%%</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="n">error</span><span class="p">,</span><span class="n">error</span><span class="o">/</span><span class="p">(</span><span class="n">k</span><span class="o">*</span><span class="n">nx</span><span class="p">)))</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Time</span><span class="p">:</span> <span class="mf">27.009</span> <span class="n">seconds</span>
-<span class="n">Accuracy</span><span class="p">:</span> <span class="mi">4</span> <span class="n">incorrect</span> <span class="n">NN</span> <span class="n">pairs</span> <span class="p">(</span><span class="mf">0.009</span><span class="o">%</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ANNchor</span> <span class="n">Time</span><span class="p">:</span> <span class="mf">23.623</span> <span class="n">seconds</span>
+<span class="n">ANNchor</span> <span class="n">Accuracy</span><span class="p">:</span> <span class="mi">23</span> <span class="n">incorrect</span> <span class="n">NN</span> <span class="n">pairs</span> <span class="p">(</span><span class="mf">0.051</span><span class="o">%</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Much better! We’ve got the 25-NN graph in less than half the time it took for
-PyNNDescent, with fewer errors to boot!</p>
+PyNNDescent, with comparable accuracy!</p>
 </div>
 <div class="section" id="a-larger-data-set">
 <h3>A Larger Data Set<a class="headerlink" href="#a-larger-data-set" title="Permalink to this headline">¶</a></h3>
@@ -373,19 +371,6 @@ This could take some time to run (15 minutes on our machine!).</p>
 
 <span class="n">nx</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-<span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-
-<span class="c1"># Call brute force</span>
-<span class="n">bruteforce</span> <span class="o">=</span> <span class="n">BruteForce</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">wasserstein</span><span class="p">)</span>
-<span class="n">bruteforce</span><span class="o">.</span><span class="n">get_neighbor_graph</span><span class="p">()</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Brute Force Time: </span><span class="si">%5.3f</span><span class="s1"> seconds&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">start_time</span><span class="p">))</span>
-
-<span class="n">error</span> <span class="o">=</span> <span class="n">compare_neighbor_graphs</span><span class="p">(</span><span class="n">neighbor_graph</span><span class="p">,</span>
-                                <span class="n">bruteforce</span><span class="o">.</span><span class="n">neighbor_graph</span><span class="p">,</span>
-                                <span class="mi">25</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Brute Force Accuracy: </span><span class="si">%d</span><span class="s1"> incorrect NN pairs (</span><span class="si">%5.3f%%</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">error</span><span class="p">,</span><span class="mi">100</span><span class="o">*</span><span class="n">error</span><span class="o">/</span><span class="p">(</span><span class="n">k</span><span class="o">*</span><span class="n">nx</span><span class="p">)))</span>
 
 <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
@@ -407,12 +392,10 @@ This could take some time to run (15 minutes on our machine!).</p>
 <span class="c1"># Call ANNchor</span>
 <span class="n">ann</span> <span class="o">=</span> <span class="n">Annchor</span><span class="p">(</span><span class="n">X</span><span class="p">,</span>
               <span class="n">wasserstein</span><span class="p">,</span>
-              <span class="n">n_anchors</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
+              <span class="n">n_anchors</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
               <span class="n">n_neighbors</span><span class="o">=</span><span class="n">k</span><span class="p">,</span>
-              <span class="n">min_prob</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span>
-              <span class="n">random_seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
               <span class="n">n_samples</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span>
-              <span class="n">partitions</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+              <span class="n">p_work</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
 
 <span class="n">ann</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ANNchor Time: </span><span class="si">%5.3f</span><span class="s1"> seconds&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">start_time</span><span class="p">))</span>
@@ -425,13 +408,10 @@ This could take some time to run (15 minutes on our machine!).</p>
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ANNchor Accuracy: </span><span class="si">%d</span><span class="s1"> incorrect NN pairs (</span><span class="si">%5.3f%%</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">error</span><span class="p">,</span><span class="mi">100</span><span class="o">*</span><span class="n">error</span><span class="o">/</span><span class="p">(</span><span class="n">k</span><span class="o">*</span><span class="n">nx</span><span class="p">)))</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Brute</span> <span class="n">Force</span> <span class="n">Time</span><span class="p">:</span> <span class="mf">804.354</span> <span class="n">seconds</span>
-
-<span class="n">PyNND</span> <span class="n">Time</span><span class="p">:</span> <span class="mf">253.547</span> <span class="n">seconds</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">PyNND</span> <span class="n">Time</span><span class="p">:</span> <span class="mf">225.864</span> <span class="n">seconds</span>
 <span class="n">PyNND</span> <span class="n">Accuracy</span><span class="p">:</span> <span class="mi">86</span> <span class="n">incorrect</span> <span class="n">NN</span> <span class="n">pairs</span> <span class="p">(</span><span class="mf">0.061</span><span class="o">%</span><span class="p">)</span>
-
-<span class="n">ANNchor</span> <span class="n">Time</span><span class="p">:</span> <span class="mf">104.284</span> <span class="n">seconds</span>
-<span class="n">ANNchor</span> <span class="n">Accuracy</span><span class="p">:</span> <span class="mi">44</span> <span class="n">incorrect</span> <span class="n">NN</span> <span class="n">pairs</span> <span class="p">(</span><span class="mf">0.031</span><span class="o">%</span><span class="p">)</span>
+<span class="n">ANNchor</span> <span class="n">Time</span><span class="p">:</span> <span class="mf">105.233</span> <span class="n">seconds</span>
+<span class="n">ANNchor</span> <span class="n">Accuracy</span><span class="p">:</span> <span class="mi">77</span> <span class="n">incorrect</span> <span class="n">NN</span> <span class="n">pairs</span> <span class="p">(</span><span class="mf">0.055</span><span class="o">%</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Again, we see that ANNchor can be much quicker than state-of-the-art!</p>
@@ -594,12 +574,11 @@ construction the index creation time is very important.</p>
 <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 <span class="n">ann</span> <span class="o">=</span> <span class="n">Annchor</span><span class="p">(</span><span class="n">X</span><span class="p">,</span>
               <span class="n">levdist</span><span class="p">,</span>
-              <span class="n">n_anchors</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
+              <span class="n">n_anchors</span><span class="o">=</span><span class="mi">23</span><span class="p">,</span>
               <span class="n">n_neighbors</span><span class="o">=</span><span class="n">k</span><span class="p">,</span>
-              <span class="n">min_prob</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span>
-              <span class="n">random_seed</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-              <span class="n">n_samples</span><span class="o">=</span><span class="mi">3000</span><span class="p">,</span>
-              <span class="n">partitions</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+              <span class="n">random_seed</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+              <span class="n">n_samples</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span>
+              <span class="n">p_work</span><span class="o">=</span><span class="mf">0.12</span><span class="p">)</span>
 
 <span class="n">ann</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ANNchor Time: </span><span class="si">%5.3f</span><span class="s1"> seconds&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">start_time</span><span class="p">))</span>
@@ -612,11 +591,11 @@ construction the index creation time is very important.</p>
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ANNchor Accuracy: </span><span class="si">%d</span><span class="s1"> incorrect NN pairs (</span><span class="si">%5.3f%%</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">error</span><span class="p">,</span><span class="mi">100</span><span class="o">*</span><span class="n">error</span><span class="o">/</span><span class="p">(</span><span class="n">k</span><span class="o">*</span><span class="n">nx</span><span class="p">)))</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ANNchor</span> <span class="n">Time</span><span class="p">:</span> <span class="mf">27.116</span> <span class="n">seconds</span>
-<span class="n">ANNchor</span> <span class="n">Accuracy</span><span class="p">:</span> <span class="mi">7</span> <span class="n">incorrect</span> <span class="n">NN</span> <span class="n">pairs</span> <span class="p">(</span><span class="mf">0.029</span><span class="o">%</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ANNchor</span> <span class="n">Time</span><span class="p">:</span> <span class="mf">27.296</span> <span class="n">seconds</span>
+<span class="n">ANNchor</span> <span class="n">Accuracy</span><span class="p">:</span> <span class="mi">8</span> <span class="n">incorrect</span> <span class="n">NN</span> <span class="n">pairs</span> <span class="p">(</span><span class="mf">0.033</span><span class="o">%</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Super speedy, and accurate too! That’s about 15% of the brute force run-time.</p>
+<p>Super speedy, and accurate too!</p>
 </div>
 </div>
 <div class="section" id="example-shortes-path-distance">
@@ -729,12 +708,11 @@ badly approach will scale.</p>
 <span class="c1"># Call ANNchor</span>
 <span class="n">ann</span> <span class="o">=</span> <span class="n">Annchor</span><span class="p">(</span><span class="n">X</span><span class="p">,</span>
               <span class="n">sp_dist</span><span class="p">,</span>
-              <span class="n">n_anchors</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
+              <span class="n">n_anchors</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
               <span class="n">n_neighbors</span><span class="o">=</span><span class="n">k</span><span class="p">,</span>
-              <span class="n">min_prob</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
-              <span class="n">partitions</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
-              <span class="n">n_samples</span><span class="o">=</span><span class="mi">3000</span>
-              <span class="p">)</span>
+              <span class="n">random_seed</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+              <span class="n">n_samples</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span>
+              <span class="n">p_work</span><span class="o">=</span><span class="mf">0.15</span><span class="p">)</span>
 
 <span class="n">ann</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ANNchor Time: </span><span class="si">%5.3f</span><span class="s1"> seconds&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">start_time</span><span class="p">))</span>
@@ -747,11 +725,11 @@ badly approach will scale.</p>
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ANNchor Accuracy: </span><span class="si">%d</span><span class="s1"> incorrect NN pairs (</span><span class="si">%5.3f%%</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">error</span><span class="p">,</span><span class="mi">100</span><span class="o">*</span><span class="n">error</span><span class="o">/</span><span class="p">(</span><span class="n">k</span><span class="o">*</span><span class="n">nx</span><span class="p">)))</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ANNchor</span> <span class="n">Time</span><span class="p">:</span> <span class="mf">29.700</span> <span class="n">seconds</span>
-<span class="n">ANNchor</span> <span class="n">Accuracy</span><span class="p">:</span> <span class="mi">35</span> <span class="n">incorrect</span> <span class="n">NN</span> <span class="n">pairs</span> <span class="p">(</span><span class="mf">0.292</span><span class="o">%</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ANNchor</span> <span class="n">Time</span><span class="p">:</span> <span class="mf">31.005</span> <span class="n">seconds</span>
+<span class="n">ANNchor</span> <span class="n">Accuracy</span><span class="p">:</span> <span class="mi">1</span> <span class="n">incorrect</span> <span class="n">NN</span> <span class="n">pairs</span> <span class="p">(</span><span class="mf">0.008</span><span class="o">%</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>That’s an order of magnitude faster than brute-force, with an acceptably small knock to accuracy.</p>
+<p>That’s an order of magnitude faster than brute-force.</p>
 </div>
 </div>
 </div>

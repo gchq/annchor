@@ -68,7 +68,7 @@ class Annchor:
         p_work=0.1,
         anchor_picker=MaxMinAnchorPicker(),
         sampler=SimpleStratifiedSampler(),
-        regression=SimpleStratifiedDistanceRegression(),
+        regression=SimpleStratifiedLinearRegression(),
         error_predictor=SimpleStratifiedErrorRegression(),
         random_seed=42,
         locality=5,
@@ -172,20 +172,20 @@ class Annchor:
         for i in prange(sid.shape[0]):
             for j in sid[i]:
                 A[j,i]=1
+        self.Amatrix = A
         for i in prange(nx):
             check[i] = ix[np.sum(A[sid[i],:],axis=0)>=loc_thresh]  
 
         self.check = check
-        #print('get_locality: %5.3f' % (time.time()-start))
             
     def get_features(self):
         
         start = time.time()
         IJs = np.hstack([ create_IJs(self.check,i) for i in range(self.nx)])
         IJs = np.fliplr(IJs.T)
-
-        n = IJs.shape[0]
-
+        self.IJs=IJs
+        n = IJs.shape[0]             
+        
         # IJs[:,0] should be sorted at this point
         #assert np.all(IJs[:,0]==np.sort(IJs[:,0]))
         #
@@ -221,19 +221,19 @@ class Annchor:
             self.I[i] = np.hstack([I[i],J[i]])
             
 
+        
+        dad = get_dad_ijs(IJs,self.D)
         bounds = get_bounds_njit_ijs(IJs,self.D)
         W = bounds[:,1]-bounds[:,0]
         anchors = np.zeros(shape=n)
         anchors[(bounds[:,1]-bounds[:,0])==0]=1
-        dad = get_dad_ijs(IJs,self.D)
 
-        self.features = np.vstack([IJs.T,
+        self.features = np.vstack([
                                    bounds.T,
                                    dad,
                                    anchors]).T
 
-        self.feature_names = ['i',
-                              'j',
+        self.feature_names = [
                               'lower bound',
                               'upper bound',
                               'double anchor distance',
@@ -263,8 +263,7 @@ class Annchor:
                                              self.not_computed_mask)
         self.sample_features = self.features[self.sample_ixs]
                   
-        ixs = [i for i,name in enumerate(self.feature_names) if name in ['i','j']]
-        self.sample_ijs = sample_ijs = self.sample_features[:,ixs].astype(int)       
+        self.sample_ijs = sample_ijs = self.IJs[self.sample_ixs]
 
         if self.low_cpu:
             # If you have few CPU cores, calling self.get_exact_ijs is slow,
@@ -283,17 +282,6 @@ class Annchor:
         
         self.not_computed_mask[self.sample_ixs]=False
         self.evals+=self.sample_y.shape[0]
-        
-        
-    def fit_predict_errors(self):
-        
-        self.error_predictor.fit(self.sample_features,
-                                 self.feature_names,
-                                 self.sample_y-self.sample_predict
-                                )
-                
-        self.errors = self.error_predictor.predict(self.features,
-                                                   self.feature_names)
 
 
     def fit_predict_regression(self):
@@ -310,10 +298,22 @@ class Annchor:
 
             self.pred[self.sample_ixs]=self.sample_y
 
-
-            self.pred = np.clip(self.pred,self.features[:,2],self.features[:,3])
+            ilb = self.feature_names.index('lower bound')
+            iub = self.feature_names.index('upper bound')
+            self.pred = np.clip(self.pred,self.features[:,ilb],self.features[:,iub])
             self.RefineApprox = self.pred.copy()
-
+        
+        
+    def fit_predict_errors(self):
+        
+        self.error_predictor.fit(self.sample_features,
+                                 self.feature_names,
+                                 self.sample_y-self.sample_predict
+                                )
+                
+        self.errors = self.error_predictor.predict(self.features,
+                                                   self.feature_names)
+        
     def select_refine_candidate_pairs(self,w=0.5):
 
         nn = self.n_neighbors
@@ -322,18 +322,23 @@ class Annchor:
         thresh = np.array([np.partition(self.RefineApprox[self.I[i]],nn)[nn] for i in range(self.nx)])
         self.thresh=thresh
 
-        p0 = (thresh[self.features[:,0].astype(int)] - self.RefineApprox )[self.not_computed_mask]
-        p1 = (thresh[self.features[:,1].astype(int)] - self.RefineApprox )[self.not_computed_mask]
+        
+        p0 = (thresh[self.IJs[:,0]] - self.RefineApprox )[self.not_computed_mask]
+        p1 = (thresh[self.IJs[:,1]] - self.RefineApprox )[self.not_computed_mask]
         p = np.max(np.vstack([p0,p1]),axis=0)
-        prob = np.empty(shape=p.shape)
-        for label in self.error_predictor.labels:
-            mask = self.errors[self.not_computed_mask]==label
-            prob[mask] = np.searchsorted(self.error_predictor.errs[label],
-                                         p[mask])
-            prob[mask]/=len(self.error_predictor.errs[label])
+        
+        errs = Dict.empty(
+            key_type=types.int64,
+            value_type=types.float64[:],
+        )
+        for label in self.error_predictor.errs:
+            errs[label] = self.error_predictor.errs[label]
 
+        prob = get_probs(p,
+                         np.array(self.error_predictor.labels),
+                         self.errors[self.not_computed_mask],
+                         errs)
 
-        ixs = [i for i,name in enumerate(self.feature_names) if name in ['i','j']]
 
         p_work = self.p_work
         N = self.nx*(self.nx-1)/2
@@ -342,14 +347,15 @@ class Annchor:
         max_refine = 0 if (max_refine<0) else max_refine
 
 
-        self.candidates = np.argsort(-prob)[:max_refine]
+        self.candidates = self.candidates = np.argpartition(-prob,max_refine)[:max_refine]
+
         mapback = np.arange(self.not_computed_mask.shape[0])[self.not_computed_mask][self.candidates]
 
 
-        self.IJs = self.features[self.not_computed_mask][self.candidates][:,ixs].astype(int)
+        IJs = self.IJs[mapback]
 
 
-        exact = self.get_exact_ijs(self.f,self.X,self.IJs)
+        exact = self.get_exact_ijs(self.f,self.X,IJs)
 
         self.RefineApprox[mapback]=exact
         self.not_computed_mask[mapback]=False
@@ -358,7 +364,9 @@ class Annchor:
         
         # Get the nn-graph. Can probably optimise this more.
 
-        ng = get_nn(self.nx,self.n_neighbors,self.RefineApprox,self.features[:,:2],self.I)
+        ng = get_nn(self.nx,self.n_neighbors,self.RefineApprox,self.IJs,self.I)
+
+
         self.neighbor_graph = (np.vstack([np.arange(self.nx),ng[0].T]).T,np.vstack([np.zeros(self.nx),ng[1].T]).T)
 
             
@@ -367,42 +375,76 @@ class Annchor:
         '''
         Finds the approx nearest neighbour graph.
         '''
+        
+        def timeit(item, origin, start):
+            print('%40s: %6.3f | %6.3f' % (item,
+                                           time.time()-start,
+                                           time.time()-origin)
+                 )
+            return
+                  
         start = time.time()
+        origin = time.time()
         if self.verbose: print('computing anchors...')
         self.get_anchors()
-        if self.verbose: print('get_anchors:', time.time()-start)
+        if self.verbose: timeit('get_anchors',
+                                 origin,
+                                 start)
             
+        start = time.time()    
         if self.verbose: print('computing locality...')
         self.get_locality()
-        if self.verbose: print('get_locality:', time.time()-start)
-            
+        if self.verbose: timeit('get_locality',
+                                 origin,
+                                 start)         
+        start = time.time()
         if self.verbose: print('computing features...')
         self.get_features()
-        if self.verbose: print('get_features:', time.time()-start)
-            
+        if self.verbose: timeit('get_features',
+                                 origin,
+                                 start)
+         
+        start = time.time()
         if self.verbose: print('computing sample...')
         self.get_sample()
-        if self.verbose: print('get_sample:', time.time()-start)
-            
+        if self.verbose: timeit('get_sample',
+                                 origin,
+                                 start)
+         
+        start = time.time()
         if self.verbose: print('fitting regression...')
         self.fit_predict_regression()
-        if self.verbose: print('fit_predict_regression:', time.time()-start)
+        if self.verbose: timeit('fit_predict_regression',
+                                 origin,
+                                 start)
 
+        start = time.time()
         if self.verbose: print('fitting errors...')
         self.fit_predict_errors()
-        if self.verbose: print('fit_predict_errors:', time.time()-start)
-            
+        if self.verbose: timeit('fit_predict_errors',
+                                 origin,
+                                 start)
+          
+        start = time.time()
         if self.verbose: print('selecting/refining candidate pairs (1)')
         self.select_refine_candidate_pairs()
-        if self.verbose: print('select_refine_candidate_pairs:', time.time()-start)
-           
+        if self.verbose: timeit('select_refine_candidate_pairs',
+                                 origin,
+                                 start)
+         
+        start = time.time()
         if self.verbose: print('selecting/refining candidate pairs (2)')
         self.select_refine_candidate_pairs()
-        if self.verbose: print('select_refine_candidate_pairs:', time.time()-start)
+        if self.verbose: timeit('select_refine_candidate_pairs',
+                                 origin,
+                                 start)
 
+        start = time.time()
         if self.verbose: print('generating neighbour graph')
         self.get_ann()
-        if self.verbose: print('get_ann:', time.time()-start)
+        if self.verbose: timeit('get_ann',
+                                 origin,
+                                 start)
 
 
     

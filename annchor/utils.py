@@ -190,6 +190,7 @@ def get_dad_ijs(IJs,D):
     
     return dad/2
 
+
 @njit(parallel=True)
 def get_nn(nx,nn,RA,IJs,I):
     '''
@@ -223,8 +224,12 @@ def get_nn(nx,nn,RA,IJs,I):
     ngi = np.zeros(shape = (nx,nn),dtype=np.int64)
     ngd = np.zeros(shape = (nx,nn))
     for i in (prange(nx)):
-        ix = np.argsort(RA[I[np.int64(i)]])[:nn] 
-        iy = I[np.int64(i)][ix]
+        Ii = I[np.int64(i)]
+        d = RA[Ii]
+        t = np.partition(d,nn)[nn] 
+        mask = d<t
+        iy = Ii[mask][np.argsort(d[mask])]
+
         ngd[i,:] = RA[iy]
 
         f = IJs[iy]
@@ -232,8 +237,6 @@ def get_nn(nx,nn,RA,IJs,I):
         ngi[i,:] = f[:,1]*mask+f[:,0]*(1-mask)
     return ngi,ngd
 
-
-from numba import njit,prange
 @njit
 def create_IJs(check,i):
     mask = check[i]>i
@@ -243,3 +246,49 @@ def create_IJs(check,i):
                     ))
     return IJs
    
+@njit
+def sample_partition(
+        indices,
+        sample_feature,
+        sample_bins,
+        nbin,
+        bin_size,
+        remainder):
+    mask = ((sample_feature>=sample_bins[nbin]) *
+            (sample_feature<=sample_bins[nbin+1]))
+    n_mask = np.sum(mask)
+
+    return np.random.choice(indices[mask],
+                           size=(bin_size+(nbin<remainder)),
+                            replace=False)
+@njit(parallel=True)
+def loop_partitions(
+        samples,
+        indices,
+        sample_feature,
+        sample_bins,
+        nbins,
+        bin_size,
+        remainder):
+
+    for nbin in prange(nbins):
+
+        samples[np.int64(nbin)] = sample_partition(
+                            indices,
+                            sample_feature,
+                            sample_bins,
+                            nbin,
+                            bin_size,
+                            remainder)
+    return samples
+
+@njit(parallel=True)
+def get_probs(p,labels,errors_ncm,errs):
+    prob = np.empty(shape=p.shape)
+    for nlabel in prange(labels.shape[0]):
+        label=labels[nlabel]
+        mask = errors_ncm==label
+        prob[mask] = np.searchsorted(errs[label],
+                                     p[mask])
+        prob[mask]/=len(errs[label])
+    return prob
