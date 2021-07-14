@@ -1,0 +1,10 @@
+# Packages required for the notebooks in Examples folder
+matplotlib
+python-Levenshtein
+nmslib
+umap-learn
+hdbscan
+scipy
+networkx
+jupyter
+ipywidgets

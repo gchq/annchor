@@ -1,0 +1,288 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Basic Parameters &mdash; ANNchor  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="ANNchor API Guide" href="api.html" />
+    <link rel="prev" title="ANNchor User Guide" href="user_guide.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/logo_yellow.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">User Guide:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="user_guide.html">ANNchor User Guide</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Basic Parameters</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#n-anchors"><code class="docutils literal notranslate"><span class="pre">n_anchors</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#n-neighbors"><code class="docutils literal notranslate"><span class="pre">n_neighbors</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#n-samples"><code class="docutils literal notranslate"><span class="pre">n_samples</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#p-work"><code class="docutils literal notranslate"><span class="pre">p_work</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#locality-and-loc-thresh"><code class="docutils literal notranslate"><span class="pre">locality</span></code> and <code class="docutils literal notranslate"><span class="pre">loc_thresh</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#verbose"><code class="docutils literal notranslate"><span class="pre">verbose</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#advanced-parameters">Advanced Parameters</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#anchor-picker"><code class="docutils literal notranslate"><span class="pre">anchor_picker</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sampler"><code class="docutils literal notranslate"><span class="pre">sampler</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#regression"><code class="docutils literal notranslate"><span class="pre">regression</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#error-predictor"><code class="docutils literal notranslate"><span class="pre">error_predictor</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#is-metric"><code class="docutils literal notranslate"><span class="pre">is_metric</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#get-exact-ijs"><code class="docutils literal notranslate"><span class="pre">get_exact_ijs</span></code></a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">API Reference:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">ANNchor API Guide</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ANNchor</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Basic Parameters</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/parameters.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="basic-parameters">
+<h1>Basic Parameters<a class="headerlink" href="#basic-parameters" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="n-anchors">
+<h2><code class="docutils literal notranslate"><span class="pre">n_anchors</span></code><a class="headerlink" href="#n-anchors" title="Permalink to this headline">¶</a></h2>
+<p>The number of anchor points (waypoints) we wish to use. The default value is 20, and should increase with the complexity of the underlying metric space.</p>
+<p>Picking an optimal value of <code class="docutils literal notranslate"><span class="pre">n_anchors</span></code> is more of an art than a science at this stage. For simple metric spaces we can get away with an extremely low number of anchors; for example <code class="docutils literal notranslate"><span class="pre">n_anchors=5</span></code> does pretty well for Euclidean in 2D! For most use cases we suggest between 20 and 30 anchor points. Remember that adding more anchor points will use more metric evaluations - there is a trade off to be made between picking more anchors, and evaluating more potential nearest neighbors. Given a fixed value of <code class="docutils literal notranslate"><span class="pre">p_work</span></code> (more on this later) the number of calls to the metric is also fixed at <code class="docutils literal notranslate"><span class="pre">n_evals</span> <span class="pre">=</span> <span class="pre">n_anchors*nx</span> <span class="pre">+</span> <span class="pre">n_samples</span> <span class="pre">+</span> <span class="pre">n_refine</span></code>, thus increasing <code class="docutils literal notranslate"><span class="pre">n_anchors</span></code> reduces <code class="docutils literal notranslate"><span class="pre">n_samples</span></code> and vice versa.</p>
+</div>
+<div class="section" id="n-neighbors">
+<h2><code class="docutils literal notranslate"><span class="pre">n_neighbors</span></code><a class="headerlink" href="#n-neighbors" title="Permalink to this headline">¶</a></h2>
+<p>Simply the number of nearest neighbors we are looking to find (i.e. the <em>k</em> in <em>k</em>-NN).</p>
+</div>
+<div class="section" id="n-samples">
+<h2><code class="docutils literal notranslate"><span class="pre">n_samples</span></code><a class="headerlink" href="#n-samples" title="Permalink to this headline">¶</a></h2>
+<p>ANNchor works by trying to approximate the metric given a variety of features (e.g. lower/upper bound). Under the hood this uses a standard machine learning approach, which naturally requires training. The parameter <code class="docutils literal notranslate"><span class="pre">n_samples</span></code> specifies how many pairwise distances we evaluate in order to create a training set on which to learn the metric. If this parameter is too small then we risk not accurately learning the underlying metric. Too big and we end up wasting valuable calls to the metric on non-nearest neighbor pairs.</p>
+</div>
+<div class="section" id="p-work">
+<h2><code class="docutils literal notranslate"><span class="pre">p_work</span></code><a class="headerlink" href="#p-work" title="Permalink to this headline">¶</a></h2>
+<p>At its heart, ANNchor wants to make as few calls to an expensive metric as possible. Of course, the more calls to the metric we make, the more accurate we will be (at the expense of run time). The <code class="docutils literal notranslate"><span class="pre">p_work</span></code> parameter allows us to control this trade off.
+In the brute force case we would make <code class="docutils literal notranslate"><span class="pre">N=nx*(nx-1)//2</span></code> calls to the metric, and ANNchor will make at most <code class="docutils literal notranslate"><span class="pre">p_work*N</span></code> calls to the metric, i.e. <code class="docutils literal notranslate"><span class="pre">p_work</span></code> is the percentage of brute force work we are willing to do.</p>
+</div>
+<div class="section" id="locality-and-loc-thresh">
+<h2><code class="docutils literal notranslate"><span class="pre">locality</span></code> and <code class="docutils literal notranslate"><span class="pre">loc_thresh</span></code><a class="headerlink" href="#locality-and-loc-thresh" title="Permalink to this headline">¶</a></h2>
+<p>These parameters specify how we cut down the number of pairwise distances that may be considered throughout the algorithm. We use a simple waypointing mechanism: For each point find the set of its <code class="docutils literal notranslate"><span class="pre">locality</span></code> nearest anchors, and only consider pairs which share at least <code class="docutils literal notranslate"><span class="pre">loc_thresh</span></code> anchors between their sets.</p>
+</div>
+<div class="section" id="verbose">
+<h2><code class="docutils literal notranslate"><span class="pre">verbose</span></code><a class="headerlink" href="#verbose" title="Permalink to this headline">¶</a></h2>
+<p>Simple boolean flag determines whether or not we print diagnostics/progress messages.</p>
+</div>
+</div>
+<div class="section" id="advanced-parameters">
+<h1>Advanced Parameters<a class="headerlink" href="#advanced-parameters" title="Permalink to this headline">¶</a></h1>
+<p>For most use cases the parameters described in the previous section will suffice. However, there are some other parameters available which allow greater control over the ANNchor algorithm.</p>
+<div class="section" id="anchor-picker">
+<h2><code class="docutils literal notranslate"><span class="pre">anchor_picker</span></code><a class="headerlink" href="#anchor-picker" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">anchor_picker</span></code> parameter allows you to supply you own anchor picker class. This class determines how anchors are sampled from the data. By default we use a max-min algorithm that picks anchors sequentially, aiming to pick the next anchor to be the point with the largest distance to an existing anchor.</p>
+</div>
+<div class="section" id="sampler">
+<h2><code class="docutils literal notranslate"><span class="pre">sampler</span></code><a class="headerlink" href="#sampler" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">sampler</span></code> parameter allows you to supply your own sampler class. This tells ANNchor how to decide which pairs of points to pick for the sampling (training) phase.</p>
+</div>
+<div class="section" id="regression">
+<h2><code class="docutils literal notranslate"><span class="pre">regression</span></code><a class="headerlink" href="#regression" title="Permalink to this headline">¶</a></h2>
+<p>We can specify the machine learning algorithm to train on the features of the sample points. By default this is a stratified linear regression, but could in principle be any ml algorithm. Remember that this needs to be much faster than the slow metric in order to succeed.</p>
+</div>
+<div class="section" id="error-predictor">
+<h2><code class="docutils literal notranslate"><span class="pre">error_predictor</span></code><a class="headerlink" href="#error-predictor" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">error_predictor</span></code> class tries to predict the error associated with the regression, which is useful for assigning probabilities to predictions.</p>
+</div>
+<div class="section" id="is-metric">
+<h2><code class="docutils literal notranslate"><span class="pre">is_metric</span></code><a class="headerlink" href="#is-metric" title="Permalink to this headline">¶</a></h2>
+<p>This boolean argument should be set to false when our metric is not a true metric (in particular whether it violates the triangle inequality). This can sometimes be the case for approximate metrics. If the metric approximate, ANNchor needs to take better care of the upper and lower triangle inequality bounds since they may no longer represent reality.</p>
+</div>
+<div class="section" id="get-exact-ijs">
+<h2><code class="docutils literal notranslate"><span class="pre">get_exact_ijs</span></code><a class="headerlink" href="#get-exact-ijs" title="Permalink to this headline">¶</a></h2>
+<p>This parameter allows the user to specify their own parallelisation for computing large numbers of pairwise distances.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="api.html" class="btn btn-neutral float-right" title="ANNchor API Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="user_guide.html" class="btn btn-neutral float-left" title="ANNchor User Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Jonathan H.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
