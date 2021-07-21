@@ -96,6 +96,25 @@ class SelectedAnchorPicker:
 
         return A, D.T, na * nx
 
+class RandomAnchorPicker:
+    def get_anchors(self, ann: "Annchor"):
+        nx = ann.nx
+        na = ann.n_anchors
+        np.random.seed(ann.random_seed)
+
+        # D stores distances to anchor points
+        # note: at this point D is shape (n_anchors, nx),
+        #       but we transpose this after calculations.
+        D = np.zeros((na, nx)) + np.infty
+
+        # A stores anchor indices
+        A = np.random.choice(np.arange(nx),na,replace=False)
+
+        IJ = np.array([[i, j] for i in A for j in range(nx)])
+        D = ann.get_exact_ijs(ann.f, ann.X, IJ)
+        D = D.reshape(na, nx)
+
+        return A, D.T, na * nx
 
 ########################################################
 # Samplers

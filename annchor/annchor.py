@@ -363,7 +363,7 @@ class Annchor:
 
         self.errors = self.error_predictor.predict(self.features, self.feature_names)
 
-    def select_refine_candidate_pairs(self, w=0.5):
+    def select_refine_candidate_pairs(self, w=0.5, it=0):
 
         nn = self.n_neighbors
 
@@ -371,6 +371,14 @@ class Annchor:
             [np.partition(self.RefineApprox[self.I[i]], nn)[nn] for i in range(self.nx)]
         )
         self.thresh = thresh
+        
+        if it==0:
+            self.RefineApprox = do_the_thing(self.nx,
+                                             self.not_computed_mask,
+                                             self.RefineApprox,
+                                             self.I,
+                                             3*nn//2)
+
 
         p0 = (thresh[self.IJs[:, 0]] - self.RefineApprox)[self.not_computed_mask]
         p1 = (thresh[self.IJs[:, 1]] - self.RefineApprox)[self.not_computed_mask]
@@ -427,12 +435,6 @@ class Annchor:
         self.RefineApprox[mapback] = exact
         self.not_computed_mask[mapback] = False
 
-        # Update errors with new results
-        # errors = ( self.RefineApprox[~self.not_computed_mask]
-        #          -self.pred[~self.not_computed_mask])
-        # partitions = self.errors[~self.not_computed_mask]
-        # self.error_predictor.update_errors(errors,partitions)
-
     def update_anchor_points(self):
         dis = Dict.empty(
             key_type=types.int64,
@@ -473,7 +475,7 @@ class Annchor:
 
         # Get the nn-graph. Can probably optimise this more.
 
-        ng = get_nn(self.nx, self.n_neighbors, self.RefineApprox, self.IJs, self.I)
+        ng = get_nn(self.nx, self.n_neighbors, self.RefineApprox, self.IJs, self.I, self.not_computed_mask)
 
         self.neighbor_graph = (
             np.vstack([np.arange(self.nx), ng[0].T]).T,
@@ -553,7 +555,7 @@ class Annchor:
             start = time.time()
             if self.verbose:
                 print("selecting/refining candidate pairs (%d)" % it)
-            self.select_refine_candidate_pairs(w=1 / niters)
+            self.select_refine_candidate_pairs(w=1 / niters, it=it)
             if self.verbose:
                 timeit("select_refine_candidate_pairs", origin, start)
 

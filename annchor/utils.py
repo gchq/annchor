@@ -227,8 +227,7 @@ def get_dad_ijs(IJs, D):
     return dad / 2
 
 
-@njit(parallel=True)
-def get_nn(nx, nn, RA, IJs, I):
+def get_nn(nx, nn, RA, IJs, I, not_computed_mask):
     """
     Calculates the nearest neighbor graph.
 
@@ -262,6 +261,8 @@ def get_nn(nx, nn, RA, IJs, I):
     for i in prange(nx):
         Ii = I[np.int64(i)]
         d = RA[Ii]
+        mx = np.max(d)
+        d[not_computed_mask[Ii]]+=mx
         t = np.partition(d, nn - 1)[nn - 1]
         mask = d <= t
         iy = Ii[mask][np.argsort(d[mask])][: nn - 1]
@@ -333,3 +334,25 @@ def check_locality_size(I, nx, nn):
     for i in range(nx):
         a[i] = (I[i].shape[0]) < nn
     return np.any(a)
+
+@njit()
+def argpartition(a,k):
+    dxs = np.partition(a,k)[k]
+    return np.arange(len(a))[a<dxs]
+
+@njit()
+def do_the_thing(nx,ncm,RA,I,nmin):
+    
+    l = np.arange(ncm.shape[0])
+
+    for i in range(nx):
+        _i = np.int64(i)
+        mask = ncm[I[np.int64(_i)]]
+        n_computed = np.sum(~mask)
+        n_todo = nmin-n_computed
+        if n_todo>0:
+            ixs = argpartition(RA[I[_i]][mask],n_todo)#[:n_todo]
+            mapback = l[I[_i]][mask][ixs]
+            RA[mapback]=-1
+
+    return RA
