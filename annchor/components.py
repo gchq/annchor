@@ -34,9 +34,11 @@ class MaxMinAnchorPicker:
         ix = np.random.randint(nx)
 
         if ann.verbose:
-            v = lambda f: tq(f)
+            def v(f):
+                return tq(f)
         else:
-            v = lambda f: f
+            def v(f):
+                return f
 
         for i in v(range(na)):
             A[i] = ix
@@ -63,9 +65,11 @@ class ExternalAnchorPicker:
         D = np.zeros((na, nx)) + np.infty
 
         if ann.verbose:
-            v = lambda f: tq(f)
+            def v(f):
+                return tq(f)
         else:
-            v = lambda f: f
+            def v(f):
+                return f
 
         for i in v(range(na)):
             D[i] = np.array([ann.f(x, self.A[i]) for x in ann.X])
@@ -96,6 +100,7 @@ class SelectedAnchorPicker:
 
         return A, D.T, na * nx
 
+
 class RandomAnchorPicker:
     def get_anchors(self, ann: "Annchor"):
         nx = ann.nx
@@ -108,13 +113,14 @@ class RandomAnchorPicker:
         D = np.zeros((na, nx)) + np.infty
 
         # A stores anchor indices
-        A = np.random.choice(np.arange(nx),na,replace=False)
+        A = np.random.choice(np.arange(nx), na, replace=False)
 
         IJ = np.array([[i, j] for i in A for j in range(nx)])
         D = ann.get_exact_ijs(ann.f, ann.X, IJ)
         D = D.reshape(na, nx)
 
         return A, D.T, na * nx
+
 
 ########################################################
 # Samplers
@@ -128,11 +134,13 @@ class Sampler(ABC):
     """
     Abstract base class for Samplers.
     They need to implement two methods, get_partition and sample_partition:
-     * get_partition(sample_feature, n_samples) should return a pair (sample_bins, new_n_samples)
+     * get_partition(sample_feature, n_samples) should return a
+     pair (sample_bins, new_n_samples)
      * sample_partition should return the sample indices
 
-    This base class implements sample_partition in a simple way, so descendants may
-    either implement get_partition only, or optionally override sample_partition as well.
+    This base class implements sample_partition in a simple way, so descendants
+    may either implement get_partition only, or optionally override
+    sample_partition as well.
     """
 
     def __init__(self, partition_feature_name, n_partitions):
@@ -176,7 +184,12 @@ class Sampler(ABC):
         return sample_ixs
 
     def sample(
-        self, features, feature_names, n_samples, not_computed_mask, random_seed
+        self,
+        features,
+        feature_names,
+        n_samples,
+        not_computed_mask,
+        random_seed,
     ):
         if not not_computed_mask.any():
             raise NothingToSample()
@@ -185,7 +198,9 @@ class Sampler(ABC):
         sample_feature = features[not_computed_mask][:, i_feature]
         indices = np.arange(not_computed_mask.shape[0])[not_computed_mask]
 
-        sample_bins, new_n_samples = self.get_partition(sample_feature, n_samples)
+        sample_bins, new_n_samples = self.get_partition(
+            sample_feature, n_samples
+        )
         if new_n_samples != n_samples:
             print(
                 "Warning: n_samples has changed from %d to %d."
@@ -207,7 +222,9 @@ class Sampler(ABC):
 
 
 class SimpleStratifiedSampler(Sampler):
-    def __init__(self, partition_feature_name="double anchor distance", n_partitions=7):
+    def __init__(
+        self, partition_feature_name="double anchor distance", n_partitions=7
+    ):
         super().__init__(partition_feature_name, n_partitions)
 
     def get_partition(self, sample_feature, n_samples):
@@ -222,8 +239,8 @@ class SimpleStratifiedSampler(Sampler):
         if (iq1 * self.n_partitions) < n_samples:
             n_samples = iq1 * self.n_partitions
             print(
-                "Warning: n_samples too large for data set size. Reducing n_samples to %d."
-                % n_samples
+                "Warning: n_samples too large for data set size.\n" +
+                "Reducing n_samples to %d." % n_samples
             )
 
         q1 = np.partition(sample_feature, iq1)[iq1]
@@ -235,7 +252,9 @@ class SimpleStratifiedSampler(Sampler):
 
 
 class ClusterSampler(Sampler):
-    def __init__(self, partition_feature_name="double anchor distance", n_partitions=5):
+    def __init__(
+        self, partition_feature_name="double anchor distance", n_partitions=5
+    ):
         super().__init__(partition_feature_name, n_partitions)
 
     def get_partition(self, sample_feature, n_samples):
@@ -274,7 +293,11 @@ class SamplingError(Exception):
 class SimpleStratifiedLinearRegression:
     def __init__(
         self,
-        reg_feature_names=["lower bound", "upper bound", "double anchor distance"],
+        reg_feature_names=[
+            "lower bound",
+            "upper bound",
+            "double anchor distance",
+        ],
         partition_feature_name="double anchor distance",
         n_partitions=7,
     ):
@@ -292,7 +315,9 @@ class SimpleStratifiedLinearRegression:
 
         i_partition_feature = feature_names.index(self.partition_feature_name)
         i_features = [
-            i for i, name in enumerate(feature_names) if name in self.reg_feature_names
+            i
+            for i, name in enumerate(feature_names)
+            if name in self.reg_feature_names
         ]
 
         F = sample_features[:, i_partition_feature]
@@ -311,14 +336,20 @@ class SimpleStratifiedLinearRegression:
             self.sample_bins = sample_bins
 
         for nbin in range(self.n_partitions):
-            mask = (F > self.sample_bins[nbin]) * (F <= self.sample_bins[nbin + 1])
-            self.LRs[nbin].fit(sample_features[mask][:, i_features], sample_y[mask])
+            mask = (F > self.sample_bins[nbin]) * (
+                F <= self.sample_bins[nbin + 1]
+            )
+            self.LRs[nbin].fit(
+                sample_features[mask][:, i_features], sample_y[mask]
+            )
 
     def predict(self, features, feature_names):
 
         i_partition_feature = feature_names.index(self.partition_feature_name)
         i_features = [
-            i for i, name in enumerate(feature_names) if name in self.reg_feature_names
+            i
+            for i, name in enumerate(feature_names)
+            if name in self.reg_feature_names
         ]
 
         X = features[:, i_features]
@@ -326,7 +357,9 @@ class SimpleStratifiedLinearRegression:
         F = features[:, i_partition_feature]
 
         def predict_bin(nbin):
-            mask = (F > self.sample_bins[nbin]) * (F <= self.sample_bins[nbin + 1])
+            mask = (F > self.sample_bins[nbin]) * (
+                F <= self.sample_bins[nbin + 1]
+            )
             return self.LRs[nbin].predict(X[mask])
 
         preds = Parallel(n_jobs=CPU_COUNT)(
@@ -334,19 +367,25 @@ class SimpleStratifiedLinearRegression:
         )
 
         for nbin, pred in enumerate(preds):
-            mask = (F > self.sample_bins[nbin]) * (F <= self.sample_bins[nbin + 1])
+            mask = (F > self.sample_bins[nbin]) * (
+                F <= self.sample_bins[nbin + 1]
+            )
             y[mask] = pred
             # self.LRs[nbin].predict(X[mask])
         return y
 
 
 class SimpleStratifiedErrorRegression:
-    def __init__(self, partition_feature_name="double anchor distance", n_partitions=7):
+    def __init__(
+        self, partition_feature_name="double anchor distance", n_partitions=7
+    ):
         self.n_partitions = n_partitions
         self.partition_feature_name = partition_feature_name
         self.labels = range(n_partitions)
 
-    def fit(self, sample_features, feature_names, sample_error, sample_bins=None):
+    def fit(
+        self, sample_features, feature_names, sample_error, sample_bins=None
+    ):
 
         i_feature = feature_names.index(self.partition_feature_name)
 
@@ -394,6 +433,11 @@ class SimpleStratifiedErrorRegression:
             mask = partitions == i
 
             new_errors = np.sort(
-                np.hstack([self.errs[i], errors[mask][np.abs(errors[mask]) > 0.000001]])
+                np.hstack(
+                    [
+                        self.errs[i],
+                        errors[mask][np.abs(errors[mask]) > 0.000001],
+                    ]
+                )
             )
             self.errs[i] = new_errors
