@@ -58,13 +58,15 @@ def get_exact_ijs_(f, parallel=True, verbose=False):
     Parameters
     ----------
     f: function
-        The metric. Takes two points from the data set and calculates their distance.
+        The metric. Takes two points from the data set and calculates their
+        distance.
 
 
     Outputs
     -------
     get_exact_ijs: function
-        get_exact_ijs(f,X,IJ) is the function that returns distances between pairs given in array IJ,
+        get_exact_ijs(f,X,IJ) is the function that returns distances between
+        pairs given in array IJ,
         i.e. np.array([f(X[i],X[j]) for i,j in IJ]).
     """
     if not parallel:
@@ -262,7 +264,7 @@ def get_nn(nx, nn, RA, IJs, I, not_computed_mask):
         Ii = I[np.int64(i)]
         d = RA[Ii]
         mx = np.max(d)
-        d[not_computed_mask[Ii]]+=mx
+        d[not_computed_mask[Ii]] += mx
         t = np.partition(d, nn - 1)[nn - 1]
         mask = d <= t
         iy = Ii[mask][np.argsort(d[mask])][: nn - 1]
@@ -284,7 +286,9 @@ def create_IJs(check, i):
 
 
 @njit
-def sample_partition(indices, sample_feature, sample_bins, nbin, bin_size, remainder):
+def sample_partition(
+    indices, sample_feature, sample_bins, nbin, bin_size, remainder
+):
     mask = (sample_feature >= sample_bins[nbin]) * (
         sample_feature < sample_bins[nbin + 1]
     )
@@ -293,7 +297,9 @@ def sample_partition(indices, sample_feature, sample_bins, nbin, bin_size, remai
     ixmask = indices[mask]
     if ixmask.shape[0] < (bin_size + (nbin < remainder)):
         return ixmask
-    return np.random.choice(ixmask, size=(bin_size + (nbin < remainder)), replace=False)
+    return np.random.choice(
+        ixmask, size=(bin_size + (nbin < remainder)), replace=False
+    )
 
 
 @njit
@@ -335,24 +341,26 @@ def check_locality_size(I, nx, nn):
         a[i] = (I[i].shape[0]) < nn
     return np.any(a)
 
-@njit()
-def argpartition(a,k):
-    dxs = np.partition(a,k)[k]
-    return np.arange(len(a))[a<dxs]
 
 @njit()
-def do_the_thing(nx,ncm,RA,I,nmin):
-    
+def argpartition(a, k):
+    dxs = np.partition(a, k)[k]
+    return np.arange(len(a))[a < dxs]
+
+
+@njit()
+def do_the_thing(nx, ncm, RA, I, nmin):
+
     l = np.arange(ncm.shape[0])
 
     for i in range(nx):
         _i = np.int64(i)
         mask = ncm[I[np.int64(_i)]]
         n_computed = np.sum(~mask)
-        n_todo = nmin-n_computed
-        if n_todo>0:
-            ixs = argpartition(RA[I[_i]][mask],n_todo)#[:n_todo]
+        n_todo = nmin - n_computed
+        if n_todo > 0:
+            ixs = argpartition(RA[I[_i]][mask], n_todo)  # [:n_todo]
             mapback = l[I[_i]][mask][ixs]
-            RA[mapback]=-1
+            RA[mapback] = -1
 
     return RA

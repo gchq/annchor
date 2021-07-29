@@ -33,7 +33,11 @@ class Annchor:
         The data set for which we want to find the k-NN graph.
     func: function, numba-jitted function (required) or string.
         The metric under which the k-NN graph should be evaluated.
-        String can be euclidean, cosine or levenshtein for the corresponding method.
+        This can be a user supplied function or a string.
+        Currently supported string arguments are
+            * euclidean
+            * cosine
+            * levenshtein
     n_anchors: int (optional, default 20)
         The number of anchor points. Increasing the number of anchors
         increases the k-NN graph accuracy at the expense of speed.
@@ -50,9 +54,11 @@ class Annchor:
         The anchor picker class which specifies the anchor points.
     sampler: Sampler (optional, default SimpleStratifiedSampler())
         The sampler class which chooses the sample pairs.
-    regression: Regression (optional, default SimpleStratifiedDistanceRegression())
+    regression: Regression
+        (optional, default SimpleStratifiedDistanceRegression())
         The regression class which predicts distances from features.
-    error_predictor: ErrorRegression (optional, default SimpleStratifiedErrorRegression())
+    error_predictor: ErrorRegression
+        (optional, default SimpleStratifiedErrorRegression())
         The error regression class which predicts error distributions.
     locality: int (optional, default 5)
         The number of anchor points to use in the permutation based k-NN
@@ -64,12 +70,14 @@ class Annchor:
         Set verbose=True for more interim output.
     is_metric: bool (optional, default True)
         Set is_metric=False if the metric may violate the triangle inequality.
-        With is_metric=True, predictions are clipped between upper/lower bounds,
-        which may not be accurate if triangle inequality is violated.
+        With is_metric=True, predictions are clipped between upper/lower
+        bounds, which may not be accurate if triangle inequality is violated.
     get_exact_ijs: function (optional, default None)
-        An optional user supplied function for evaluating the metric on an array
-        of indices. Useful if you wish to supply your own parallelisation.
-        get_exact_ijs(f,X,IJ) should return np.array([f(X[i],X[j] for i,j in IJ]).
+        An optional user supplied function for evaluating the metric on an
+        array of indices. Useful if you wish to supply your own
+        parallelisation.
+        get_exact_ijs(f,X,IJ) should return
+        np.array([f(X[i],X[j] for i,j in IJ]).
 
 
     """
@@ -186,12 +194,14 @@ class Annchor:
         Uses basic permutation/set method to find candidate nearest neighbours.
 
         Current Technique (Use something better in future):
-            For each point i, find the set S_i of its nearest l=locality anchor points.
+            For each point i, find the set S_i of its nearest l=locality anchor
+            points.
             For each other point j, calculate (S_i intersect S_j).
             Only consider pairs ij where |(S_i intersect S_j)|>=loc_thresh.
 
         self.check: Dict, keys=int64, val=int64[:]
-            check[i] is the array of candidate nearest neighbour indices for index j.
+            check[i] is the array of candidate nearest neighbour indices for
+            index j.
 
         """
         start = time.time()
@@ -267,7 +277,8 @@ class Annchor:
 
         if check_locality_size(self.I, self.nx, self.n_neighbors):
             raise Exception(
-                "Error: Not enough candidates in pool for all indices. Try again with lower loc_thresh."
+                "Error: Not enough candidates in pool for all indices.\n" +
+                "Try again with lower loc_thresh."
             )
 
         dad = get_dad_ijs(IJs, self.D)
@@ -296,12 +307,17 @@ class Annchor:
         Gets the sample of pairwise distances on which to train dhat/errors.
 
         self.G: np.array, shape=(n_samples,3)
-            Array storing the sample distances and features (for future regression).
+            Array storing the sample distances and features (for future
+            regression).
             G[i,:-1] are the features for sample pair i.
             G[i,-1] is the true distance for sample pair i.
         """
 
-        self.sample_ixs, self.n_samples, self.sample_bins = self.sampler.sample(
+        (
+            self.sample_ixs,
+            self.n_samples,
+            self.sample_bins,
+        ) = self.sampler.sample(
             self.features,
             self.feature_names,
             self.n_samples,
@@ -333,7 +349,9 @@ class Annchor:
 
         ilb = self.feature_names.index("lower bound")
         iub = self.feature_names.index("upper bound")
-        self.pred = np.clip(self.pred, self.features[:, ilb], self.features[:, iub])
+        self.pred = np.clip(
+            self.pred, self.features[:, ilb], self.features[:, iub]
+        )
 
         # if we don't satisfy the triangle inequality we should
         # put in the anchor point distances explicitly
@@ -361,27 +379,37 @@ class Annchor:
             sample_bins=self.sample_bins,
         )
 
-        self.errors = self.error_predictor.predict(self.features, self.feature_names)
+        self.errors = self.error_predictor.predict(
+            self.features, self.feature_names
+        )
 
     def select_refine_candidate_pairs(self, w=0.5, it=0):
 
         nn = self.n_neighbors
 
         thresh = np.array(
-            [np.partition(self.RefineApprox[self.I[i]], nn)[nn] for i in range(self.nx)]
+            [
+                np.partition(self.RefineApprox[self.I[i]], nn)[nn]
+                for i in range(self.nx)
+            ]
         )
         self.thresh = thresh
-        
-        if it==0:
-            self.RefineApprox = do_the_thing(self.nx,
-                                             self.not_computed_mask,
-                                             self.RefineApprox,
-                                             self.I,
-                                             3*nn//2)
 
+        if it == 0:
+            self.RefineApprox = do_the_thing(
+                self.nx,
+                self.not_computed_mask,
+                self.RefineApprox,
+                self.I,
+                3 * nn // 2,
+            )
 
-        p0 = (thresh[self.IJs[:, 0]] - self.RefineApprox)[self.not_computed_mask]
-        p1 = (thresh[self.IJs[:, 1]] - self.RefineApprox)[self.not_computed_mask]
+        p0 = (thresh[self.IJs[:, 0]] - self.RefineApprox)[
+            self.not_computed_mask
+        ]
+        p1 = (thresh[self.IJs[:, 1]] - self.RefineApprox)[
+            self.not_computed_mask
+        ]
         p = np.max(np.vstack([p0, p1]), axis=0)
 
         errs = Dict.empty(
@@ -423,9 +451,9 @@ class Annchor:
             self.not_computed_mask
         ][self.next]
 
-        mapback = np.arange(self.not_computed_mask.shape[0])[self.not_computed_mask][
-            self.candidates
-        ]
+        mapback = np.arange(self.not_computed_mask.shape[0])[
+            self.not_computed_mask
+        ][self.candidates]
 
         IJs = self.IJs[mapback]
 
@@ -458,15 +486,15 @@ class Annchor:
 
         try:
             if not self.anchor_picker.is_anchor_safe:
-                # If anchors are not in dataset, then we need to check if any of the
-                # original anchors gave the best bounds
+                # If anchors are not in dataset, then we need to check if any
+                # of the original anchors gave the best bounds
                 bounds = np.vstack(
                     [
                         np.maximum(bounds[:, 0], self.features[mapback][:, 0]),
                         np.minimum(bounds[:, 1], self.features[mapback][:, 1]),
                     ]
                 ).T
-        except:
+        except AttributeError:
             pass
 
         self.features[mapback, :2] = bounds
@@ -475,7 +503,14 @@ class Annchor:
 
         # Get the nn-graph. Can probably optimise this more.
 
-        ng = get_nn(self.nx, self.n_neighbors, self.RefineApprox, self.IJs, self.I, self.not_computed_mask)
+        ng = get_nn(
+            self.nx,
+            self.n_neighbors,
+            self.RefineApprox,
+            self.IJs,
+            self.I,
+            self.not_computed_mask,
+        )
 
         self.neighbor_graph = (
             np.vstack([np.arange(self.nx), ng[0].T]).T,
@@ -531,7 +566,8 @@ class Annchor:
                     ) from err
                 else:
                     print(
-                        "Warning: main loop terminated early with nothing left to sample."
+                        """Warning: main loop terminated early with nothing
+                        left to sample."""
                     )
                     break
             finally:
@@ -584,7 +620,8 @@ class Annchor:
 
         for i, (js, ds) in enumerate(zip(*self.neighbor_graph)):
             # i is an index into our data
-            # js is the list of indices that annchor has determined to be nearest to i
+            # js is the list of indices that annchor has determined to be
+            # nearest to i
             # ds is the list of distances corresponding to i,js
             for j, d in zip(js, ds):
                 # symmetric, so update both pairs (i,j) and (j,i)
@@ -635,22 +672,27 @@ class BruteForce:
         for ij, d in zip(IJs, dists):
             i, j = ij
             self.D[i, j] = self.D[j, i] = d
-        self.neighbor_graph = np.argsort(self.D, axis=1), np.sort(self.D, axis=1)
+        self.neighbor_graph = (
+            np.argsort(self.D, axis=1),
+            np.sort(self.D, axis=1),
+        )
 
 
 def compare_neighbor_graphs(nng_1, nng_2, n_neighbors):
 
     """compare_neighbor_graphs
 
-    Compares accuracy of k-NN graphs. The second graph is compared against the first.
-    This measure of accuracy accounts for cases where the indices differ but the distances
-    are equivalent.
+    Compares accuracy of k-NN graphs. The second graph is compared against the
+    first.
+    This measure of accuracy accounts for cases where the indices differ but
+    the distances are equivalent.
 
     e.g. if nng_1[0][0]=[0, 1, 2, 3], nng_1[0][1]=[0, 1, 1, 2],
 
     and     nng_2[0][0]=[0, 1, 2, 4], nng_1[0][1]=[0, 1, 1, 2],
 
-    There would be zero incorrect NN pairs, since both ix=3 and ix=4 are valid 4th nearest neighbors.
+    There would be zero incorrect NN pairs, since both ix=3 and ix=4 are valid
+    4th nearest neighbors.
 
     Parameters
     ----------

@@ -1,6 +1,8 @@
 # numba jitted wasserstein (from pynndescent library)
 # https://github.com/lmcinnes/pynndescent/blob/master/pynndescent/distances.py
+import os
 import numpy as np
+from numba import njit
 from pynndescent.optimal_transport import (
     allocate_graph_structures,
     initialize_graph_structures,
@@ -19,9 +21,6 @@ FLOAT32_EPS = np.finfo(np.float32).eps
 FLOAT32_MAX = np.finfo(np.float32).max
 
 
-from numba import njit
-
-
 @njit(nogil=True)
 def kantorovich(x, y, cost=_dummy_cost, max_iter=100000):
 
@@ -33,11 +32,6 @@ def kantorovich(x, y, cost=_dummy_cost, max_iter=100000):
 
     a_sum = a.sum()
     b_sum = b.sum()
-
-    # if not isclose(a_sum, b_sum):
-    #     raise ValueError(
-    #         "Kantorovich distance inputs must be valid probability distributions."
-    #     )
 
     a /= a_sum
     b /= b_sum
@@ -52,10 +46,13 @@ def kantorovich(x, y, cost=_dummy_cost, max_iter=100000):
     initialize_supply(a, -b, graph, node_arc_data.supply)
     initialize_cost(sub_cost, graph, node_arc_data.cost)
     # initialize_cost(cost, graph, node_arc_data.cost)
-    init_status = initialize_graph_structures(graph, node_arc_data, spanning_tree)
-    if init_status == False:
+    init_status = initialize_graph_structures(
+        graph, node_arc_data, spanning_tree
+    )
+    if init_status is False:
         raise ValueError(
-            "Kantorovich distance inputs must be valid probability distributions."
+            "Kantorovich distance inputs must be valid" +
+            " probability distributions."
         )
     solve_status = network_simplex_core(
         node_arc_data,
@@ -63,8 +60,7 @@ def kantorovich(x, y, cost=_dummy_cost, max_iter=100000):
         graph,
         max_iter,
     )
-    # if solve_status == ProblemStatus.MAX_ITER_REACHED:
-    #     print("WARNING: RESULT MIGHT BE INACCURATE\nMax number of iteration reached!")
+
     if solve_status == ProblemStatus.INFEASIBLE:
         raise ValueError(
             "Optimal transport problem was INFEASIBLE. Please check " "inputs."
@@ -77,8 +73,6 @@ def kantorovich(x, y, cost=_dummy_cost, max_iter=100000):
 
     return result
 
-
-import os
 
 package_directory = os.path.dirname(os.path.abspath(__file__))
 cost_matrix = os.path.join(package_directory, "data", "wasserstein_matrix.npz")
