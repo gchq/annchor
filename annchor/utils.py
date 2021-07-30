@@ -351,7 +351,7 @@ def argpartition(a, k):
 @njit()
 def do_the_thing(nx, ncm, RA, I, nmin):
 
-    ixs = np.arange(ncm.shape[0])
+    l = np.arange(ncm.shape[0])
 
     for i in range(nx):
         _i = np.int64(i)
@@ -360,7 +360,7 @@ def do_the_thing(nx, ncm, RA, I, nmin):
         n_todo = nmin - n_computed
         if n_todo > 0:
             ixs = argpartition(RA[I[_i]][mask], n_todo)  # [:n_todo]
-            mapback = ixs[I[_i]][mask][ixs]
+            mapback = l[I[_i]][mask][ixs]
             RA[mapback] = -1
 
     return RA
