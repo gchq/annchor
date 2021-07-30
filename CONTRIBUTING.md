@@ -16,7 +16,7 @@ Make sure to include clear details about the purpose of your pull request.
 ### Code formatting
 
 ANNchor uses the [black code formatter](https://github.com/python/black), which can be installed
-via pip (`pip install black`). Simply install and run in the project root:
+via pip (`pip install black`). Simply install and run in the project root. Note that we run black with a maximum line length of 79.
 
 ```bash
 black --line-length 79 ./

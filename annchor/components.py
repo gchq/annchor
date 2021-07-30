@@ -34,9 +34,12 @@ class MaxMinAnchorPicker:
         ix = np.random.randint(nx)
 
         if ann.verbose:
+
             def v(f):
                 return tq(f)
+
         else:
+
             def v(f):
                 return f
 
@@ -65,9 +68,12 @@ class ExternalAnchorPicker:
         D = np.zeros((na, nx)) + np.infty
 
         if ann.verbose:
+
             def v(f):
                 return tq(f)
+
         else:
+
             def v(f):
                 return f
 
@@ -239,8 +245,8 @@ class SimpleStratifiedSampler(Sampler):
         if (iq1 * self.n_partitions) < n_samples:
             n_samples = iq1 * self.n_partitions
             print(
-                "Warning: n_samples too large for data set size.\n" +
-                "Reducing n_samples to %d." % n_samples
+                "Warning: n_samples too large for data set size.\n"
+                + "Reducing n_samples to %d." % n_samples
             )
 
         q1 = np.partition(sample_feature, iq1)[iq1]

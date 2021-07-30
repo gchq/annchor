@@ -12,13 +12,10 @@ from collections import Counter
 
 from annchor.utils import *
 from annchor.components import *
+from annchor.distances import euclidean, levenshtein, cosine
 
 
 from scipy.sparse import dok_matrix
-import numpy as np
-from scipy.spatial.distance import cosine
-from numpy.linalg import norm
-from Levenshtein import distance as levenshtein
 
 
 class Annchor:
@@ -107,10 +104,6 @@ class Annchor:
         self.X = X
         self.nx = len(X)
         self.N = (self.nx * (self.nx - 1)) // 2
-
-        @njit
-        def euclidean(x, y):
-            return norm(x - y)
 
         if isinstance(func, str):
             allowed_strings = {
@@ -277,8 +270,8 @@ class Annchor:
 
         if check_locality_size(self.I, self.nx, self.n_neighbors):
             raise Exception(
-                "Error: Not enough candidates in pool for all indices.\n" +
-                "Try again with lower loc_thresh."
+                "Error: Not enough candidates in pool for all indices.\n"
+                + "Try again with lower loc_thresh."
             )
 
         dad = get_dad_ijs(IJs, self.D)
@@ -566,8 +559,8 @@ class Annchor:
                     ) from err
                 else:
                     print(
-                        """Warning: main loop terminated early with nothing
-                        left to sample."""
+                        "Warning: main loop terminated early with nothing"
+                        + "left to sample."
                     )
                     break
             finally:

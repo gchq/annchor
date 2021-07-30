@@ -26,17 +26,16 @@ def test_compare_neighbor_graphs(seed=42):
     assert error == 0
 
 
-def test_digits(seed=42):
+def test_digits(seed=42, niters=1):
 
     # Set k-NN
     k = 25
 
     # Load digits
     X = load_digits()["X"]
-    y = load_digits()["y"]
     neighbor_graph = load_digits()["neighbor_graph"]
 
-    for it in range(3):
+    for it in range(niters):
 
         # Call ANNchor
         ann = Annchor(
@@ -60,25 +59,21 @@ def test_digits(seed=42):
         assert error < 10
 
 
-def test_strings(seed=42):
+def test_strings(seed=42, niters=1):
 
     # Set k-NN, metric
     k = 15
 
-    def levdist(a, b):
-        return lev.distance(a, b)
-
     strings_data = load_strings()
     X = strings_data["X"]
-    y = strings_data["y"]
     neighbor_graph = strings_data["neighbor_graph"]
 
-    for it in range(3):
+    for it in range(niters):
 
         # Call ANNchor
         ann = Annchor(
             X,
-            levdist,
+            "levenshtein",
             n_anchors=23,
             n_neighbors=k,
             random_seed=seed + it,
@@ -96,6 +91,21 @@ def test_strings(seed=42):
         # We should average much less.
         # 0-5 is typical, with a few outliers
         assert error < 15
+
+
+def test_init():
+
+    # Set k-NN, metric
+    k = 15
+
+    X = load_strings()["X"]
+
+    ann = Annchor(X, "levenshtein", p_work=1.1)
+    assert ann.p_work == 1.0
+
+    ann = Annchor(X, "levenshtein", p_work=0.0)
+
+    assert ann.p_work == 2 * ann.n_anchors * ann.nx / ann.N
 
 
 def test_brute_force():
