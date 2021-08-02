@@ -18,7 +18,7 @@ import sphinx_rtd_theme
 # -- Project information -----------------------------------------------------
 
 project = "ANNchor"
-copyright = "2021, Jonathan H"
+copyright = "2021, GCHQ"
 author = "Jonathan H"
 
 
