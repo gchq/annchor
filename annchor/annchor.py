@@ -11,7 +11,11 @@ from sklearn.neighbors import KNeighborsRegressor as KNNR
 from collections import Counter
 
 from annchor.utils import *
-from annchor.components import *
+from annchor.pickers import *
+from annchor.samplers import *
+from annchor.regressors import *
+from annchor.error_predictors import *
+
 from annchor.distances import euclidean, levenshtein, cosine
 
 
@@ -52,7 +56,7 @@ class Annchor:
     sampler: Sampler (optional, default SimpleStratifiedSampler())
         The sampler class which chooses the sample pairs.
     regression: Regression
-        (optional, default SimpleStratifiedDistanceRegression())
+        (optional, default SimpleStratifiedLinearRegression())
         The regression class which predicts distances from features.
     error_predictor: ErrorRegression
         (optional, default SimpleStratifiedErrorRegression())
@@ -559,7 +563,7 @@ class Annchor:
                     ) from err
                 else:
                     print(
-                        "Warning: main loop terminated early with nothing"
+                        "Warning: main loop terminated early with nothing "
                         + "left to sample."
                     )
                     break
@@ -632,8 +636,13 @@ class BruteForce:
     ----------
     X: np.array or list (required)
         The data set for which we want to find the k-NN graph.
-    func: function or numba-jitted function (required)
+    func: function, numba-jitted function (required) or string.
         The metric under which the k-NN graph should be evaluated.
+        This can be a user supplied function or a string.
+        Currently supported string arguments are
+            * euclidean
+            * cosine
+            * levenshtein
 
     """
 
@@ -641,7 +650,20 @@ class BruteForce:
 
         self.X = X
         self.nx = len(X)
-        self.f = func
+
+        if isinstance(func, str):
+            allowed_strings = {
+                "euclidean": euclidean,
+                "cosine": cosine,
+                "levenshtein": levenshtein,
+            }
+            assert (
+                func in allowed_strings
+            ), "Error: The string must be one of {}".format(allowed_strings)
+            self.f = allowed_strings[func]
+        else:
+            self.f = func
+
         self.verbose = verbose
 
         if get_exact_ijs is None:
