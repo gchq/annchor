@@ -4,9 +4,6 @@ import time
 
 from numba import njit, prange, types
 from numba.typed import Dict
-from sklearn.linear_model import LinearRegression
-from sklearn.cluster import KMeans
-from sklearn.neighbors import KNeighborsRegressor as KNNR
 
 from collections import Counter
 
@@ -17,7 +14,6 @@ from annchor.regressors import *
 from annchor.error_predictors import *
 
 from annchor.distances import euclidean, levenshtein, cosine
-
 
 from scipy.sparse import dok_matrix
 
