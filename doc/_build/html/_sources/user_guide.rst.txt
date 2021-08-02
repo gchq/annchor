@@ -154,7 +154,7 @@ than the brute force method.
 
     @njit()
     def wasserstein(x, y):
-      return kantorovich(x, y, cost=M)
+        return kantorovich(x, y, cost=M)
 
     start_time = time.time()
 
@@ -197,19 +197,11 @@ force and PyNNDescent respectively. Can we do better?
     ann.fit()
     print('ANNchor Time: %5.3f seconds' % (time.time()-start_time))
 
-
-    # Test accuracy
-    error = compare_neighbor_graphs(neighbor_graph,
-                                    ann.neighbor_graph,
-                                    25)
-    print('ANNchor Time: %5.3f seconds' % (time.time()-start_time))
-
-
     # Test accuracy
     error = compare_neighbor_graphs(neighbor_graph,
                                     ann.neighbor_graph,
                                     k)
-    print('ANNchor Accuracy: %d incorrect NN pairs (%5.3f%%)' % (100*error,error/(k*nx)))
+    print('ANNchor Accuracy: %d incorrect NN pairs (%5.3f%%)' % (error,100*error/(k*nx)))
 
 .. parsed-literal::
 
@@ -255,8 +247,6 @@ This could take some time to run (15 minutes on our machine!).
                                     k)
     print('PyNND Accuracy: %d incorrect NN pairs (%5.3f%%)' % (error,100*error/(k*nx)))
 
-
-    from annchor import Annchor
 
     start_time = time.time()
 
@@ -463,8 +453,6 @@ ANNchor
 Now it's ANNchor's turn! How does it do?
 
 .. code:: python3
-
-    from annchor import Annchor
 
     start_time = time.time()
     ann = Annchor(X,

@@ -310,7 +310,7 @@ than the brute force method.</p>
 
 <span class="nd">@njit</span><span class="p">()</span>
 <span class="k">def</span> <span class="nf">wasserstein</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-  <span class="k">return</span> <span class="n">kantorovich</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cost</span><span class="o">=</span><span class="n">M</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">kantorovich</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cost</span><span class="o">=</span><span class="n">M</span><span class="p">)</span>
 
 <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
@@ -349,19 +349,11 @@ force and PyNNDescent respectively. Can we do better?</p>
 <span class="n">ann</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ANNchor Time: </span><span class="si">%5.3f</span><span class="s1"> seconds&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">start_time</span><span class="p">))</span>
 
-
-<span class="c1"># Test accuracy</span>
-<span class="n">error</span> <span class="o">=</span> <span class="n">compare_neighbor_graphs</span><span class="p">(</span><span class="n">neighbor_graph</span><span class="p">,</span>
-                                <span class="n">ann</span><span class="o">.</span><span class="n">neighbor_graph</span><span class="p">,</span>
-                                <span class="mi">25</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ANNchor Time: </span><span class="si">%5.3f</span><span class="s1"> seconds&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">start_time</span><span class="p">))</span>
-
-
 <span class="c1"># Test accuracy</span>
 <span class="n">error</span> <span class="o">=</span> <span class="n">compare_neighbor_graphs</span><span class="p">(</span><span class="n">neighbor_graph</span><span class="p">,</span>
                                 <span class="n">ann</span><span class="o">.</span><span class="n">neighbor_graph</span><span class="p">,</span>
                                 <span class="n">k</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ANNchor Accuracy: </span><span class="si">%d</span><span class="s1"> incorrect NN pairs (</span><span class="si">%5.3f%%</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="n">error</span><span class="p">,</span><span class="n">error</span><span class="o">/</span><span class="p">(</span><span class="n">k</span><span class="o">*</span><span class="n">nx</span><span class="p">)))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ANNchor Accuracy: </span><span class="si">%d</span><span class="s1"> incorrect NN pairs (</span><span class="si">%5.3f%%</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">error</span><span class="p">,</span><span class="mi">100</span><span class="o">*</span><span class="n">error</span><span class="o">/</span><span class="p">(</span><span class="n">k</span><span class="o">*</span><span class="n">nx</span><span class="p">)))</span>
 </pre></div>
 </div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ANNchor</span> <span class="n">Time</span><span class="p">:</span> <span class="mf">21.311</span> <span class="n">seconds</span>
@@ -402,8 +394,6 @@ This could take some time to run (15 minutes on our machine!).</p>
                                 <span class="n">k</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;PyNND Accuracy: </span><span class="si">%d</span><span class="s1"> incorrect NN pairs (</span><span class="si">%5.3f%%</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">error</span><span class="p">,</span><span class="mi">100</span><span class="o">*</span><span class="n">error</span><span class="o">/</span><span class="p">(</span><span class="n">k</span><span class="o">*</span><span class="n">nx</span><span class="p">)))</span>
 
-
-<span class="kn">from</span> <span class="nn">annchor</span> <span class="kn">import</span> <span class="n">Annchor</span>
 
 <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
@@ -587,9 +577,7 @@ construction the index creation time is very important.</p>
 <div class="section" id="id1">
 <h3>ANNchor<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 <p>Now it’s ANNchor’s turn! How does it do?</p>
-<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">annchor</span> <span class="kn">import</span> <span class="n">Annchor</span>
-
-<span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 <span class="n">ann</span> <span class="o">=</span> <span class="n">Annchor</span><span class="p">(</span><span class="n">X</span><span class="p">,</span>
               <span class="s1">&#39;levenshtein&#39;</span><span class="p">,</span>
               <span class="n">n_anchors</span><span class="o">=</span><span class="mi">23</span><span class="p">,</span>
