@@ -175,13 +175,24 @@ brute force class <code class="xref py py-class docutils literal notranslate"><s
 <h2>Annchor<a class="headerlink" href="#annchor" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="annchor.Annchor">
-<em class="property">class </em><code class="sig-prename descclassname">annchor.</code><code class="sig-name descname">Annchor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">X</span></em>, <em class="sig-param"><span class="n">func</span></em>, <em class="sig-param"><span class="n">n_anchors</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">n_neighbors</span><span class="o">=</span><span class="default_value">15</span></em>, <em class="sig-param"><span class="n">n_samples</span><span class="o">=</span><span class="default_value">5000</span></em>, <em class="sig-param"><span class="n">p_work</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">anchor_picker</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sampler</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">regression</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">error_predictor</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">random_seed</span><span class="o">=</span><span class="default_value">42</span></em>, <em class="sig-param"><span class="n">locality</span><span class="o">=</span><span class="default_value">5</span></em>, <em class="sig-param"><span class="n">loc_thresh</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">is_metric</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">get_exact_ijs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">niters</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">lookahead</span><span class="o">=</span><span class="default_value">5</span></em><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">annchor.</code><code class="sig-name descname">Annchor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">X</span></em>, <em class="sig-param"><span class="n">func</span></em>, <em class="sig-param"><span class="n">func_kwargs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">n_anchors</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">n_neighbors</span><span class="o">=</span><span class="default_value">15</span></em>, <em class="sig-param"><span class="n">n_samples</span><span class="o">=</span><span class="default_value">5000</span></em>, <em class="sig-param"><span class="n">p_work</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">anchor_picker</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sampler</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">regression</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">error_predictor</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">random_seed</span><span class="o">=</span><span class="default_value">42</span></em>, <em class="sig-param"><span class="n">locality</span><span class="o">=</span><span class="default_value">5</span></em>, <em class="sig-param"><span class="n">loc_thresh</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">is_metric</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">get_exact_ijs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">niters</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">lookahead</span><span class="o">=</span><span class="default_value">5</span></em><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Quickly computes the approximate k-NN graph for slow metrics</p>
-<dl class="simple">
+<dl>
 <dt>X: np.array or list (required)</dt><dd><p>The data set for which we want to find the k-NN graph.</p>
 </dd>
 <dt>func: function, numba-jitted function (required) or string.</dt><dd><p>The metric under which the k-NN graph should be evaluated.
-String can be euclidean, cosine or levenshtein for the corresponding method.</p>
+This can be a user supplied function or a string.
+Currently supported string arguments are</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>euclidean</p></li>
+<li><p>cosine</p></li>
+<li><p>levenshtein</p></li>
+<li><p>wasserstein  (requires cost_matrix kwarg)</p></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt>func_kwargs: dict (optional, default None)</dt><dd><p>Dictionary of keyword arguments for the metric</p>
 </dd>
 <dt>n_anchors: int (optional, default 20)</dt><dd><p>The number of anchor points. Increasing the number of anchors
 increases the k-NN graph accuracy at the expense of speed.</p>
@@ -199,9 +210,11 @@ we are willing to make.</p>
 </dd>
 <dt>sampler: Sampler (optional, default SimpleStratifiedSampler())</dt><dd><p>The sampler class which chooses the sample pairs.</p>
 </dd>
-<dt>regression: Regression (optional, default SimpleStratifiedDistanceRegression())</dt><dd><p>The regression class which predicts distances from features.</p>
+<dt>regression: Regression</dt><dd><p>(optional, default SimpleStratifiedLinearRegression())
+The regression class which predicts distances from features.</p>
 </dd>
-<dt>error_predictor: ErrorRegression (optional, default SimpleStratifiedErrorRegression())</dt><dd><p>The error regression class which predicts error distributions.</p>
+<dt>error_predictor: ErrorRegression</dt><dd><p>(optional, default SimpleStratifiedErrorRegression())
+The error regression class which predicts error distributions.</p>
 </dd>
 <dt>locality: int (optional, default 5)</dt><dd><p>The number of anchor points to use in the permutation based k-NN
 (dhat) step.</p>
@@ -212,12 +225,14 @@ into NN_x.</p>
 <dt>verbose: bool (optional, default False)</dt><dd><p>Set verbose=True for more interim output.</p>
 </dd>
 <dt>is_metric: bool (optional, default True)</dt><dd><p>Set is_metric=False if the metric may violate the triangle inequality.
-With is_metric=True, predictions are clipped between upper/lower bounds,
-which may not be accurate if triangle inequality is violated.</p>
+With is_metric=True, predictions are clipped between upper/lower
+bounds, which may not be accurate if triangle inequality is violated.</p>
 </dd>
-<dt>get_exact_ijs: function (optional, default None)</dt><dd><p>An optional user supplied function for evaluating the metric on an array
-of indices. Useful if you wish to supply your own parallelisation.
-get_exact_ijs(f,X,IJ) should return np.array([f(X[i],X[j] for i,j in IJ]).</p>
+<dt>get_exact_ijs: function (optional, default None)</dt><dd><p>An optional user supplied function for evaluating the metric on an
+array of indices. Useful if you wish to supply your own
+parallelisation.
+get_exact_ijs(f,X,IJ) should return
+np.array([f(X[i],X[j] for i,j in IJ]).</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -244,11 +259,13 @@ Anchors are stored in self.A, distances in self.D.</p>
 <code class="sig-name descname">get_locality</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor.get_locality" title="Permalink to this definition">¶</a></dt>
 <dd><p>Uses basic permutation/set method to find candidate nearest neighbours.</p>
 <dl class="simple">
-<dt>Current Technique (Use something better in future):</dt><dd><p>For each point i, find the set S_i of its nearest l=locality anchor points.
+<dt>Current Technique (Use something better in future):</dt><dd><p>For each point i, find the set S_i of its nearest l=locality anchor
+points.
 For each other point j, calculate (S_i intersect S_j).
 Only consider pairs ij where <a href="#id1"><span class="problematic" id="id2">|(S_i intersect S_j)|</span></a>&gt;=loc_thresh.</p>
 </dd>
-<dt>self.check: Dict, keys=int64, val=int64[:]</dt><dd><p>check[i] is the array of candidate nearest neighbour indices for index j.</p>
+<dt>self.check: Dict, keys=int64, val=int64[:]</dt><dd><p>check[i] is the array of candidate nearest neighbour indices for
+index j.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -258,7 +275,8 @@ Only consider pairs ij where <a href="#id1"><span class="problematic" id="id2">|
 <code class="sig-name descname">get_sample</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor.get_sample" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the sample of pairwise distances on which to train dhat/errors.</p>
 <dl class="simple">
-<dt>self.G: np.array, shape=(n_samples,3)</dt><dd><p>Array storing the sample distances and features (for future regression).
+<dt>self.G: np.array, shape=(n_samples,3)</dt><dd><p>Array storing the sample distances and features (for future
+regression).
 G[i,:-1] are the features for sample pair i.
 G[i,-1] is the true distance for sample pair i.</p>
 </dd>
@@ -275,12 +293,23 @@ G[i,-1] is the true distance for sample pair i.</p>
 
 <dl class="py class">
 <dt id="annchor.BruteForce">
-<em class="property">class </em><code class="sig-prename descclassname">annchor.</code><code class="sig-name descname">BruteForce</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">X</span></em>, <em class="sig-param"><span class="n">func</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">get_exact_ijs</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#annchor.BruteForce" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">annchor.</code><code class="sig-name descname">BruteForce</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">X</span></em>, <em class="sig-param"><span class="n">func</span></em>, <em class="sig-param"><span class="n">func_kwargs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">get_exact_ijs</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#annchor.BruteForce" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes the approximate k-NN graph by brute force</p>
-<dl class="simple">
+<dl>
 <dt>X: np.array or list (required)</dt><dd><p>The data set for which we want to find the k-NN graph.</p>
 </dd>
-<dt>func: function or numba-jitted function (required)</dt><dd><p>The metric under which the k-NN graph should be evaluated.</p>
+<dt>func: function, numba-jitted function (required) or string.</dt><dd><p>The metric under which the k-NN graph should be evaluated.
+This can be a user supplied function or a string.
+Currently supported string arguments are</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>euclidean</p></li>
+<li><p>cosine</p></li>
+<li><p>levenshtein</p></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt>func_kwargs: dict (optional, default None)</dt><dd><p>Dictionary of keyword arguments for the metric</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -300,12 +329,14 @@ neighbor graph accuracy.</p>
 <dl class="py function">
 <dt id="annchor.compare_neighbor_graphs">
 <code class="sig-prename descclassname">annchor.</code><code class="sig-name descname">compare_neighbor_graphs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nng_1</span></em>, <em class="sig-param"><span class="n">nng_2</span></em>, <em class="sig-param"><span class="n">n_neighbors</span></em><span class="sig-paren">)</span><a class="headerlink" href="#annchor.compare_neighbor_graphs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compares accuracy of k-NN graphs. The second graph is compared against the first.
-This measure of accuracy accounts for cases where the indices differ but the distances
-are equivalent.</p>
+<dd><p>Compares accuracy of k-NN graphs. The second graph is compared against the
+first.
+This measure of accuracy accounts for cases where the indices differ but
+the distances are equivalent.</p>
 <p>e.g. if nng_1[0][0]=[0, 1, 2, 3], nng_1[0][1]=[0, 1, 1, 2],</p>
 <p>and     nng_2[0][0]=[0, 1, 2, 4], nng_1[0][1]=[0, 1, 1, 2],</p>
-<p>There would be zero incorrect NN pairs, since both ix=3 and ix=4 are valid 4th nearest neighbors.</p>
+<p>There would be zero incorrect NN pairs, since both ix=3 and ix=4 are valid
+4th nearest neighbors.</p>
 <dl class="simple">
 <dt>nng_1: nearest neighbour graph (tuple of np.array)</dt><dd><p>The first nearest neighbour graph, (indices, distances).</p>
 </dd>
@@ -329,16 +360,21 @@ are equivalent.</p>
 <code class="sig-prename descclassname">annchor.datasets.</code><code class="sig-name descname">load_digits</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#annchor.datasets.load_digits" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads the UCI OCR digits data test set (1797 8x8 images).</p>
 <p><a class="reference external" href="https://archive.ics.uci.edu/ml/datasets/optical+recognition+of+handwritten+digits">https://archive.ics.uci.edu/ml/datasets/optical+recognition+of+handwritten+digits</a></p>
-<p>Dua, D. and Graff, C. (2019). UCI Machine Learning Repository [<a class="reference external" href="http://archive.ics.uci.edu/ml">http://archive.ics.uci.edu/ml</a>]. Irvine, CA: University of California, School of Information and Computer Science.</p>
+<p>Dua, D. and Graff, C. (2019). UCI Machine Learning Repository
+[<a class="reference external" href="http://archive.ics.uci.edu/ml">http://archive.ics.uci.edu/ml</a>]. Irvine, CA: University of California,
+School of Information and Computer Science.</p>
 <dl>
 <dt>digits_data: dict, keys=[‘X’, ‘y’, ‘neighbor_graph’]</dt><dd><p>The string data set.</p>
 <p>digits_data[‘X’] is an np.array ints, shape=(1797,64)</p>
 <p>digits_data[‘y’] is an np.array of ints (labels), shape=(1797,)</p>
-<p>digits_data[‘neighbor_graph’] is a tuple containing the 100-NN graph data</p>
+<p>digits_data[‘neighbor_graph’] is a tuple containing the 100-NN graph
+data</p>
 <p>digits_data[‘neighbor_graph’][0] are the 100-NN indices,
-i.e. digits_data[‘neighbor_graph’][0][i][j] is the jth nearest index to index i.</p>
+i.e. digits_data[‘neighbor_graph’][0][i][j] is the jth nearest index to
+index i.</p>
 <p>digits_data[‘neighbor_graph’][1] are the 100-NN distances,
-i.e. digits_data[‘neighbor_graph’][0][i][j] is the jth smallest distance to index i.</p>
+i.e. digits_data[‘neighbor_graph’][0][i][j] is the jth smallest
+distance to index i.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -348,16 +384,21 @@ i.e. digits_data[‘neighbor_graph’][0][i][j] is the jth smallest distance to 
 <code class="sig-prename descclassname">annchor.datasets.</code><code class="sig-name descname">load_digits_large</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#annchor.datasets.load_digits_large" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads the full (train+test) UCI OCR digits data set (5620 8x8 images).</p>
 <p><a class="reference external" href="https://archive.ics.uci.edu/ml/datasets/optical+recognition+of+handwritten+digits">https://archive.ics.uci.edu/ml/datasets/optical+recognition+of+handwritten+digits</a></p>
-<p>Dua, D. and Graff, C. (2019). UCI Machine Learning Repository [<a class="reference external" href="http://archive.ics.uci.edu/ml">http://archive.ics.uci.edu/ml</a>]. Irvine, CA: University of California, School of Information and Computer Science.</p>
+<p>Dua, D. and Graff, C. (2019). UCI Machine Learning Repository
+[<a class="reference external" href="http://archive.ics.uci.edu/ml">http://archive.ics.uci.edu/ml</a>]. Irvine, CA: University of California,
+School of Information and Computer Science.</p>
 <dl>
 <dt>digits_data: dict, keys=[‘X’, ‘y’, ‘neighbor_graph’]</dt><dd><p>The string data set.</p>
 <p>digits_data[‘X’] is an np.array ints, shape=(5620,64)</p>
 <p>digits_data[‘y’] is an np.array of ints (labels), shape=(5620,)</p>
-<p>digits_data[‘neighbor_graph’] is a tuple containing the 100-NN graph data</p>
+<p>digits_data[‘neighbor_graph’] is a tuple containing the 100-NN graph
+data</p>
 <p>digits_data[‘neighbor_graph’][0] are the 100-NN indices,
-i.e. digits_data[‘neighbor_graph’][0][i][j] is the jth nearest index to index i.</p>
+i.e. digits_data[‘neighbor_graph’][0][i][j] is the jth nearest index to
+index i.</p>
 <p>digits_data[‘neighbor_graph’][1] are the 100-NN distances,
-i.e. digits_data[‘neighbor_graph’][0][i][j] is the jth smallest distance to index i.</p>
+i.e. digits_data[‘neighbor_graph’][0][i][j] is the jth smallest
+distance to index i.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -371,11 +412,14 @@ i.e. digits_data[‘neighbor_graph’][0][i][j] is the jth smallest distance to 
 <dt>strings_data: dict, keys=[‘X’, ‘y’, ‘neighbor_graph’]</dt><dd><p>The string data set.</p>
 <p>strings_data[‘X’] is an np.array of strings, shape=(1600,)</p>
 <p>strings_data[‘y’] is an np.array of ints (labels), shape=(1600,)</p>
-<p>strings_data[‘neighbor_graph’] is a tuple containing the 100-NN graph data</p>
+<p>strings_data[‘neighbor_graph’] is a tuple containing the 100-NN graph
+data</p>
 <p>strings_data[‘neighbor_graph’][0] are the 100-NN indices,
-i.e. strings_data[‘neighbor_graph’][0][i][j] is the jth nearest index to index i.</p>
+i.e. strings_data[‘neighbor_graph’][0][i][j] is the jth nearest index
+to index i.</p>
 <p>strings_data[‘neighbor_graph’][1] are the 100-NN distances,
-i.e. strings_data[‘neighbor_graph’][0][i][j] is the jth smallest distance to index i.</p>
+i.e. strings_data[‘neighbor_graph’][0][i][j] is the jth smallest
+distance to index i.</p>
 </dd>
 </dl>
 </dd></dl>
