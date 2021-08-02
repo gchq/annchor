@@ -1,3 +1,4 @@
+import sys
 import numpy as np
 import numba
 import networkx as nx
@@ -233,6 +234,11 @@ def test_load_strings():
 
 
 def test_load_graph_sp():
+
+    if float(sys.version[:3]) < 3.8:
+        print('Skipping test_load_graph_sp (requires Python>=3.8)')
+        return
+
     data = load_graph_sp()
     X = data["X"]
     y = data["y"]
