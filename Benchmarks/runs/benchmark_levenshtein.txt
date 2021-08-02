@@ -1,8 +1,0 @@
-hnsw           |131.88  |2372    |{'efConstruction': 50, 'M': 15, 'post': 0, 'indexThreadQty': 8}
-hnsw           |201.36  |32      |{'efConstruction': 50, 'M': 15, 'post': 2, 'indexThreadQty': 8}
-hnsw           |186.12  |1591    |{'efConstruction': 100, 'M': 20, 'post': 0, 'indexThreadQty': 8}
-hnsw           |279.51  |19      |{'efConstruction': 100, 'M': 20, 'post': 2, 'indexThreadQty': 8}
-annchor        |28.53   |2908    |{'n_anchors': 15, 'min_prob': 0.2}                          
-annchor        |24.50   |6       |{'n_anchors': 20, 'min_prob': 0.1}                          
-annchor        |28.09   |0       |{'n_anchors': 20, 'min_prob': 0.02}                         
-annchor        |37.73   |95      |{'n_anchors': 35, 'min_prob': 0.001}                        
