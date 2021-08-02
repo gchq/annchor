@@ -1,4 +1,5 @@
 import numpy as np
+import numba
 import networkx as nx
 from annchor.datasets import (
     load_digits,
@@ -6,7 +7,8 @@ from annchor.datasets import (
     load_digits_large,
     load_graph_sp,
 )
-from annchor.distances import wasserstein, levenshtein
+from annchor.distances import levenshtein
+from pynndescent.distances import kantorovich
 
 
 def test_digits():
@@ -14,6 +16,11 @@ def test_digits():
     X = data["X"]
     y = data["y"]
     ng = data["neighbor_graph"]
+    M = data["cost_matrix"]
+
+    @numba.njit()
+    def wasserstein(x, y):
+        return kantorovich(x, y, cost=M)
 
     assert X.shape == (1797, 64)
     assert y.shape == (1797,)
@@ -103,6 +110,11 @@ def test_digits_large():
     X = data["X"]
     y = data["y"]
     ng = data["neighbor_graph"]
+    M = data["cost_matrix"]
+
+    @numba.njit()
+    def wasserstein(x, y):
+        return kantorovich(x, y, cost=M)
 
     assert X.shape == (5620, 64)
     assert y.shape == (5620,)

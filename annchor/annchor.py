@@ -2,7 +2,9 @@ import os
 import numpy as np
 import time
 
+import numba
 from numba import njit, prange, types
+
 from numba.typed import Dict
 
 from collections import Counter
@@ -13,7 +15,9 @@ from annchor.samplers import *
 from annchor.regressors import *
 from annchor.error_predictors import *
 
-from annchor.distances import euclidean, levenshtein, cosine
+from annchor.distances import euclidean, levenshtein
+from pynndescent.distances import kantorovich
+from scipy.spatial.distance import cosine
 
 from scipy.sparse import dok_matrix
 
@@ -35,6 +39,9 @@ class Annchor:
             * euclidean
             * cosine
             * levenshtein
+            * wasserstein  (requires cost_matrix kwarg)
+    func_kwargs: dict (optional, default None)
+        Dictionary of keyword arguments for the metric
     n_anchors: int (optional, default 20)
         The number of anchor points. Increasing the number of anchors
         increases the k-NN graph accuracy at the expense of speed.
@@ -83,6 +90,7 @@ class Annchor:
         self,
         X,
         func,
+        func_kwargs=None,
         n_anchors=20,
         n_neighbors=15,
         n_samples=5000,
@@ -110,13 +118,45 @@ class Annchor:
                 "euclidean": euclidean,
                 "cosine": cosine,
                 "levenshtein": levenshtein,
+                "wasserstein": None,
             }
             assert (
                 func in allowed_strings
             ), "Error: The string must be one of {}".format(allowed_strings)
-            self.f = allowed_strings[func]
+
+            if func == "wasserstein":
+                assert (
+                    "cost_matrix" in func_kwargs
+                ), "Error: wassetstein metric requires cost_function kwarg"
+
+                M = func_kwargs["cost_matrix"]
+
+                @njit()
+                def wasserstein(x, y):
+                    return kantorovich(x, y, cost=M)
+
+                self.f = wasserstein
+            else:
+                self.f = allowed_strings[func]
         else:
-            self.f = func
+            if func_kwargs is None:
+                self.f = func
+            else:
+
+                # Handle numba func with kwargs
+                if isinstance(func, numba.core.registry.CPUDispatcher):
+                    list_kwargs = tuple(func_kwargs.values())
+
+                    @njit()
+                    def f(x, y):
+                        return func(x, y, *list_kwargs)
+
+                    self.f = f
+
+                else:
+
+                    def f(x, y):
+                        return func(x, y, **func_kwargs)
 
         self.evals = 0
 
@@ -639,10 +679,13 @@ class BruteForce:
             * euclidean
             * cosine
             * levenshtein
-
+    func_kwargs: dict (optional, default None)
+        Dictionary of keyword arguments for the metric
     """
 
-    def __init__(self, X, func, verbose=False, get_exact_ijs=None):
+    def __init__(
+        self, X, func, func_kwargs=None, verbose=False, get_exact_ijs=None
+    ):
 
         self.X = X
         self.nx = len(X)
@@ -652,13 +695,45 @@ class BruteForce:
                 "euclidean": euclidean,
                 "cosine": cosine,
                 "levenshtein": levenshtein,
+                "wasserstein": None,
             }
             assert (
                 func in allowed_strings
             ), "Error: The string must be one of {}".format(allowed_strings)
-            self.f = allowed_strings[func]
+
+            if func == "wasserstein":
+                assert (
+                    "cost_matrix" in func_kwargs
+                ), "Error: wassetstein metric requires cost_function kwarg"
+
+                M = func_kwargs["cost_matrix"]
+
+                @njit()
+                def wasserstein(x, y):
+                    return kantorovich(x, y, cost=M)
+
+                self.f = wasserstein
+            else:
+                self.f = allowed_strings[func]
         else:
-            self.f = func
+            if self.func_kwargs is None:
+                self.f = func
+            else:
+
+                # Handle numba func with kwargs
+                if isinstance(func, numba.core.registry.CPUDispatcher):
+                    list_kwargs = tuple(func_kwargs.values())
+
+                    @njit()
+                    def f(x, y):
+                        return func(x, y, *list_kwargs)
+
+                    self.f = f
+
+                else:
+
+                    def f(x, y):
+                        return func(x, y, **func_kwargs)
 
         self.verbose = verbose
 

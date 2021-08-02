@@ -1,7 +1,6 @@
 from annchor import Annchor, BruteForce, compare_neighbor_graphs
 from annchor import Annchor, compare_neighbor_graphs
 from annchor.datasets import load_digits, load_strings
-from annchor.distances import wasserstein
 import numpy as np
 import Levenshtein as lev
 
@@ -32,15 +31,18 @@ def test_digits(seed=42, niters=1):
     k = 25
 
     # Load digits
-    X = load_digits()["X"]
-    neighbor_graph = load_digits()["neighbor_graph"]
+    data = load_digits()
+    X = data["X"]
+    M = data["cost_matrix"]
+    neighbor_graph = data["neighbor_graph"]
 
     for it in range(niters):
 
         # Call ANNchor
         ann = Annchor(
             X,
-            wasserstein,
+            "wasserstein",
+            func_kwargs={"cost_matrix": M},
             n_anchors=25,
             n_neighbors=k,
             n_samples=5000,
@@ -111,11 +113,12 @@ def test_init():
 def test_brute_force():
 
     # Load digits
-    X = load_digits()["X"]
-    y = load_digits()["y"]
-    neighbor_graph = load_digits()["neighbor_graph"]
+    data = load_digits()
+    X = data["X"]
+    M = data["cost_matrix"]
+    neighbor_graph = data["neighbor_graph"]
 
-    bruteforce = BruteForce(X, wasserstein)
+    bruteforce = BruteForce(X, "wasserstein", func_kwargs={"cost_matrix": M})
     bruteforce.fit()
 
     error = compare_neighbor_graphs(
