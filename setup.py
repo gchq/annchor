@@ -14,7 +14,6 @@ setup(
         "scipy>=1.7.0",
         "sklearn>=0.0",
         "tqdm>=4.61.2",
-        "pickle5>=0.0.11",
     ],
     package_data={"annchor": ["data/*.npz", "data/*.gz"]},
 )
