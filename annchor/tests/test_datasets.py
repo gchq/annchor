@@ -1,7 +1,7 @@
 import sys
 import numpy as np
 import numba
-import networkx as nx
+
 from annchor.datasets import (
     load_digits,
     load_strings,
@@ -10,6 +10,15 @@ from annchor.datasets import (
 )
 from annchor.distances import levenshtein
 from pynndescent.distances import kantorovich
+
+try:
+    import networkx as nx
+
+    no_networkx = False
+
+except ImportError:
+    print("Warning: Unable to import networkx")
+    no_networkx = True
 
 
 def test_digits():
@@ -235,8 +244,9 @@ def test_load_strings():
 
 def test_load_graph_sp():
 
-    if float(sys.version[:3]) < 3.8:
-        print('Skipping test_load_graph_sp (requires Python>=3.8)')
+    if no_networkx or (float(sys.version[:3]) < 3.8):
+        print("Skipping test_load_graph_sp.")
+        print("(Requires Python>=3.8) and networkx")
         return
 
     data = load_graph_sp()
