@@ -1,6 +1,8 @@
 import sys
 import numpy as np
 import numba
+import gzip
+import pickle5
 
 from annchor.datasets import (
     load_digits,
@@ -244,9 +246,9 @@ def test_load_strings():
 
 def test_load_graph_sp():
 
-    if no_networkx or (float(sys.version[:3]) < 3.8):
+    if no_networkx:
         print("Skipping test_load_graph_sp.")
-        print("(Requires Python>=3.8 and networkx)")
+        print("(Requires networkx)")
         return
 
     data = load_graph_sp()

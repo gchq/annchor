@@ -1,8 +1,11 @@
+import numpy as np
+from numba import njit
+import Levenshtein as lev
+from pynndescent.distances import kantorovich
+
 from annchor import Annchor, BruteForce, compare_neighbor_graphs
 from annchor import Annchor, compare_neighbor_graphs
 from annchor.datasets import load_digits, load_strings
-import numpy as np
-import Levenshtein as lev
 
 
 def test_compare_neighbor_graphs(seed=42):
@@ -119,6 +122,48 @@ def test_brute_force():
     neighbor_graph = data["neighbor_graph"]
 
     bruteforce = BruteForce(X, "wasserstein", func_kwargs={"cost_matrix": M})
+    bruteforce.fit()
+
+    error = compare_neighbor_graphs(
+        neighbor_graph, bruteforce.neighbor_graph, 100
+    )
+
+    assert error == 0
+
+
+def test_brute_force_no_func_kwargs():
+
+    # Load digits
+    data = load_digits()
+    X = data["X"]
+    M = data["cost_matrix"]
+    neighbor_graph = data["neighbor_graph"]
+
+    @njit()
+    def wasserstein(x, y):
+        return kantorovich(x, y, cost=M)
+
+    bruteforce = BruteForce(X, wasserstein)
+    bruteforce.fit()
+
+    error = compare_neighbor_graphs(
+        neighbor_graph, bruteforce.neighbor_graph, 100
+    )
+
+    assert error == 0
+
+
+def test_brute_force_no_func_kwargs_no_njit():
+
+    # Load digits
+    data = load_strings()
+    X = data["X"]
+    neighbor_graph = data["neighbor_graph"]
+
+    def levenshtein(x, y):
+        return lev.distance(x, y)
+
+    bruteforce = BruteForce(X, levenshtein)
     bruteforce.fit()
 
     error = compare_neighbor_graphs(

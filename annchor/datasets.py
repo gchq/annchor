@@ -162,9 +162,16 @@ def load_graph_sp():
 
     file = os.path.join(package_directory, "data", "graph_sp_data.npz")
     graph_sp_data = np.load(file)
-    G = nkx.readwrite.gpickle.read_gpickle(
-        os.path.join(package_directory, "data", "graph_sp.gz")
-    )
+    try:
+        G = nkx.readwrite.gpickle.read_gpickle(
+            os.path.join(package_directory, "data", "graph_sp.gz")
+        )
+    except ValueError:
+        import gzip
+        import pickle5
+
+        f = gzip.open(os.path.join(package_directory, "data", "graph_sp.gz"))
+        G = pickle5.load(f)
 
     return {
         "X": graph_sp_data["X"],

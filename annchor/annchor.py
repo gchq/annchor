@@ -151,12 +151,11 @@ class Annchor:
                     def f(x, y):
                         return func(x, y, *list_kwargs)
 
-                    self.f = f
-
                 else:
 
                     def f(x, y):
                         return func(x, y, **func_kwargs)
+                self.f = f
 
         self.evals = 0
 
@@ -716,7 +715,7 @@ class BruteForce:
             else:
                 self.f = allowed_strings[func]
         else:
-            if self.func_kwargs is None:
+            if func_kwargs is None:
                 self.f = func
             else:
 
@@ -728,12 +727,11 @@ class BruteForce:
                     def f(x, y):
                         return func(x, y, *list_kwargs)
 
-                    self.f = f
-
                 else:
 
                     def f(x, y):
                         return func(x, y, **func_kwargs)
+                self.f = f
 
         self.verbose = verbose
 
