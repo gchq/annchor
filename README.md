@@ -132,6 +132,9 @@ fig,ax = plt.subplots(figsize=(7,7))
 ax.scatter(*T.T,alpha=0.1)
 plt.show()
 ```
+<img align="center" src="https://github.com/gchq/annchor/raw/main/doc/images/strings_no_col.png" width="500">
+
+Finally the structure of the data set is clear to us! There are 8 clusters of two distinct varieties: filaments and clouds.
 
 More examples can be found in the Examples subfolder.
 Extra python packages will be required to run the examples.
