@@ -246,7 +246,7 @@ def test_load_graph_sp():
 
     if no_networkx or (float(sys.version[:3]) < 3.8):
         print("Skipping test_load_graph_sp.")
-        print("(Requires Python>=3.8) and networkx")
+        print("(Requires Python>=3.8 and networkx)")
         return
 
     data = load_graph_sp()
