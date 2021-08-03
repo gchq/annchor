@@ -155,6 +155,7 @@ class Annchor:
 
                     def f(x, y):
                         return func(x, y, **func_kwargs)
+
                 self.f = f
 
         self.evals = 0
@@ -731,6 +732,7 @@ class BruteForce:
 
                     def f(x, y):
                         return func(x, y, **func_kwargs)
+
                 self.f = f
 
         self.verbose = verbose

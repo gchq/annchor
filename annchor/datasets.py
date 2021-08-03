@@ -127,8 +127,6 @@ def load_strings():
 
 def load_graph_sp():
 
-    import networkx as nkx
-
     """load_graph_sp
 
     Loads the graph shortest path data set (800 vertices from a weighted
@@ -163,11 +161,19 @@ def load_graph_sp():
     file = os.path.join(package_directory, "data", "graph_sp_data.npz")
     graph_sp_data = np.load(file)
     try:
-        G = nkx.readwrite.gpickle.read_gpickle(
-            os.path.join(package_directory, "data", "graph_sp.gz")
+        import networkx as nkx
+
+        data = np.load(os.path.join(package_directory, "data", "graph.npz"))
+        edge_list = [
+            "%d %d %s" % (i, j, w)
+            for (i, j), w in zip(data["edges"], data["weights"])
+        ]
+        G = nkx.readwrite.edgelist.parse_edgelist(
+            edge_list, nodetype=int, data=(("w", float),)
         )
-    except ValueError as E:
-        raise Exception("graph_sp data not available for Python<3.8")
+
+    except ImportError as E:
+        raise Exception("Error: load_graph_sp requires networkx.")
 
     return {
         "X": graph_sp_data["X"],
