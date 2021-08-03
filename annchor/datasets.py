@@ -166,12 +166,8 @@ def load_graph_sp():
         G = nkx.readwrite.gpickle.read_gpickle(
             os.path.join(package_directory, "data", "graph_sp.gz")
         )
-    except ValueError:
-        import gzip
-        import pickle5
-
-        f = gzip.open(os.path.join(package_directory, "data", "graph_sp.gz"))
-        G = pickle5.load(f)
+    except ValueError as E:
+        raise Exception("graph_sp data not available for Python<3.8")
 
     return {
         "X": graph_sp_data["X"],
