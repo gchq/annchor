@@ -175,7 +175,7 @@ brute force class <code class="xref py py-class docutils literal notranslate"><s
 <h2>Annchor<a class="headerlink" href="#annchor" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="annchor.Annchor">
-<em class="property">class </em><code class="sig-prename descclassname">annchor.</code><code class="sig-name descname">Annchor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">X</span></em>, <em class="sig-param"><span class="n">func</span></em>, <em class="sig-param"><span class="n">func_kwargs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">n_anchors</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">n_neighbors</span><span class="o">=</span><span class="default_value">15</span></em>, <em class="sig-param"><span class="n">n_samples</span><span class="o">=</span><span class="default_value">5000</span></em>, <em class="sig-param"><span class="n">p_work</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">anchor_picker</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sampler</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">regression</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">error_predictor</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">random_seed</span><span class="o">=</span><span class="default_value">42</span></em>, <em class="sig-param"><span class="n">locality</span><span class="o">=</span><span class="default_value">5</span></em>, <em class="sig-param"><span class="n">loc_thresh</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">is_metric</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">get_exact_ijs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">niters</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">lookahead</span><span class="o">=</span><span class="default_value">5</span></em><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">annchor.</code><code class="sig-name descname">Annchor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">X</span></em>, <em class="sig-param"><span class="n">func</span></em>, <em class="sig-param"><span class="n">func_kwargs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">n_anchors</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">n_neighbors</span><span class="o">=</span><span class="default_value">15</span></em>, <em class="sig-param"><span class="n">n_samples</span><span class="o">=</span><span class="default_value">5000</span></em>, <em class="sig-param"><span class="n">p_work</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">anchor_picker</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sampler</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">regression</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">error_predictor</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">random_seed</span><span class="o">=</span><span class="default_value">42</span></em>, <em class="sig-param"><span class="n">locality</span><span class="o">=</span><span class="default_value">5</span></em>, <em class="sig-param"><span class="n">loc_thresh</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">is_metric</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">get_exact_ijs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">backend</span><span class="o">=</span><span class="default_value">'loky'</span></em>, <em class="sig-param"><span class="n">niters</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">lookahead</span><span class="o">=</span><span class="default_value">5</span></em><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Quickly computes the approximate k-NN graph for slow metrics</p>
 <dl>
 <dt>X: np.array or list (required)</dt><dd><p>The data set for which we want to find the k-NN graph.</p>
@@ -233,6 +233,11 @@ array of indices. Useful if you wish to supply your own
 parallelisation.
 get_exact_ijs(f,X,IJ) should return
 np.array([f(X[i],X[j] for i,j in IJ]).</p>
+</dd>
+<dt>backend: string (optional, default “loky”)</dt><dd><p>Specifies the joblib Parallel backend.
+Can be “loky” or “multiprocessing”
+In general “loky” seems to be more robust, but occasionally
+“multiprocessing” can be significantly faster</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -293,7 +298,7 @@ G[i,-1] is the true distance for sample pair i.</p>
 
 <dl class="py class">
 <dt id="annchor.BruteForce">
-<em class="property">class </em><code class="sig-prename descclassname">annchor.</code><code class="sig-name descname">BruteForce</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">X</span></em>, <em class="sig-param"><span class="n">func</span></em>, <em class="sig-param"><span class="n">func_kwargs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">get_exact_ijs</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#annchor.BruteForce" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">annchor.</code><code class="sig-name descname">BruteForce</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">X</span></em>, <em class="sig-param"><span class="n">func</span></em>, <em class="sig-param"><span class="n">func_kwargs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">get_exact_ijs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">backend</span><span class="o">=</span><span class="default_value">'loky'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#annchor.BruteForce" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes the approximate k-NN graph by brute force</p>
 <dl>
 <dt>X: np.array or list (required)</dt><dd><p>The data set for which we want to find the k-NN graph.</p>
@@ -310,6 +315,17 @@ Currently supported string arguments are</p>
 </div></blockquote>
 </dd>
 <dt>func_kwargs: dict (optional, default None)</dt><dd><p>Dictionary of keyword arguments for the metric</p>
+</dd>
+<dt>get_exact_ijs: function (optional, default None)</dt><dd><p>An optional user supplied function for evaluating the metric on an
+array of indices. Useful if you wish to supply your own
+parallelisation.
+get_exact_ijs(f,X,IJ) should return
+np.array([f(X[i],X[j] for i,j in IJ]).</p>
+</dd>
+<dt>backend: string (optional, default “loky”)</dt><dd><p>Specifies the joblib Parallel backend.
+Can be “loky” or “multiprocessing”
+In general “loky” seems to be more robust, but occasionally
+“multiprocessing” can be significantly faster</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -398,6 +414,29 @@ i.e. digits_data[‘neighbor_graph’][0][i][j] is the jth nearest index to
 index i.</p>
 <p>digits_data[‘neighbor_graph’][1] are the 100-NN distances,
 i.e. digits_data[‘neighbor_graph’][0][i][j] is the jth smallest
+distance to index i.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="annchor.datasets.load_graph_sp">
+<code class="sig-prename descclassname">annchor.datasets.</code><code class="sig-name descname">load_graph_sp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#annchor.datasets.load_graph_sp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads the graph shortest path data set (800 vertices from a weighted
+graph).
+There are 10 clusters of vertices. The intra-cluster distances are shorter
+on average than the inter-cluster distances.</p>
+<dl>
+<dt>graph_sp_data: dict, keys=[‘X’, ‘y’, ‘neighbor_graph’]</dt><dd><p>The string data set.</p>
+<p>graph_sp_data[‘X’] is an np.array of vertex indices, shape=(800,)</p>
+<p>graph_sp_data[‘y’] is an np.array of ints (labels), shape=(800,)</p>
+<p>graph_sp_data[‘neighbor_graph’] is a tuple containing the 100-NN graph
+data</p>
+<p>graph_sp_data[‘neighbor_graph’][0] are the 100-NN indices,
+i.e. graph_sp_data[‘neighbor_graph’][0][i][j] is the jth nearest index
+to index i.</p>
+<p>graph_sp_data[‘neighbor_graph’][1] are the 100-NN distances,
+i.e. graph_sp_data[‘neighbor_graph’][0][i][j] is the jth smallest
 distance to index i.</p>
 </dd>
 </dl>

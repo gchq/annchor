@@ -82,6 +82,11 @@ class Annchor:
         parallelisation.
         get_exact_ijs(f,X,IJ) should return
         np.array([f(X[i],X[j] for i,j in IJ]).
+    backend: string (optional, default "loky")
+        Specifies the joblib Parallel backend.
+        Can be "loky" or "multiprocessing"
+        In general "loky" seems to be more robust, but occasionally
+        "multiprocessing" can be significantly faster
 
 
     """
@@ -105,6 +110,7 @@ class Annchor:
         verbose=False,
         is_metric=True,
         get_exact_ijs=None,
+        backend="loky",
         niters=2,
         lookahead=5,
     ):
@@ -200,7 +206,9 @@ class Annchor:
         self.RefineApprox = None
 
         if get_exact_ijs is None:
-            self.get_exact_ijs = get_exact_ijs_(self.f, verbose=self.verbose)
+            self.get_exact_ijs = get_exact_ijs_(
+                self.f, verbose=self.verbose, backend=backend
+            )
         else:
             self.get_exact_ijs = get_exact_ijs
 
@@ -681,10 +689,27 @@ class BruteForce:
             * levenshtein
     func_kwargs: dict (optional, default None)
         Dictionary of keyword arguments for the metric
+    get_exact_ijs: function (optional, default None)
+        An optional user supplied function for evaluating the metric on an
+        array of indices. Useful if you wish to supply your own
+        parallelisation.
+        get_exact_ijs(f,X,IJ) should return
+        np.array([f(X[i],X[j] for i,j in IJ]).
+    backend: string (optional, default "loky")
+        Specifies the joblib Parallel backend.
+        Can be "loky" or "multiprocessing"
+        In general "loky" seems to be more robust, but occasionally
+        "multiprocessing" can be significantly faster
     """
 
     def __init__(
-        self, X, func, func_kwargs=None, verbose=False, get_exact_ijs=None
+        self,
+        X,
+        func,
+        func_kwargs=None,
+        verbose=False,
+        get_exact_ijs=None,
+        backend="loky",
     ):
 
         self.X = X
@@ -738,7 +763,9 @@ class BruteForce:
         self.verbose = verbose
 
         if get_exact_ijs is None:
-            self.get_exact_ijs = get_exact_ijs_(self.f, verbose=self.verbose)
+            self.get_exact_ijs = get_exact_ijs_(
+                self.f, verbose=self.verbose, backend=backend
+            )
         else:
             self.get_exact_ijs = get_exact_ijs
 

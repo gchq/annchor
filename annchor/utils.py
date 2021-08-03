@@ -50,7 +50,7 @@ def np_argmin(array, axis):
     return np_apply_along_axis(np.argmin, axis, array)
 
 
-def get_exact_ijs_(f, parallel=True, verbose=False):
+def get_exact_ijs_(f, parallel=True, verbose=False, backend="loky"):
     """
     Takes the metric f and returns the function get_exact_ijs(f,X,IJ), which
     calculates the distances between pairs given in array IJ.
@@ -98,7 +98,7 @@ def get_exact_ijs_(f, parallel=True, verbose=False):
             def get_exact(f, X, IJ):
 
                 fIJ = np.array(
-                    Parallel(n_jobs=CPU_COUNT, backend="loky")(
+                    Parallel(n_jobs=CPU_COUNT, backend=backend)(
                         delayed(f)(X[i], X[j]) for i, j in tq(IJ, leave=False)
                     )
                 )
@@ -110,7 +110,7 @@ def get_exact_ijs_(f, parallel=True, verbose=False):
             def get_exact(f, X, IJ):
 
                 fIJ = np.array(
-                    Parallel(n_jobs=CPU_COUNT, backend="loky")(
+                    Parallel(n_jobs=CPU_COUNT, backend=backend)(
                         delayed(f)(X[i], X[j]) for i, j in IJ
                     )
                 )
