@@ -45,7 +45,95 @@ print(ann.neighbor_graph)
 ```
 
 ## Examples
-Examples can be found in the Examples subfolder.
+
+We demonstrate ANNchor by example, using Levenshtein distance on a data set of long strings.
+This data set is bundled with the annchor package for convenience.
+
+Firstly, we import some useful modules and load the data:
+```python
+import os
+import time
+import numpy as np
+
+from annchor import Annchor, compare_neighbor_graphs
+from annchor.datasets import load_strings
+
+strings_data = load_strings()
+X = strings_data['X']
+y = strings_data['y']
+neighbor_graph = strings_data['neighbor_graph']
+
+nx = X.shape[0]
+
+for x in X[::100]:
+    print(x[:50]+'...')
+```
+```
+cuiojvfnseoksugfcbwzrcoxtjxrvojrguqttjpeauenefmkmv...
+uiofnsosungdgrxiiprvojrgujfdttjioqunknefamhlkyihvx...
+cxumzfltweskptzwnlgojkdxidrebonxcmxvbgxayoachwfcsy...
+cmjpuuozflodwqvkascdyeosakdupdoeovnbgxpajotahpwaqc...
+vzdiefjmblnumdjeetvbvhwgyasygrzhuckvpclnmtviobpzvy...
+nziejmbmknuxdhjbgeyvwgasygrhcpdxcgnmtviubjvyzjemll...
+yhdpczcjxirmebhfdueskkjjtbclvncxjrstxhqvtoyamaiyyb...
+yfhwczcxakdtenvbfctugnkkkjbcvxcxjwfrgcstahaxyiooeb...
+yoftbrcmmpngdfzrbyltahrfbtyowpdjrnqlnxncutdovbgabo...
+tyoqbywjhdwzoufzrqyltahrefbdzyunpdypdynrmchutdvsbl...
+dopgwqjiehqqhmprvhqmnlbpuwszjkjjbshqofaqeoejtcegjt...
+rahobdixljmjfysmegdwyzyezulajkzloaxqnipgxhhbyoztzn...
+dfgxsltkbpxvgqptghjnkaoofbwqqdnqlbbzjsqubtfwovkbsk...
+pjwamicvegedmfetridbijgafupsgieffcwnmgmptjwnmwegvn...
+ovitcihpokhyldkuvgahnqnmixsakzbmsipqympnxtucivgqyi...
+xvepnposhktvmutozuhkbqarqsbxjrhxuumofmtyaaeesbeuhf...
+```
+
+We see a data set consisting of long strings. A closer inspection may indicate some structure, but it is not obvious at this stage.
+
+We use ANNchor to find the 25-nearest neighbour graph. Levenshtein distance is included in Annchor, and can be called by using the string 'levenshtein' 
+(we could also define the levenshtein function beforehand and pass that to Annchor instead). We will specify that we want to do no more than 12% of the brute force work (since the data set is size 1600, brute force would be 1600x1599/2=1279200 calls to the metric, so we will make around ~153500 to the metric). To get accurate timing information, bear in mind that the first run will be slower than future runs due to the numba.jit compile time.
+
+```python
+
+start_time = time.time()
+ann = Annchor(X, 'levenshtein', n_neighbors=25, p_work=0.12)
+
+ann.fit()
+print('ANNchor Time: %5.3f seconds' % (time.time()-start_time))
+
+
+# Test accuracy
+error = compare_neighbor_graphs(neighbor_graph,
+                                ann.neighbor_graph,
+                                k)
+print('ANNchor Accuracy: %d incorrect NN pairs (%5.3f%%)' % (error,100*error/(k*nx)))
+```
+```
+ANNchor Time: 34.299 seconds
+ANNchor Accuracy: 0 incorrect NN pairs (0.000%)
+```
+
+Not bad! 
+
+We can continue to use ANNchor in a typical EDA pipeline. Let's find the UMAP projection of our data set:
+
+```
+from umap import UMAP
+from matplotlib import pyplot as plt
+
+# Extract the distance matrix
+D = ann.to_sparse_matrix()
+
+U = UMAP(metric='precomputed',n_neighbors=k-1)
+T = U.fit_transform(D)
+# T now holds the 2d UMAP projection of our data
+
+# View the 2D projection with matplotlib
+fig,ax = plt.subplots(figsize=(7,7))
+ax.scatter(*T.T,alpha=0.1)
+plt.show()
+```
+
+More examples can be found in the Examples subfolder.
 Extra python packages will be required to run the examples.
 These packages can be installed via:
 ```bash
