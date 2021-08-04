@@ -1,6 +1,44 @@
 Basic Parameters
 ================
 
+``func_kwargs``
+~~~~~~~~~~~~~~~
+Dictionary of keyword arguments required for the metric. For example, the kantorovich function from pynndescent takes a ``cost`` keyword:
+
+.. code:: python3
+
+    from pynndescent.distances import kantorovich
+
+    M = ... # your cost matrix
+
+    ann = annchor.Annchor(X,
+                          kantorovich,
+                          func_kwargs = {'cost': M}
+                          )
+
+Alternatively, we could define a new function without keywords, e.g.
+
+.. code:: python3
+
+    from pynndescent.distances import kantorovich
+    from numba import njit
+
+    M = ... # your cost matrix
+
+    @njit()
+    def wasserstein(x, y):
+        return kantorovich(x, y, cost=M)
+
+    ann = annchor.Annchor(X, wasserstein)
+
+Or you could even use the string 'wasserstein', since this is one of Annchor's inbuilt metrics:
+
+.. code:: python3
+
+    M = ... # your cost matrix
+
+    ann = annchor.Annchor(X, 'wasserstein', func_kwargs={'cost_matrix':M})
+
 ``n_anchors``
 ~~~~~~~~~~~~~
 The number of anchor points (waypoints) we wish to use. The default value is 20, and should increase with the complexity of the underlying metric space.
@@ -18,7 +56,7 @@ ANNchor works by trying to approximate the metric given a variety of features (e
 ``p_work``
 ~~~~~~~~~~
 At its heart, ANNchor wants to make as few calls to an expensive metric as possible. Of course, the more calls to the metric we make, the more accurate we will be (at the expense of run time). The ``p_work`` parameter allows us to control this trade off.
-In the brute force case we would make ``N=nx*(nx-1)//2`` calls to the metric, and ANNchor will make at most ``p_work*N`` calls to the metric, i.e. ``p_work`` is the percentage of brute force work we are willing to do. 
+In the brute force case we would make ``N=nx*(nx-1)//2`` calls to the metric, and ANNchor will make at most ``p_work*N`` calls to the metric, i.e. ``p_work`` is the percentage of brute force work we are willing to do.
 
 ``locality`` and ``loc_thresh``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -27,6 +65,11 @@ These parameters specify how we cut down the number of pairwise distances that m
 ``verbose``
 ~~~~~~~~~~~
 Simple boolean flag determines whether or not we print diagnostics/progress messages.
+
+``backend``
+~~~~~~~~~~~
+The backend argument for joblib parallelisation (for non-numba-jitted functions). Can be ``'loky'`` or ``'multiprocessing'``.
+Typically ``'loky'`` is more robust (and thus the default), but some set-ups will see preformance increases from selecting ``'multiprocessing'``.
 
 Advanced Parameters
 ===================
@@ -55,5 +98,8 @@ This boolean argument should be set to false when our metric is not a true metri
 
 ``get_exact_ijs``
 ~~~~~~~~~~~~~~~~~
-This parameter allows the user to specify their own parallelisation for computing large numbers of pairwise distances. 
+This parameter allows the user to specify their own parallelisation for computing large numbers of pairwise distances.
 
+``niters``
+~~~~~~~~~~
+This parameter defines how many inner loops of recalculating upper/lower bounds occur. There is a time-accuracy tradeoff here where higher values of ``niters`` will be more accurate at the expense of extra computations.

@@ -91,12 +91,14 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="user_guide.html">ANNchor User Guide</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Basic Parameters</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#func-kwargs"><code class="docutils literal notranslate"><span class="pre">func_kwargs</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#n-anchors"><code class="docutils literal notranslate"><span class="pre">n_anchors</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#n-neighbors"><code class="docutils literal notranslate"><span class="pre">n_neighbors</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#n-samples"><code class="docutils literal notranslate"><span class="pre">n_samples</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#p-work"><code class="docutils literal notranslate"><span class="pre">p_work</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#locality-and-loc-thresh"><code class="docutils literal notranslate"><span class="pre">locality</span></code> and <code class="docutils literal notranslate"><span class="pre">loc_thresh</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#verbose"><code class="docutils literal notranslate"><span class="pre">verbose</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#backend"><code class="docutils literal notranslate"><span class="pre">backend</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="#advanced-parameters">Advanced Parameters</a><ul>
@@ -106,6 +108,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#error-predictor"><code class="docutils literal notranslate"><span class="pre">error_predictor</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#is-metric"><code class="docutils literal notranslate"><span class="pre">is_metric</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#get-exact-ijs"><code class="docutils literal notranslate"><span class="pre">get_exact_ijs</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#niters"><code class="docutils literal notranslate"><span class="pre">niters</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -181,6 +184,39 @@
             
   <div class="section" id="basic-parameters">
 <h1>Basic Parameters<a class="headerlink" href="#basic-parameters" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="func-kwargs">
+<h2><code class="docutils literal notranslate"><span class="pre">func_kwargs</span></code><a class="headerlink" href="#func-kwargs" title="Permalink to this headline">¶</a></h2>
+<p>Dictionary of keyword arguments required for the metric. For example, the kantorovich function from pynndescent takes a <code class="docutils literal notranslate"><span class="pre">cost</span></code> keyword:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynndescent.distances</span> <span class="kn">import</span> <span class="n">kantorovich</span>
+
+<span class="n">M</span> <span class="o">=</span> <span class="o">...</span> <span class="c1"># your cost matrix</span>
+
+<span class="n">ann</span> <span class="o">=</span> <span class="n">annchor</span><span class="o">.</span><span class="n">Annchor</span><span class="p">(</span><span class="n">X</span><span class="p">,</span>
+                      <span class="n">kantorovich</span><span class="p">,</span>
+                      <span class="n">func_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;cost&#39;</span><span class="p">:</span> <span class="n">M</span><span class="p">}</span>
+                      <span class="p">)</span>
+</pre></div>
+</div>
+<p>Alternatively, we could define a new function without keywords, e.g.</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynndescent.distances</span> <span class="kn">import</span> <span class="n">kantorovich</span>
+<span class="kn">from</span> <span class="nn">numba</span> <span class="kn">import</span> <span class="n">njit</span>
+
+<span class="n">M</span> <span class="o">=</span> <span class="o">...</span> <span class="c1"># your cost matrix</span>
+
+<span class="nd">@njit</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">wasserstein</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">kantorovich</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cost</span><span class="o">=</span><span class="n">M</span><span class="p">)</span>
+
+<span class="n">ann</span> <span class="o">=</span> <span class="n">annchor</span><span class="o">.</span><span class="n">Annchor</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">wasserstein</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Or you could even use the string ‘wasserstein’, since this is one of Annchor’s inbuilt metrics:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">M</span> <span class="o">=</span> <span class="o">...</span> <span class="c1"># your cost matrix</span>
+
+<span class="n">ann</span> <span class="o">=</span> <span class="n">annchor</span><span class="o">.</span><span class="n">Annchor</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="s1">&#39;wasserstein&#39;</span><span class="p">,</span> <span class="n">func_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;cost_matrix&#39;</span><span class="p">:</span><span class="n">M</span><span class="p">})</span>
+</pre></div>
+</div>
+</div>
 <div class="section" id="n-anchors">
 <h2><code class="docutils literal notranslate"><span class="pre">n_anchors</span></code><a class="headerlink" href="#n-anchors" title="Permalink to this headline">¶</a></h2>
 <p>The number of anchor points (waypoints) we wish to use. The default value is 20, and should increase with the complexity of the underlying metric space.</p>
@@ -206,6 +242,11 @@ In the brute force case we would make <code class="docutils literal notranslate"
 <div class="section" id="verbose">
 <h2><code class="docutils literal notranslate"><span class="pre">verbose</span></code><a class="headerlink" href="#verbose" title="Permalink to this headline">¶</a></h2>
 <p>Simple boolean flag determines whether or not we print diagnostics/progress messages.</p>
+</div>
+<div class="section" id="backend">
+<h2><code class="docutils literal notranslate"><span class="pre">backend</span></code><a class="headerlink" href="#backend" title="Permalink to this headline">¶</a></h2>
+<p>The backend argument for joblib parallelisation (for non-numba-jitted functions). Can be <code class="docutils literal notranslate"><span class="pre">'loky'</span></code> or <code class="docutils literal notranslate"><span class="pre">'multiprocessing'</span></code>.
+Typically <code class="docutils literal notranslate"><span class="pre">'loky'</span></code> is more robust (and thus the default), but some set-ups will see preformance increases from selecting <code class="docutils literal notranslate"><span class="pre">'multiprocessing'</span></code>.</p>
 </div>
 </div>
 <div class="section" id="advanced-parameters">
@@ -234,6 +275,10 @@ In the brute force case we would make <code class="docutils literal notranslate"
 <div class="section" id="get-exact-ijs">
 <h2><code class="docutils literal notranslate"><span class="pre">get_exact_ijs</span></code><a class="headerlink" href="#get-exact-ijs" title="Permalink to this headline">¶</a></h2>
 <p>This parameter allows the user to specify their own parallelisation for computing large numbers of pairwise distances.</p>
+</div>
+<div class="section" id="niters">
+<h2><code class="docutils literal notranslate"><span class="pre">niters</span></code><a class="headerlink" href="#niters" title="Permalink to this headline">¶</a></h2>
+<p>This parameter defines how many inner loops of recalculating upper/lower bounds occur. There is a time-accuracy tradeoff here where higher values of <code class="docutils literal notranslate"><span class="pre">niters</span></code> will be more accurate at the expense of extra computations.</p>
 </div>
 </div>
 

@@ -1,6 +1,8 @@
 import numpy as np
+
 from numba import njit, prange, types
 from numba.typed import Dict
+from numba.core.registry import CPUDispatcher
 
 from joblib import Parallel, delayed
 
@@ -82,7 +84,7 @@ def get_exact_ijs_(f, parallel=True, verbose=False, backend="loky"):
 
         return get_exact
 
-    if "numba" in str(type(f)):
+    if isinstance(f, CPUDispatcher):
 
         @njit(parallel=True)
         def get_exact(f, X, IJ):
@@ -229,6 +231,7 @@ def get_dad_ijs(IJs, D):
     return dad / 2
 
 
+@njit(parallel=True)
 def get_nn(nx, nn, RA, IJs, I, not_computed_mask):
     """
     Calculates the nearest neighbor graph.

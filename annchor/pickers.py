@@ -44,7 +44,10 @@ class MaxMinAnchorPicker:
             A[i] = ix
             IJs = np.array([[ix, j] for j in range(ann.nx)])
             D[i] = ann.get_exact_ijs(ann.f, ann.X, IJs)
-            ix = np.argmax(np_min(D, 0))
+            if i == 0:
+                ix = np.argmax(np_min(D, 0))
+            else:
+                ix = np.argmax(np_min(D[1:], 0))
 
         return A, D.T, na * nx
 

@@ -2,10 +2,9 @@ import os
 import numpy as np
 import time
 
-import numba
 from numba import njit, prange, types
-
 from numba.typed import Dict
+from numba.core.registry import CPUDispatcher
 
 from collections import Counter
 
@@ -150,7 +149,7 @@ class Annchor:
             else:
 
                 # Handle numba func with kwargs
-                if isinstance(func, numba.core.registry.CPUDispatcher):
+                if isinstance(func, CPUDispatcher):
                     list_kwargs = tuple(func_kwargs.values())
 
                     @njit()
@@ -746,7 +745,7 @@ class BruteForce:
             else:
 
                 # Handle numba func with kwargs
-                if isinstance(func, numba.core.registry.CPUDispatcher):
+                if isinstance(func, CPUDispatcher):
                     list_kwargs = tuple(func_kwargs.values())
 
                     @njit()
