@@ -368,8 +368,7 @@ PyNNDescent, with comparable accuracy!</p>
 <p>What if we up the size of the data set? The previous set was quite small, so it’s
 important to see what happens when things get a bit bigger. Not much bigger, of course,
 since we don’t want to be waiting forever to run these tests!</p>
-<p>Let’s try the full UCI digits data set, 5620 8x8 images (<a class="reference external" href="https://archive.ics.uci.edu/ml/datasets/optical+recognition+of+handwritten+digits">https://archive.ics.uci.edu/ml/datasets/optical+recognition+of+handwritten+digits</a>).
-This could take some time to run (15 minutes on our machine!).</p>
+<p>Let’s try the full UCI digits data set, 5620 8x8 images (<a class="reference external" href="https://archive.ics.uci.edu/ml/datasets/optical+recognition+of+handwritten+digits">https://archive.ics.uci.edu/ml/datasets/optical+recognition+of+handwritten+digits</a>).</p>
 <div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load the data</span>
 <span class="kn">from</span> <span class="nn">annchor.datasets</span> <span class="kn">import</span> <span class="n">load_digits_large</span>
 
@@ -460,11 +459,7 @@ stick this problem directly into UMAP.</p>
 <div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">import</span> <span class="nn">Levenshtein</span> <span class="k">as</span> <span class="nn">lev</span>
 <span class="kn">from</span> <span class="nn">annchor.datasets</span> <span class="kn">import</span> <span class="n">load_strings</span>
-
-<span class="k">def</span> <span class="nf">levdist</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">lev</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span>
 
 <span class="n">strings_data</span> <span class="o">=</span> <span class="n">load_strings</span><span class="p">()</span>
 <span class="n">X</span> <span class="o">=</span> <span class="n">strings_data</span><span class="p">[</span><span class="s1">&#39;X&#39;</span><span class="p">]</span>
@@ -508,7 +503,7 @@ some parallelisation.</p>
 
 <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
-<span class="n">bruteforce</span> <span class="o">=</span> <span class="n">BruteForce</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">levdist</span><span class="p">)</span>
+<span class="n">bruteforce</span> <span class="o">=</span> <span class="n">BruteForce</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="s1">&#39;levenshtein&#39;</span><span class="p">)</span>
 <span class="n">bruteforce</span><span class="o">.</span><span class="n">get_neighbor_graph</span><span class="p">()</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Brute Force Time: </span><span class="si">%5.3f</span><span class="s1"> seconds&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">start_time</span><span class="p">))</span>
@@ -677,8 +672,7 @@ edges.</p>
 Now let’s compare our options: brute-force and ANNchor.</p>
 <div class="section" id="id2">
 <h3>Brute Force<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
-<p>Given that we can’t use PyNNDescent, or nmslib, we may well use brute-force simply because
-there’s not another option available to us.</p>
+<p>Given that we can’t use PyNNDescent or nmslib, we may well use brute-force simply because there’s not another option available to us.</p>
 <div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">annchor</span> <span class="kn">import</span> <span class="n">BruteForce</span>
 <span class="kn">from</span> <span class="nn">annchor</span> <span class="kn">import</span> <span class="n">compare_neighbor_graphs</span>
 
@@ -700,8 +694,7 @@ there’s not another option available to us.</p>
 <span class="n">Brute</span> <span class="n">Force</span> <span class="n">Accuracy</span><span class="p">:</span> <span class="mi">0</span> <span class="n">incorrect</span> <span class="n">NN</span> <span class="n">pairs</span> <span class="p">(</span><span class="mf">0.000</span><span class="o">%</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>That’s about 5 minutes. Remember, we only have 800 points in our data set! Imagine how
-badly approach will scale.</p>
+<p>That’s about 5 minutes. Remember, we only have 800 points in our data set! Imagine how badly this approach will scale.</p>
 </div>
 <div class="section" id="id3">
 <h3>ANNchor<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>

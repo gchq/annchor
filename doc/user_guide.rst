@@ -219,7 +219,6 @@ important to see what happens when things get a bit bigger. Not much bigger, of 
 since we don't want to be waiting forever to run these tests!
 
 Let's try the full UCI digits data set, 5620 8x8 images (https://archive.ics.uci.edu/ml/datasets/optical+recognition+of+handwritten+digits).
-This could take some time to run (15 minutes on our machine!).
 
 .. code:: python3
 
@@ -323,11 +322,7 @@ First we'll import some modules and look at the data.
     import os
     import numpy as np
     import time
-    import Levenshtein as lev
     from annchor.datasets import load_strings
-
-    def levdist(a,b):
-        return lev.distance(a,b)
 
     strings_data = load_strings()
     X = strings_data['X']
@@ -376,7 +371,7 @@ some parallelisation.
 
     start_time = time.time()
 
-    bruteforce = BruteForce(X,levdist)
+    bruteforce = BruteForce(X,'levenshtein')
     bruteforce.get_neighbor_graph()
 
     print('Brute Force Time: %5.3f seconds' % (time.time()-start_time))
@@ -568,8 +563,7 @@ Now let's compare our options: brute-force and ANNchor.
 Brute Force
 ^^^^^^^^^^^
 
-Given that we can't use PyNNDescent, or nmslib, we may well use brute-force simply because
-there's not another option available to us.
+Given that we can't use PyNNDescent or nmslib, we may well use brute-force simply because there's not another option available to us.
 
 .. code:: python3
 
@@ -594,8 +588,7 @@ there's not another option available to us.
     Brute Force Time: 304.143 seconds
     Brute Force Accuracy: 0 incorrect NN pairs (0.000%)
 
-That's about 5 minutes. Remember, we only have 800 points in our data set! Imagine how
-badly approach will scale.
+That's about 5 minutes. Remember, we only have 800 points in our data set! Imagine how badly this approach will scale.
 
 ANNchor
 ^^^^^^^
