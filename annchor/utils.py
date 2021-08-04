@@ -100,7 +100,7 @@ def get_exact_ijs_(f, parallel=True, verbose=False, backend="loky"):
             def get_exact(f, X, IJ):
 
                 fIJ = np.array(
-                    Parallel(n_jobs=CPU_COUNT, backend=backend)(
+                    Parallel(n_jobs=CPU_COUNT, backend=backend, timeout=30)(
                         delayed(f)(X[i], X[j]) for i, j in tq(IJ, leave=False)
                     )
                 )
@@ -112,7 +112,7 @@ def get_exact_ijs_(f, parallel=True, verbose=False, backend="loky"):
             def get_exact(f, X, IJ):
 
                 fIJ = np.array(
-                    Parallel(n_jobs=CPU_COUNT, backend=backend)(
+                    Parallel(n_jobs=CPU_COUNT, backend=backend, timeout=30)(
                         delayed(f)(X[i], X[j]) for i, j in IJ
                     )
                 )

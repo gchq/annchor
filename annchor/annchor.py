@@ -20,6 +20,8 @@ from scipy.spatial.distance import cosine
 
 from scipy.sparse import dok_matrix
 
+from multiprocessing.context import TimeoutError
+
 
 class Annchor:
 
@@ -166,7 +168,7 @@ class Annchor:
         self.evals = 0
 
         self.n_anchors = n_anchors
-        self.nanx = np.sum([self.nx - j for j in range(1, self.n_anchors + 1)])
+        self.na = np.sum([self.nx - j for j in range(1, self.n_anchors + 1)])
 
         self.n_neighbors = n_neighbors
         self.p_work = p_work
@@ -204,12 +206,29 @@ class Annchor:
 
         self.RefineApprox = None
 
+        assert backend in ["loky", "multiprocessing"]
         if get_exact_ijs is None:
             self.get_exact_ijs = get_exact_ijs_(
                 self.f, verbose=self.verbose, backend=backend
             )
         else:
             self.get_exact_ijs = get_exact_ijs
+
+        try:
+            self.get_exact_ijs(
+                self.f, self.X, np.random.randint(self.nx, size=(20, 2))
+            )
+        except TimeoutError:
+            print("TimeoutError: Parallelisation failed.")
+            if backend == "loky":
+                print(
+                    "Current backend is 'loky', try backend='multiprocessing'."
+                )
+            elif backend == "multiprocessing":
+                print(
+                    "Current backend is 'multiprocessing', try backend='loky'."
+                )
+            raise TimeoutError()
 
     def get_anchors(self):
 
@@ -468,7 +487,7 @@ class Annchor:
 
         p_work = self.p_work
         # N = self.nx * (self.nx - 1) / 2
-        n_refine = int((p_work * self.N - self.nanx - self.n_samples) * w) + 1
+        n_refine = int((p_work * self.N - self.na - self.n_samples) * w) + 1
 
         n_refine = 0 if (n_refine < 0) else n_refine
 
@@ -761,12 +780,29 @@ class BruteForce:
 
         self.verbose = verbose
 
+        assert backend in ["loky", "multiprocessing"]
         if get_exact_ijs is None:
             self.get_exact_ijs = get_exact_ijs_(
                 self.f, verbose=self.verbose, backend=backend
             )
         else:
             self.get_exact_ijs = get_exact_ijs
+
+        try:
+            self.get_exact_ijs(
+                self.f, self.X, np.random.randint(self.nx, size=(20, 2))
+            )
+        except TimeoutError:
+            print("TimeoutError: Parallelisation failed.")
+            if backend == "loky":
+                print(
+                    "Current backend is 'loky', try backend='multiprocessing'."
+                )
+            elif backend == "multiprocessing":
+                print(
+                    "Current backend is 'multiprocessing', try backend='loky'."
+                )
+            raise TimeoutError()
 
     def fit(self):
         """get_neighbor_graph
