@@ -11,14 +11,7 @@ from annchor.datasets import (
 from annchor.distances import levenshtein
 from pynndescent.distances import kantorovich
 
-try:
-    import networkx as nx
-
-    no_networkx = False
-
-except ImportError:
-    print("Warning: Unable to import networkx")
-    no_networkx = True
+import networkx as nx
 
 
 def test_digits():
@@ -243,10 +236,6 @@ def test_load_strings():
 
 
 def test_load_graph_sp():
-
-    if no_networkx:
-        print("Skipping test_load_graph_sp.")
-        return
 
     data = load_graph_sp()
     X = data["X"]

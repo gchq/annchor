@@ -206,7 +206,7 @@ force and PyNNDescent respectively. Can we do better?
 .. parsed-literal::
 
   ANNchor Time: 21.311 seconds
-  ANNchor Accuracy: 5 incorrect NN pairs (0.011%)
+  ANNchor Accuracy: 8 incorrect NN pairs (0.018%)
 
 Much better! We've got the 25-NN graph in less than half the time it took for
 PyNNDescent, with comparable accuracy!
