@@ -186,37 +186,36 @@
 <h1>Basic Parameters<a class="headerlink" href="#basic-parameters" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="func-kwargs">
 <h2><code class="docutils literal notranslate"><span class="pre">func_kwargs</span></code><a class="headerlink" href="#func-kwargs" title="Permalink to this headline">¶</a></h2>
-<p>Dictionary of keyword arguments required for the metric. For example, the kantorovich function from pynndescent takes a <code class="docutils literal notranslate"><span class="pre">cost</span></code> keyword:
-.. code:: python3</p>
-<blockquote>
-<div><p>from pynndescent.distances import kantorovich</p>
-<p>M = … # your cost matrix</p>
-<dl class="simple">
-<dt>ann = annchor.Annchor(X,</dt><dd><p>kantorovich,
-func_kwargs = {‘cost’: M}
-)</p>
-</dd>
-</dl>
-</div></blockquote>
-<p>Alternatively, we could define a new function without keywords, e.g.
-.. code:: python3</p>
-<blockquote>
-<div><p>from pynndescent.distances import kantorovich
-from numba import njit</p>
-<p>M = … # your cost matrix</p>
-<p>&#64;njit()
-def wasserstein(x, y):</p>
-<blockquote>
-<div><p>return kantorovich(x, y, cost=M)</p>
-</div></blockquote>
-<p>ann = annchor.Annchor(X, wasserstein)</p>
-</div></blockquote>
-<p>Or you could even use the string ‘wasserstein’, since this is one of Annchor’s inbuilt metrics:
-.. code:: python3</p>
-<blockquote>
-<div><p>M = … # your cost matrix</p>
-<p>ann = annchor.Annchor(X, ‘wasserstein’, func_kwargs={‘cost_matrix’:M})</p>
-</div></blockquote>
+<p>Dictionary of keyword arguments required for the metric. For example, the kantorovich function from pynndescent takes a <code class="docutils literal notranslate"><span class="pre">cost</span></code> keyword:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynndescent.distances</span> <span class="kn">import</span> <span class="n">kantorovich</span>
+
+<span class="n">M</span> <span class="o">=</span> <span class="o">...</span> <span class="c1"># your cost matrix</span>
+
+<span class="n">ann</span> <span class="o">=</span> <span class="n">annchor</span><span class="o">.</span><span class="n">Annchor</span><span class="p">(</span><span class="n">X</span><span class="p">,</span>
+                      <span class="n">kantorovich</span><span class="p">,</span>
+                      <span class="n">func_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;cost&#39;</span><span class="p">:</span> <span class="n">M</span><span class="p">}</span>
+                      <span class="p">)</span>
+</pre></div>
+</div>
+<p>Alternatively, we could define a new function without keywords, e.g.</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynndescent.distances</span> <span class="kn">import</span> <span class="n">kantorovich</span>
+<span class="kn">from</span> <span class="nn">numba</span> <span class="kn">import</span> <span class="n">njit</span>
+
+<span class="n">M</span> <span class="o">=</span> <span class="o">...</span> <span class="c1"># your cost matrix</span>
+
+<span class="nd">@njit</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">wasserstein</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">kantorovich</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cost</span><span class="o">=</span><span class="n">M</span><span class="p">)</span>
+
+<span class="n">ann</span> <span class="o">=</span> <span class="n">annchor</span><span class="o">.</span><span class="n">Annchor</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">wasserstein</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Or you could even use the string ‘wasserstein’, since this is one of Annchor’s inbuilt metrics:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">M</span> <span class="o">=</span> <span class="o">...</span> <span class="c1"># your cost matrix</span>
+
+<span class="n">ann</span> <span class="o">=</span> <span class="n">annchor</span><span class="o">.</span><span class="n">Annchor</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="s1">&#39;wasserstein&#39;</span><span class="p">,</span> <span class="n">func_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;cost_matrix&#39;</span><span class="p">:</span><span class="n">M</span><span class="p">})</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="n-anchors">
 <h2><code class="docutils literal notranslate"><span class="pre">n_anchors</span></code><a class="headerlink" href="#n-anchors" title="Permalink to this headline">¶</a></h2>

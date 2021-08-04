@@ -4,6 +4,7 @@ Basic Parameters
 ``func_kwargs``
 ~~~~~~~~~~~~~~~
 Dictionary of keyword arguments required for the metric. For example, the kantorovich function from pynndescent takes a ``cost`` keyword:
+
 .. code:: python3
 
     from pynndescent.distances import kantorovich
@@ -16,6 +17,7 @@ Dictionary of keyword arguments required for the metric. For example, the kantor
                           )
 
 Alternatively, we could define a new function without keywords, e.g.
+
 .. code:: python3
 
     from pynndescent.distances import kantorovich
@@ -30,6 +32,7 @@ Alternatively, we could define a new function without keywords, e.g.
     ann = annchor.Annchor(X, wasserstein)
 
 Or you could even use the string 'wasserstein', since this is one of Annchor's inbuilt metrics:
+
 .. code:: python3
 
     M = ... # your cost matrix
