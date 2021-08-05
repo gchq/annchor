@@ -8,8 +8,8 @@ ANNchor: Fast Approximate *k*\-NN Graph Construction for Slow Metrics
 
 ANNchor is an algorithm for the fast construction of approximate *k*\-nearest neighbour (*k*\-NN) graphs in a metric space where the metric is slow to compute.
 Given a metric space (*X*, *d*), we use anchor points (i.e. a small subset of *X*) and the triangle inequality to construct an approximation to *d* that is fast to compute.
-The fast metric is used to quickly identify candidate nearest neighbours, which are then checked by the slow metric. 
-In this way, ANNchor aims to use significantly fewer calls to the slow metric than current state-of-the-art techniques for *k*\-NN graph construction (e.g. Nearest Neighbour Descent, HNSW). 
+The fast metric is used to quickly identify candidate nearest neighbours, which are then checked by the slow metric.
+In this way, ANNchor aims to use significantly fewer calls to the slow metric than current state-of-the-art techniques for *k*\-NN graph construction (e.g. Nearest Neighbour Descent, HNSW).
 This leads to significant decreases in algorithm run-time when calls to the slow metric are the bottleneck of the computational process.
 
 
@@ -28,6 +28,7 @@ Install from source (clone the annchor repo from github):
 
    user_guide
    parameters
+   parallelisation
 
 
 
