@@ -9,6 +9,11 @@ from joblib import Parallel, delayed
 import os
 from tqdm.auto import tqdm as tq
 
+from annchor.distances import euclidean, levenshtein
+from pynndescent.distances import kantorovich
+from scipy.spatial.distance import cosine
+
+from multiprocessing.context import TimeoutError
 
 CPU_COUNT = os.cpu_count()
 
@@ -50,6 +55,54 @@ def np_sum(array, axis):
 @njit
 def np_argmin(array, axis):
     return np_apply_along_axis(np.argmin, axis, array)
+
+
+def get_function_from_input(func, func_kwargs):
+
+    if isinstance(func, str):
+        allowed_strings = {
+            "euclidean": euclidean,
+            "cosine": cosine,
+            "levenshtein": levenshtein,
+            "wasserstein": None,
+        }
+        assert (
+            func in allowed_strings
+        ), "Error: The string must be one of {}".format(allowed_strings)
+
+        if func == "wasserstein":
+            assert (
+                "cost_matrix" in func_kwargs
+            ), "Error: wassetstein metric requires cost_function kwarg"
+
+            M = func_kwargs["cost_matrix"]
+
+            @njit()
+            def wasserstein(x, y):
+                return kantorovich(x, y, cost=M)
+
+            f = wasserstein
+        else:
+            f = allowed_strings[func]
+    else:
+        if func_kwargs is None:
+            f = func
+        else:
+
+            # Handle numba func with kwargs
+            if isinstance(func, CPUDispatcher):
+                list_kwargs = tuple(func_kwargs.values())
+
+                @njit()
+                def f(x, y):
+                    return func(x, y, *list_kwargs)
+
+            else:
+
+                def f(x, y):
+                    return func(x, y, **func_kwargs)
+
+    return f
 
 
 def get_exact_ijs_(f, parallel=True, verbose=False, backend="loky"):
@@ -120,6 +173,34 @@ def get_exact_ijs_(f, parallel=True, verbose=False, backend="loky"):
                 return fIJ
 
     return get_exact
+
+
+def test_parallelisation(get_exact_ijs, f, X, nx, backend, s=20):
+    try:
+        get_exact_ijs(
+            f, X, np.random.randint(nx, size=(s, 2))
+        )
+    except TimeoutError:
+        print("TimeoutError: Parallelisation failed.")
+        if isinstance(f, CPUDispatcher):
+            print(
+                "Currently using numba parallelisation, try"
+                + " specifying custom parallelistation with"
+                + " get_exact_ijs keyword argument."
+            )
+        elif backend == "loky":
+            print(
+                "Current backend is 'loky', try backend='multiprocessing',"
+                + " or specifying custom parallelistation with"
+                + " get_exact_ijs keyword argument."
+            )
+        elif backend == "multiprocessing":
+            print(
+                "Current backend is 'multiprocessing', try backend='loky',"
+                + " or specifying custom parallelistation with"
+                + " get_exact_ijs keyword argument."
+            )
+        raise TimeoutError()
 
 
 @njit(parallel=True, fastmath=True)

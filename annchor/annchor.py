@@ -14,13 +14,7 @@ from annchor.samplers import *
 from annchor.regressors import *
 from annchor.error_predictors import *
 
-from annchor.distances import euclidean, levenshtein
-from pynndescent.distances import kantorovich
-from scipy.spatial.distance import cosine
-
 from scipy.sparse import dok_matrix
-
-from multiprocessing.context import TimeoutError
 
 
 class Annchor:
@@ -120,50 +114,7 @@ class Annchor:
         self.nx = len(X)
         self.N = (self.nx * (self.nx - 1)) // 2
 
-        if isinstance(func, str):
-            allowed_strings = {
-                "euclidean": euclidean,
-                "cosine": cosine,
-                "levenshtein": levenshtein,
-                "wasserstein": None,
-            }
-            assert (
-                func in allowed_strings
-            ), "Error: The string must be one of {}".format(allowed_strings)
-
-            if func == "wasserstein":
-                assert (
-                    "cost_matrix" in func_kwargs
-                ), "Error: wassetstein metric requires cost_function kwarg"
-
-                M = func_kwargs["cost_matrix"]
-
-                @njit()
-                def wasserstein(x, y):
-                    return kantorovich(x, y, cost=M)
-
-                self.f = wasserstein
-            else:
-                self.f = allowed_strings[func]
-        else:
-            if func_kwargs is None:
-                self.f = func
-            else:
-
-                # Handle numba func with kwargs
-                if isinstance(func, CPUDispatcher):
-                    list_kwargs = tuple(func_kwargs.values())
-
-                    @njit()
-                    def f(x, y):
-                        return func(x, y, *list_kwargs)
-
-                else:
-
-                    def f(x, y):
-                        return func(x, y, **func_kwargs)
-
-                self.f = f
+        self.f = get_function_from_input(func, func_kwargs)
 
         self.evals = 0
 
@@ -214,21 +165,13 @@ class Annchor:
         else:
             self.get_exact_ijs = get_exact_ijs
 
-        try:
-            self.get_exact_ijs(
-                self.f, self.X, np.random.randint(self.nx, size=(20, 2))
-            )
-        except TimeoutError:
-            print("TimeoutError: Parallelisation failed.")
-            if backend == "loky":
-                print(
-                    "Current backend is 'loky', try backend='multiprocessing'."
-                )
-            elif backend == "multiprocessing":
-                print(
-                    "Current backend is 'multiprocessing', try backend='loky'."
-                )
-            raise TimeoutError()
+        test_parallelisation(self.get_exact_ijs,
+                             self.f,
+                             self.X,
+                             self.nx,
+                             backend,
+                             s=20
+                             )
 
     def get_anchors(self):
 
@@ -733,50 +676,7 @@ class BruteForce:
         self.X = X
         self.nx = len(X)
 
-        if isinstance(func, str):
-            allowed_strings = {
-                "euclidean": euclidean,
-                "cosine": cosine,
-                "levenshtein": levenshtein,
-                "wasserstein": None,
-            }
-            assert (
-                func in allowed_strings
-            ), "Error: The string must be one of {}".format(allowed_strings)
-
-            if func == "wasserstein":
-                assert (
-                    "cost_matrix" in func_kwargs
-                ), "Error: wassetstein metric requires cost_function kwarg"
-
-                M = func_kwargs["cost_matrix"]
-
-                @njit()
-                def wasserstein(x, y):
-                    return kantorovich(x, y, cost=M)
-
-                self.f = wasserstein
-            else:
-                self.f = allowed_strings[func]
-        else:
-            if func_kwargs is None:
-                self.f = func
-            else:
-
-                # Handle numba func with kwargs
-                if isinstance(func, CPUDispatcher):
-                    list_kwargs = tuple(func_kwargs.values())
-
-                    @njit()
-                    def f(x, y):
-                        return func(x, y, *list_kwargs)
-
-                else:
-
-                    def f(x, y):
-                        return func(x, y, **func_kwargs)
-
-                self.f = f
+        self.f = get_function_from_input(func, func_kwargs)
 
         self.verbose = verbose
 
@@ -788,21 +688,13 @@ class BruteForce:
         else:
             self.get_exact_ijs = get_exact_ijs
 
-        try:
-            self.get_exact_ijs(
-                self.f, self.X, np.random.randint(self.nx, size=(20, 2))
-            )
-        except TimeoutError:
-            print("TimeoutError: Parallelisation failed.")
-            if backend == "loky":
-                print(
-                    "Current backend is 'loky', try backend='multiprocessing'."
-                )
-            elif backend == "multiprocessing":
-                print(
-                    "Current backend is 'multiprocessing', try backend='loky'."
-                )
-            raise TimeoutError()
+        test_parallelisation(self.get_exact_ijs,
+                             self.f,
+                             self.X,
+                             self.nx,
+                             backend,
+                             s=20
+                             )
 
     def fit(self):
         """get_neighbor_graph
