@@ -5,7 +5,7 @@ A python library implementing ANNchor:<br>
 *k*-nearest neighbour graph construction for slow metrics.
 
 ## User Guide
-For user guide and documentation, go to ```/doc/_build/index.html```
+For user guide and documentation visit [gchq.github.io/annchor](https://gchq.github.io/annchor)
 
 <br></br>
 
