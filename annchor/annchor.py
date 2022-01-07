@@ -158,6 +158,8 @@ class Annchor:
         self.RefineApprox = None
 
         assert backend in ["loky", "multiprocessing"]
+        self.backend = backend
+
         if get_exact_ijs is None:
             self.get_exact_ijs = get_exact_ijs_(
                 self.f, verbose=self.verbose, backend=backend
@@ -165,13 +167,11 @@ class Annchor:
         else:
             self.get_exact_ijs = get_exact_ijs
 
-        test_parallelisation(self.get_exact_ijs,
-                             self.f,
-                             self.X,
-                             self.nx,
-                             backend,
-                             s=20
-                             )
+        test_parallelisation(
+            self.get_exact_ijs, self.f, self.X, self.nx, backend, s=20
+        )
+
+        self.get_exact_query_ijs = None
 
     def get_anchors(self):
 
@@ -630,6 +630,146 @@ class Annchor:
                 D[i, j] = D[j, i] = d
         return D
 
+    def get_nearest_enemies(self, y, nn=3):
+        """get_nearest_enemies
+        Returns the nearest enemy graph
+        """
+        nx = self.nx
+        RA = self.RefineApprox
+        I = self.I
+        not_computed_mask = self.not_computed_mask
+        IJs = self.IJs
+        get_exact_ijs = self.get_exact_ijs
+
+        ngi = np.zeros(shape=(nx, nn - 1), dtype=np.int64)
+        ngd = np.zeros(shape=(nx, nn - 1))
+
+        ixs = {}
+        fis = {}
+        for i in range(nx):
+
+            f = IJs[I[i]]
+            mask = f[:, 0] == i
+            fis[i] = fi = f[:, 1] * mask + f[:, 0] * (1 - mask)
+            asort = np.argsort(RA[I[i]][y[fi] != y[i]])
+            ncm = not_computed_mask[I[i]][y[fi] != y[i]][asort][:50]
+            ixs[i] = I[i][y[fi] != y[i]][asort][:50][ncm]
+        ixs = np.hstack([ixs[i] for i in range(nx) if len(ixs[i]) > 0])
+        d = get_exact_ijs(self.f, self.X, self.IJs[ixs])
+        RA[ixs] = d
+        not_computed_mask[ixs] = False
+
+        for i in prange(nx):
+            Ii = I[np.int64(i)]
+            d = RA[Ii]
+            mx = np.max(d)
+            d[not_computed_mask[Ii]] += mx
+
+            fi = fis[i]
+
+            d[y[fi] == y[i]] += mx
+            t = np.partition(d, nn - 1)[nn - 1]
+            mask = d <= t
+            iy = Ii[mask][np.argsort(d[mask])][: nn - 1]
+
+            ngd[i, :] = RA[iy]
+            ngi[i, :] = fi[mask][np.argsort(d[mask])][: nn - 1]
+
+        self.nearest_enemy_graph = (ngi, ngd)
+
+    def query(self, Z, k=5, get_exact_query_ijs=None, k1=5, k2=25, eps=1.15):
+
+        nz = Z.shape[0]
+
+        if get_exact_query_ijs is None:
+            if self.get_exact_query_ijs is None:
+                self.get_exact_query_ijs = get_exact_query_ijs_(
+                    self.f, verbose=self.verbose, backend=self.backend
+                )
+        else:
+            self.get_exact_query_ijs = get_exact_query_ijs
+
+        ijs = np.array([(a, j) for j, z in enumerate(Z) for a in self.A])
+        aZ = self.get_exact_query_ijs(self.f, self.X, Z, ijs).reshape(
+            (nz, self.n_anchors)
+        )
+
+        s = np.argsort(aZ)[:, :k1]
+        iX = {i: self.A[_s] for i, _s in enumerate(s)}
+        dX = {i: aZ[i, s[i]] for i in range(nz)}
+
+        queue = {
+            i: np.unique(
+                self.neighbor_graph[0][ix, 1:k2].astype(int).flatten()
+            )
+            for i, ix in iX.items()
+        }
+        queue = {i: queue[i][~np.isin(queue[i], ix)] for i, ix in iX.items()}
+
+        while np.any([queue[i].shape[0] > 0 for i in range(nz)]):
+
+            # print([len(queue[i]) for i in range(nz)])
+
+            ijs = np.vstack(
+                [
+                    np.array([(_q, i) for _q in q])
+                    for i, q in queue.items()
+                    if len(q) > 0
+                ]
+            )
+            ds = self.get_exact_query_ijs(self.f, self.X, Z, ijs)
+            csum = np.cumsum([0] + [len(queue[i]) for i in range(nz)])
+            dqueue = {i: ds[csum[i] : csum[i + 1]] for i in range(nz)}
+
+            iX = {i: np.hstack([iX[i], queue[i]]) for i in range(nz)}
+            dX = {i: np.hstack([dX[i], dqueue[i]]) for i in range(nz)}
+            isort = {i: np.argsort(dx) for i, dx in dX.items()}
+            iX = {i: iX[i][isort[i]] for i in range(nz)}
+            dX = {i: dX[i][isort[i]] for i in range(nz)}
+
+            cos = [dX[i][k] * eps for i in range(nz)]
+            queue = {
+                i: np.unique(
+                    self.neighbor_graph[0][iX[i][dX[i] <= cos[i]], 1:k2]
+                    .astype(int)
+                    .flatten()
+                )
+                for i in range(nz)
+            }
+            queue = {i: queue[i][~np.isin(queue[i], iX[i])] for i in range(nz)}
+
+        res = (
+            np.vstack([iX[i][:k] for i in range(nz)]),
+            np.vstack([dX[i][:k] for i in range(nz)]),
+        )
+        return res
+
+    def alpha_rss(self, y, dne=None, alpha=0):
+
+        if dne is None:
+            try:
+                dne = self.nearest_enemy_graph[1][:, 0]
+            except AttributeError:
+                self.get_nearest_enemies(y)
+                dne = self.nearest_enemy_graph[1][:, 0]
+
+        ix = np.argsort(dne)
+        rss = [ix[0]]
+
+        alpha_dne = dne / (1 + alpha)
+        for i in ix:
+            ds = self.get_exact_ijs(
+                self.f,
+                self.X,
+                np.array([[i, r] for r in rss])
+            )
+            dnnR = np.min(ds)
+            dne_alpha = alpha_dne[i]
+            if (dnnR > dne_alpha) or np.isclose(dnnR, dne_alpha):
+                rss.append(i)
+        self.rss = np.array(rss)
+        return np.array(rss)
+
 
 class BruteForce:
 
@@ -688,13 +828,9 @@ class BruteForce:
         else:
             self.get_exact_ijs = get_exact_ijs
 
-        test_parallelisation(self.get_exact_ijs,
-                             self.f,
-                             self.X,
-                             self.nx,
-                             backend,
-                             s=20
-                             )
+        test_parallelisation(
+            self.get_exact_ijs, self.f, self.X, self.nx, backend, s=20
+        )
 
     def fit(self):
         """get_neighbor_graph
