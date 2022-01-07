@@ -1,76 +1,35 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>ANNchor User Guide &mdash; ANNchor  documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
-
-  
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Basic Parameters" href="parameters.html" />
     <link rel="prev" title="ANNchor: Fast Approximate k-NN Graph Construction for Slow Metrics" href="index.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="index.html">
-          
-
-          
-            
             <img src="_static/logo_yellow.svg" class="logo" alt="Logo"/>
-          
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -78,18 +37,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">User Guide:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">ANNchor User Guide</a><ul>
@@ -122,73 +70,32 @@
 <li class="toctree-l1"><a class="reference internal" href="api.html">ANNchor API Guide</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">ANNchor</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-        
       <li>ANNchor User Guide</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-          
             <a href="_sources/user_guide.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="annchor-user-guide">
-<h1>ANNchor User Guide<a class="headerlink" href="#annchor-user-guide" title="Permalink to this headline">¶</a></h1>
+             
+  <section id="annchor-user-guide">
+<h1>ANNchor User Guide<a class="headerlink" href="#annchor-user-guide" title="Permalink to this headline"></a></h1>
 <p>Using ANNchor to find <em>k</em>-NN graphs is relatively straightforward.
 Let’s take a look at the general structure</p>
 <div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">annchor</span>
@@ -213,8 +120,8 @@ Let’s take a look at the general structure</p>
 the run-times quoted below will vary by machine: we used a MacBook Pro with
 2 GHz Quad-Core Intel i5 processor and 16 GB RAM. Any computations involving
 numba may want to be run twice to eliminate numba-jit compile times.</p>
-<div class="section" id="example-wasserstein">
-<h2>Example: Wasserstein<a class="headerlink" href="#example-wasserstein" title="Permalink to this headline">¶</a></h2>
+<section id="example-wasserstein">
+<h2>Example: Wasserstein<a class="headerlink" href="#example-wasserstein" title="Permalink to this headline"></a></h2>
 <p>Wasserstein distance, also known as Earth Mover’s distance, is a metric for
 comparing probability distributions.
 Practically speaking, it is also quite useful for comparing 2D images.
@@ -275,8 +182,8 @@ Euclidean metric on our data.</p>
 </div>
 <p>So Wasserstein is clocking in at around 20 times slower than Euclidean: We’re
 firmly in the territory of slow metrics.</p>
-<div class="section" id="brute-force-approach">
-<h3>Brute Force Approach<a class="headerlink" href="#brute-force-approach" title="Permalink to this headline">¶</a></h3>
+<section id="brute-force-approach">
+<h3>Brute Force Approach<a class="headerlink" href="#brute-force-approach" title="Permalink to this headline"></a></h3>
 <p>If we wanted to brute-force the <em>k</em>-NN graph, then we must make around 1.6 million
 calls to the metric. Let’s try that, with a little  help from numba, and see how it goes</p>
 <div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
@@ -301,9 +208,9 @@ calls to the metric. Let’s try that, with a little  help from numba, and see h
 </pre></div>
 </div>
 <p>Reasonably slow, but does have the merit of  giving the exact answer.</p>
-</div>
-<div class="section" id="nearest-neighbor-descent">
-<h3>Nearest Neighbor Descent<a class="headerlink" href="#nearest-neighbor-descent" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="nearest-neighbor-descent">
+<h3>Nearest Neighbor Descent<a class="headerlink" href="#nearest-neighbor-descent" title="Permalink to this headline"></a></h3>
 <p>Now let’s try a state-of-the-art <em>k</em>-NN graph construction method, Nearest
 Neighbour Descent.
 In particular, we’ll use the PyNNDescent python implementation (which is also
@@ -334,9 +241,9 @@ than the brute force method.</p>
 </pre></div>
 </div>
 <p>Not bad, we trimmed 38 seconds from the run-time for a minimal hit to accuracy.</p>
-</div>
-<div class="section" id="annchor">
-<h3>ANNchor<a class="headerlink" href="#annchor" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="annchor">
+<h3>ANNchor<a class="headerlink" href="#annchor" title="Permalink to this headline"></a></h3>
 <p>How does ANNchor compare? Remember, we are competing with 83s and 69s for brute
 force and PyNNDescent respectively. Can we do better?</p>
 <div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
@@ -366,9 +273,9 @@ force and PyNNDescent respectively. Can we do better?</p>
 </div>
 <p>Much better! We’ve got the 25-NN graph in less than half the time it took for
 PyNNDescent, with comparable accuracy!</p>
-</div>
-<div class="section" id="a-larger-data-set">
-<h3>A Larger Data Set<a class="headerlink" href="#a-larger-data-set" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="a-larger-data-set">
+<h3>A Larger Data Set<a class="headerlink" href="#a-larger-data-set" title="Permalink to this headline"></a></h3>
 <p>What if we up the size of the data set? The previous set was quite small, so it’s
 important to see what happens when things get a bit bigger. Not much bigger, of course,
 since we don’t want to be waiting forever to run these tests!</p>
@@ -426,10 +333,10 @@ since we don’t want to be waiting forever to run these tests!</p>
 </pre></div>
 </div>
 <p>Again, we see that ANNchor can be much quicker than state-of-the-art!</p>
-</div>
-</div>
-<div class="section" id="example-levenshtein">
-<h2>Example: Levenshtein<a class="headerlink" href="#example-levenshtein" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="example-levenshtein">
+<h2>Example: Levenshtein<a class="headerlink" href="#example-levenshtein" title="Permalink to this headline"></a></h2>
 <p>Levenshtein distance (or Edit distance) is a metric on strings. It is the number
 of insertions, substitutions and deletions required to change one word into an-
 other; for example, ‘cat’ is changed to ‘hat’ by substitution of the ‘c’ for an ‘h’,
@@ -495,8 +402,8 @@ stick this problem directly into UMAP.</p>
 </pre></div>
 </div>
 <p>Let’s look at some different ways of computing the 15-NN graph.</p>
-<div class="section" id="brute-force">
-<h3>Brute Force<a class="headerlink" href="#brute-force" title="Permalink to this headline">¶</a></h3>
+<section id="brute-force">
+<h3>Brute Force<a class="headerlink" href="#brute-force" title="Permalink to this headline"></a></h3>
 <p>The brute force method is the same as above - compute the all-pairs distance matrix.
 Since we don’t have the help of numba this time round, we will use joblib to do
 some parallelisation.</p>
@@ -524,9 +431,9 @@ some parallelisation.</p>
 </pre></div>
 </div>
 <p>Quite slow, especially when we consider that there are only 1600 strings in the data set!</p>
-</div>
-<div class="section" id="hnsw-nmslib">
-<h3>HNSW (nmslib)<a class="headerlink" href="#hnsw-nmslib" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="hnsw-nmslib">
+<h3>HNSW (nmslib)<a class="headerlink" href="#hnsw-nmslib" title="Permalink to this headline"></a></h3>
 <p>The nmslib implementation of HNSW is another state-of-the-art <em>k</em>-NN library,
 one of the few out there that can deal with Levenshtein distances. You might give
 this a go if you don’t want to do brute force, but how does it get on?</p>
@@ -572,9 +479,9 @@ Levenshtein implementation only really shines when the data set is large and the
 strings are short.
 It also boasts quick query times once the index has been created; but for <em>k</em>-NN graph
 construction the index creation time is very important.</p>
-</div>
-<div class="section" id="id1">
-<h3>ANNchor<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="id1">
+<h3>ANNchor<a class="headerlink" href="#id1" title="Permalink to this headline"></a></h3>
 <p>Now it’s ANNchor’s turn! How does it do?</p>
 <div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 <span class="n">ann</span> <span class="o">=</span> <span class="n">Annchor</span><span class="p">(</span><span class="n">X</span><span class="p">,</span>
@@ -602,10 +509,10 @@ construction the index creation time is very important.</p>
 </pre></div>
 </div>
 <p>Super speedy, and accurate too!</p>
-</div>
-</div>
-<div class="section" id="example-shortest-path-distance">
-<h2>Example: Shortest Path Distance<a class="headerlink" href="#example-shortest-path-distance" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="example-shortest-path-distance">
+<h2>Example: Shortest Path Distance<a class="headerlink" href="#example-shortest-path-distance" title="Permalink to this headline"></a></h2>
 <p>In this example, we want to showcase one of the worst possible scenarios: a
 custom distance function which is slow, and not easy to compile with numba.
 Why is this the worst case? Well, because it is a custom distance we can’t use
@@ -674,8 +581,8 @@ edges.</p>
 </div>
 <p>That’s quite slow - around 250 times as slow as the Euclidean distance we calculated earlier!
 Now let’s compare our options: brute-force and ANNchor.</p>
-<div class="section" id="id2">
-<h3>Brute Force<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<section id="id2">
+<h3>Brute Force<a class="headerlink" href="#id2" title="Permalink to this headline"></a></h3>
 <p>Given that we can’t use PyNNDescent or nmslib, we may well use brute-force simply because there’s not another option available to us.</p>
 <div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">annchor</span> <span class="k">import</span> <span class="n">BruteForce</span>
 <span class="kn">from</span> <span class="nn">annchor</span> <span class="k">import</span> <span class="n">compare_neighbor_graphs</span>
@@ -699,9 +606,9 @@ Now let’s compare our options: brute-force and ANNchor.</p>
 </pre></div>
 </div>
 <p>That’s about 5 minutes. Remember, we only have 800 points in our data set! Imagine how badly this approach will scale.</p>
-</div>
-<div class="section" id="id3">
-<h3>ANNchor<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="id3">
+<h3>ANNchor<a class="headerlink" href="#id3" title="Permalink to this headline"></a></h3>
 <p>ANNchor should take this problem in its stride. Let’s see how it compares.</p>
 <div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">annchor</span> <span class="k">import</span> <span class="n">Annchor</span>
 
@@ -734,56 +641,39 @@ Now let’s compare our options: brute-force and ANNchor.</p>
 </pre></div>
 </div>
 <p>That’s an order of magnitude faster than brute-force.</p>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="parameters.html" class="btn btn-neutral float-right" title="Basic Parameters" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="index.html" class="btn btn-neutral float-left" title="ANNchor: Fast Approximate k-NN Graph Construction for Slow Metrics" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="parameters.html" class="btn btn-neutral float-right" title="Basic Parameters" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2021, GCHQ.
-
-    </p>
+    <p>&#169; Copyright 2021, GCHQ.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>
