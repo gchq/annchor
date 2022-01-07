@@ -175,11 +175,77 @@ def get_exact_ijs_(f, parallel=True, verbose=False, backend="loky"):
     return get_exact
 
 
+def get_exact_query_ijs_(f, parallel=True, verbose=False, backend="loky"):
+    """
+    Takes the metric f and returns the function
+    get_exact_query_ijs(f,X, Z, IJ), which calculates the distances between
+    pairs X[i], Z[j] given in array IJ.
+    Parameters
+    ----------
+    f: function
+        The metric. Takes two points from the data set and calculates their
+        distance.
+    Outputs
+    -------
+    get_exact_ijs: function
+        get_exact_ijs(f,X,Z,IJ) is the function that returns distances between
+        pairs given in array IJ,
+        i.e. np.array([f(X[i],Z[j]) for i,j in IJ]).
+    """
+    if not parallel:
+
+        def get_exact_query(f, X, Z, IJ):
+            def _f(ij):
+                i, j = ij
+                return f(X[i], Z[j])
+
+            fIJ = np.array([_f(ij) for ij in tq(IJ)])
+
+            return fIJ
+
+        return get_exact
+
+    if isinstance(f, CPUDispatcher):
+
+        @njit(parallel=True)
+        def get_exact_query(f, X, Z, IJ):
+            exact = np.zeros(len(IJ))
+            for ix in prange(len(IJ)):
+                i, j = IJ[ix]
+                exact[ix] = f(X[i], Z[j])
+            return exact
+
+    else:
+        if verbose:
+
+            def get_exact_query(f, X, Z, IJ):
+
+                fIJ = np.array(
+                    Parallel(n_jobs=CPU_COUNT, backend=backend, timeout=30)(
+                        delayed(f)(X[i], Z[j]) for i, j in tq(IJ, leave=False)
+                    )
+                )
+
+                return fIJ
+
+        else:
+
+            def get_exact_query(f, X, Z, IJ):
+
+                fIJ = np.array(
+                    Parallel(n_jobs=CPU_COUNT, backend=backend, timeout=30)(
+                        delayed(f)(X[i], Z[j]) for i, j in IJ
+                    )
+                )
+
+                return fIJ
+
+    return get_exact_query
+
+
 def test_parallelisation(get_exact_ijs, f, X, nx, backend, s=20):
     try:
-        get_exact_ijs(
-            f, X, np.random.randint(nx, size=(s, 2))
-        )
+        get_exact_ijs(f, X, np.random.randint(nx, size=(s, 2)))
     except TimeoutError:
         print("TimeoutError: Parallelisation failed.")
         if isinstance(f, CPUDispatcher):
