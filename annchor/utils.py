@@ -203,7 +203,7 @@ def get_exact_query_ijs_(f, parallel=True, verbose=False, backend="loky"):
 
             return fIJ
 
-        return get_exact
+        return get_exact_query
 
     if isinstance(f, CPUDispatcher):
 

@@ -13,6 +13,7 @@ from annchor.pickers import *
 from annchor.samplers import *
 from annchor.regressors import *
 from annchor.error_predictors import *
+from annchor.query_functions import *
 
 from scipy.sparse import dok_matrix
 
@@ -27,7 +28,7 @@ class Annchor:
     ----------
     X: np.array or list (required)
         The data set for which we want to find the k-NN graph.
-    func: function, numba-jitted function (required) or string.
+    func: function, numba-jitted function or string (required)
         The metric under which the k-NN graph should be evaluated.
         This can be a user supplied function or a string.
         Currently supported string arguments are
@@ -285,7 +286,7 @@ class Annchor:
 
         dad = get_dad_ijs(IJs, self.D)
         bounds = get_bounds_njit_ijs(IJs, self.D)
-        W = bounds[:, 1] - bounds[:, 0]
+        # W = bounds[:, 1] - bounds[:, 0]
         anchors = np.zeros(shape=n)
         # anchors[(bounds[:, 1] - bounds[:, 0]) == 0] = 1
         for a in self.A:
@@ -486,18 +487,18 @@ class Annchor:
 
         bounds = update_bounds(self.IJs[mapback], dis, ds)
 
-        try:
-            if not self.anchor_picker.is_anchor_safe:
-                # If anchors are not in dataset, then we need to check if any
-                # of the original anchors gave the best bounds
-                bounds = np.vstack(
-                    [
-                        np.maximum(bounds[:, 0], self.features[mapback][:, 0]),
-                        np.minimum(bounds[:, 1], self.features[mapback][:, 1]),
-                    ]
-                ).T
-        except AttributeError:
-            pass
+        # try:
+        #    if not self.anchor_picker.is_anchor_safe:
+        # If anchors are not in dataset, then we need to check if any
+        # of the original anchors gave the best bounds
+        bounds = np.vstack(
+            [
+                np.maximum(bounds[:, 0], self.features[mapback][:, 0]),
+                np.minimum(bounds[:, 1], self.features[mapback][:, 1]),
+            ]
+        ).T
+        # except AttributeError:
+        #    pass
 
         self.features[mapback, :2] = bounds
 
@@ -619,7 +620,7 @@ class Annchor:
 
         # Initialise sparse matrix
         D = dok_matrix((self.nx, self.nx), dtype=np.float64)
-
+        eps = np.nextafter(0, 1, dtype=np.float64)
         for i, (js, ds) in enumerate(zip(*self.neighbor_graph)):
             # i is an index into our data
             # js is the list of indices that annchor has determined to be
@@ -627,8 +628,27 @@ class Annchor:
             # ds is the list of distances corresponding to i,js
             for j, d in zip(js, ds):
                 # symmetric, so update both pairs (i,j) and (j,i)
-                D[i, j] = D[j, i] = d
+                D[i, j] = D[j, i] = d + eps
         return D
+
+    def query(self, Q, nn=15, p_work=0.3, get_exact_query_ijs=None):
+
+        nq = len(Q)
+        na = self.n_anchors * nq
+        nbf = nq * self.nx
+        limit = ((nq * nn * 3) // 2 - 1 + na) / nbf
+        if p_work < limit:
+            print("Warning: p_work too low")
+            print("Increasing p_work to %5.3f" % limit)
+            p_work = limit
+
+        return query_(
+            self,
+            Q,
+            nn=nn,
+            p_work=p_work,
+            get_exact_query_ijs=get_exact_query_ijs,
+        )
 
     def get_nearest_enemies(self, y, nn=3):
         """get_nearest_enemies
@@ -641,19 +661,21 @@ class Annchor:
         IJs = self.IJs
         get_exact_ijs = self.get_exact_ijs
 
+        assert len(y) == nx
+
         ngi = np.zeros(shape=(nx, nn - 1), dtype=np.int64)
         ngd = np.zeros(shape=(nx, nn - 1))
 
         ixs = {}
         fis = {}
         for i in range(nx):
-
             f = IJs[I[i]]
             mask = f[:, 0] == i
             fis[i] = fi = f[:, 1] * mask + f[:, 0] * (1 - mask)
             asort = np.argsort(RA[I[i]][y[fi] != y[i]])
             ncm = not_computed_mask[I[i]][y[fi] != y[i]][asort][:50]
             ixs[i] = I[i][y[fi] != y[i]][asort][:50][ncm]
+
         ixs = np.hstack([ixs[i] for i in range(nx) if len(ixs[i]) > 0])
         d = get_exact_ijs(self.f, self.X, self.IJs[ixs])
         RA[ixs] = d
@@ -677,72 +699,94 @@ class Annchor:
 
         self.nearest_enemy_graph = (ngi, ngd)
 
-    def query(self, Z, k=5, get_exact_query_ijs=None, k1=5, k2=25, eps=1.15):
+    def annchor_selective_subset(self, y, dne=None):
 
-        nz = Z.shape[0]
+        if dne is None:
+            try:
+                dne = self.nearest_enemy_graph[1][:, 0]
+            except AttributeError:
+                self.get_nearest_enemies(y)
+                dne = self.nearest_enemy_graph[1][:, 0]
 
-        if get_exact_query_ijs is None:
-            if self.get_exact_query_ijs is None:
-                self.get_exact_query_ijs = get_exact_query_ijs_(
-                    self.f, verbose=self.verbose, backend=self.backend
-                )
-        else:
-            self.get_exact_query_ijs = get_exact_query_ijs
+        ix = np.arange(len(self.X))
 
-        ijs = np.array([(a, j) for j, z in enumerate(Z) for a in self.A])
-        aZ = self.get_exact_query_ijs(self.f, self.X, Z, ijs).reshape(
-            (nz, self.n_anchors)
+        ngi, ngd = self.neighbor_graph
+
+        ebuffer = np.array(
+            [
+                np.searchsorted(_ngd, _dne - 1e-6)
+                for _ngd, _dne in zip(ngd, dne)
+            ]
         )
+        buffer = [_ngi[:eb] for _ngi, eb in zip(ngi, ebuffer)]
+        rss = ix[ebuffer == 1]
 
-        s = np.argsort(aZ)[:, :k1]
-        iX = {i: self.A[_s] for i, _s in enumerate(s)}
-        dX = {i: aZ[i, s[i]] for i in range(nz)}
+        present = np.isin(ngi, rss)
 
-        queue = {
-            i: np.unique(
-                self.neighbor_graph[0][ix, 1:k2].astype(int).flatten()
-            )
-            for i, ix in iX.items()
-        }
-        queue = {i: queue[i][~np.isin(queue[i], ix)] for i, ix in iX.items()}
+        amaxpresent = np.argmax(present, axis=1)
+        anypresent = np.any(present, axis=1)
 
-        while np.any([queue[i].shape[0] > 0 for i in range(nz)]):
+        rssbuffer = amaxpresent + ebuffer * (~anypresent)
+        done = np.array(rssbuffer < ebuffer)
 
-            # print([len(queue[i]) for i in range(nz)])
+        rest = ix[~done]
 
-            ijs = np.vstack(
-                [
-                    np.array([(_q, i) for _q in q])
-                    for i, q in queue.items()
-                    if len(q) > 0
-                ]
-            )
-            ds = self.get_exact_query_ijs(self.f, self.X, Z, ijs)
-            csum = np.cumsum([0] + [len(queue[i]) for i in range(nz)])
-            dqueue = {i: ds[csum[i] : csum[i + 1]] for i in range(nz)}
+        while len(rest) > 0:
+            stack = np.hstack([buffer[t] for t in ix[~done]])
+            a, b = np.unique(stack, return_counts=True)
+            nxt = a[np.argmax(b)]
 
-            iX = {i: np.hstack([iX[i], queue[i]]) for i in range(nz)}
-            dX = {i: np.hstack([dX[i], dqueue[i]]) for i in range(nz)}
-            isort = {i: np.argsort(dx) for i, dx in dX.items()}
-            iX = {i: iX[i][isort[i]] for i in range(nz)}
-            dX = {i: dX[i][isort[i]] for i in range(nz)}
+            rss = np.append(rss, nxt)
 
-            cos = [dX[i][k] * eps for i in range(nz)]
-            queue = {
-                i: np.unique(
-                    self.neighbor_graph[0][iX[i][dX[i] <= cos[i]], 1:k2]
-                    .astype(int)
-                    .flatten()
-                )
-                for i in range(nz)
-            }
-            queue = {i: queue[i][~np.isin(queue[i], iX[i])] for i in range(nz)}
+            mid = time.time()
 
-        res = (
-            np.vstack([iX[i][:k] for i in range(nz)]),
-            np.vstack([dX[i][:k] for i in range(nz)]),
+            # present = np.isin(ngi, rss[-1])
+            # return present,ngi,rss,ebuffer,done
+
+            present = np.isin(ngi[~done], rss[-1])
+
+            amaxpresent = np.argmax(present, axis=1)
+            anypresent = np.any(present, axis=1)
+
+            rssbuffer = amaxpresent + ebuffer[~done] * (~anypresent)
+            done[~done] += rssbuffer < ebuffer[~done]
+            rest = ix[~done]
+
+        dists = self.RefineApprox.copy()
+        dists[self.not_computed_mask] = self.features[
+            self.not_computed_mask, 1
+        ]
+
+        def get_full_ngi_ngd(i):
+            isort = np.argsort(dists[self.I[i]])
+            ngi = np.sum(self.IJs[self.I[i][isort]], axis=1) - i
+            ngd = dists[self.I[i]][isort]
+            return np.insert(ngi, 0, i).astype(int), np.insert(ngd, 0, 0)
+
+        res = [get_full_ngi_ngd(i) for i in tq(range(self.nx))]
+        ngi = [r[0] for r in res]
+        ngd = [r[1] for r in res]
+        ebuffer = np.array(
+            [
+                np.searchsorted(_ngd, _dne - 1e-6)
+                for _ngd, _dne in zip(ngd, dne)
+            ]
         )
-        return res
+        buffer = [_ngi[:eb] for _ngi, eb in zip(ngi, ebuffer)]
+        ssarr = np.array(
+            [
+                np.isin(rss, buffer[i], assume_unique=True)
+                for i in tq(range(self.nx))
+            ]
+        )
+        a = []
+        for i in tq(range(len(rss))):
+            a += [i]
+            m = np.min(np.sum(np.delete(ssarr, a, axis=1), axis=1))
+            if m == 0:
+                a = a[:-1]
+
+        return np.delete(rss, a)
 
     def alpha_rss(self, y, dne=None, alpha=0):
 
@@ -757,17 +801,16 @@ class Annchor:
         rss = [ix[0]]
 
         alpha_dne = dne / (1 + alpha)
+        self.rssDs = {}
         for i in ix:
             ds = self.get_exact_ijs(
-                self.f,
-                self.X,
-                np.array([[i, r] for r in rss])
+                self.f, self.X, np.array([[i, r] for r in rss])
             )
+            self.rssDs[i] = ds
             dnnR = np.min(ds)
             dne_alpha = alpha_dne[i]
             if (dnnR > dne_alpha) or np.isclose(dnnR, dne_alpha):
                 rss.append(i)
-        self.rss = np.array(rss)
         return np.array(rss)
 
 
