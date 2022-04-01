@@ -8,8 +8,8 @@ setup(
     description="Fast k-NN graph construction for slow metrics",
     install_requires=[
         "joblib>=1.0.1",
-        "numpy>=1.21.0",
-        "numba>=0.53.1",
+        "numpy<1.22,>=1.18",
+        "numba==0.55.1",
         "python-Levenshtein>=0.12.2",
         "pynndescent>=0.5.4",
         "scipy>=1.7.0",
