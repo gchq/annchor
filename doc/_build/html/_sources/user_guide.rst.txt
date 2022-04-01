@@ -1,5 +1,5 @@
-ANNchor User Guide
-==================
+ANNchor User Guide (v1.1.0)
+===========================
 
 Using ANNchor to find *k*\-NN graphs is relatively straightforward.
 Let's take a look at the general structure
