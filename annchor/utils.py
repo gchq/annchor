@@ -1,7 +1,7 @@
 import numpy as np
 
-from numba import njit, prange, types
-from numba.typed import Dict
+from numba import njit, prange, types, typeof
+from numba.typed import Dict, List
 from numba.core.registry import CPUDispatcher
 
 from joblib import Parallel, delayed
@@ -16,6 +16,8 @@ from scipy.spatial.distance import cosine
 from multiprocessing.context import TimeoutError
 
 CPU_COUNT = os.cpu_count()
+
+int_list_dtype = typeof(List(np.arange(4)))
 
 
 @njit
@@ -203,7 +205,7 @@ def get_exact_query_ijs_(f, parallel=True, verbose=False, backend="loky"):
 
             return fIJ
 
-        return get_exact
+        return get_exact_query
 
     if isinstance(f, CPUDispatcher):
 
@@ -427,12 +429,113 @@ def get_nn(nx, nn, RA, IJs, I, not_computed_mask):
     return ngi, ngd
 
 
+@njit()
+def list_to_arr(_list):
+    return np.array([j for j in _list])
+
+
+@njit()
+def adjust_check(check, nx):
+    checkList = Dict.empty(
+        key_type=types.int64,
+        value_type=int_list_dtype,
+    )
+    for i in range(nx):
+        checkList[i] = List([i])
+        checkList[i].pop()
+        d = check[i][check[i] < i]
+        for j in d:
+            checkList[j].append(i)
+
+    for i in range(nx):
+        check[i] = np.unique(np.hstack((check[i], list_to_arr(checkList[i]))))
+    return check
+
+
+def get_check(A, sid, loc_thresh, loc_min, nx, f=None):
+
+    if f is None:
+
+        def f(arr, i):
+            return arr
+
+    check = Dict.empty(
+        key_type=types.int64,
+        value_type=types.int64[:],
+    )
+    ix = np.arange(nx, dtype=np.int64)
+    assymetric_check = False
+    assymetric_arr = np.zeros(nx)
+    for i in prange(nx):
+        sum_Amatrix = np.sum(A[sid[i], :], axis=0)
+        _loc_thresh = -np.partition(-f(sum_Amatrix, i), loc_min)[loc_min]
+
+        if _loc_thresh < loc_thresh:
+            check[i] = f(ix, i)[f(sum_Amatrix, i) >= _loc_thresh]
+            assymetric_check = True
+            assymetric_arr[i] = 1
+        else:
+            check[i] = f(ix, i)[f(sum_Amatrix, i) >= loc_thresh]
+
+        # _checki = ix[sum_Amatrix >= _loc_thresh]
+        # print(self.loc_thresh, len(check[i]),
+        #          _loc_thresh, len(_checki)
+        #      )
+    if assymetric_check:
+        # print('loc_thresh decreased for indices: ',
+        #      np.nonzero(assymetric_arr))
+
+        check = adjust_check(check, nx)
+    return check
+
+
 @njit
 def create_IJs(check, i):
     mask = check[i] > i
     ones = (np.ones(check[i][mask].shape) * i).astype(np.int64)
     IJs = np.vstack((check[i][mask], ones))
     return IJs
+
+
+def get_IJs_from_check(check, nx):
+    IJs = np.hstack([create_IJs(check, i) for i in range(nx)])
+    IJs = np.fliplr(IJs.T)
+    n = IJs.shape[0]
+
+    # IJs[:,0] should be sorted at this point
+    # assert np.all(IJs[:,0]==np.sort(IJs[:,0]))
+    #
+
+    isort = np.arange(n).astype(np.int64)
+    jsort = np.argsort(IJs[:, 1]).astype(np.int64)
+    fi = IJs[:, 0]
+    fj = IJs[jsort, 1]
+
+    ixs = np.arange(n - 1)[(fi[1:] - fi[:-1]).astype(bool)] + 1
+    ixs = np.insert(ixs, 0, 0)
+    ixs = np.append(ixs, ixs[-1] + 1)
+    jxs = np.arange(n - 1)[(fj[1:] - fj[:-1]).astype(bool)] + 1
+    jxs = np.insert(jxs, 0, 0)
+    jxs = np.append(jxs, ixs[-1] + 1)
+
+    ufi = np.unique(fi)
+    ufj = np.unique(fj)
+
+    _I = {i: np.array([]).astype(np.int64) for i in range(nx)}
+    for i, j in enumerate(ufj):
+        _I[j] = jsort[jxs[i] : jxs[i + 1]]
+    _J = {i: np.array([]).astype(np.int64) for i in range(nx)}
+    for i, j in enumerate(ufi):
+        _J[j] = isort[ixs[i] : ixs[i + 1]]
+
+    I = Dict.empty(
+        key_type=types.int64,
+        value_type=types.int64[:],
+    )
+    for i in range(nx):
+        I[i] = np.hstack([_I[i], _J[i]])
+
+    return I, IJs
 
 
 @njit

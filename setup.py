@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="annchor",
-    version="1.0.0",
+    version="1.1.0",
     author="Jonathan H",
     packages=["annchor"],
     description="Fast k-NN graph construction for slow metrics",

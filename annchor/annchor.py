@@ -2,8 +2,8 @@ import os
 import numpy as np
 import time
 
-from numba import njit, prange, types
-from numba.typed import Dict
+from numba import njit, prange, types, typeof
+from numba.typed import Dict, List
 from numba.core.registry import CPUDispatcher
 
 from collections import Counter
@@ -13,6 +13,7 @@ from annchor.pickers import *
 from annchor.samplers import *
 from annchor.regressors import *
 from annchor.error_predictors import *
+from annchor.query_functions import *
 
 from scipy.sparse import dok_matrix
 
@@ -27,7 +28,7 @@ class Annchor:
     ----------
     X: np.array or list (required)
         The data set for which we want to find the k-NN graph.
-    func: function, numba-jitted function (required) or string.
+    func: function, numba-jitted function or string (required)
         The metric under which the k-NN graph should be evaluated.
         This can be a user supplied function or a string.
         Currently supported string arguments are
@@ -65,6 +66,8 @@ class Annchor:
     loc_thresh: int (optional, default 1)
         The minimum number of anchors in common for which we allow an item
         into NN_x.
+    loc_min: int (optional, default 10*n_neighbors)
+        The minimum number of points in NN_x
     verbose: bool (optional, default False)
         Set verbose=True for more interim output.
     is_metric: bool (optional, default True)
@@ -102,6 +105,7 @@ class Annchor:
         random_seed=42,
         locality=5,
         loc_thresh=1,
+        loc_min=None,
         verbose=False,
         is_metric=True,
         get_exact_ijs=None,
@@ -123,16 +127,25 @@ class Annchor:
 
         self.n_neighbors = n_neighbors
         self.p_work = p_work
+        self.n_samples = n_samples
 
         if self.p_work > 1:
             print("Warning: p_work should not exceed 1.  Setting it to 1.")
             self.p_work = 1.0
-        if self.n_anchors * self.nx / self.N > self.p_work:
-            print("Warning: Too many anchors for specified p_work.")
-            self.p_work = 2 * self.n_anchors * self.nx / self.N
-            print("Increasing p_work to %5.3f." % self.p_work)
 
-        self.n_samples = n_samples
+        min_p_work = (2 * (self.na + self.n_samples) + 1) / self.N
+        min_p_work = 1 if min_p_work > 1 else min_p_work
+
+        if self.p_work < min_p_work:
+            print("Warning: Too many anchors/samples for specified p_work.")
+            print("Increasing p_work to %5.3f." % min_p_work)
+            self.p_work = min_p_work
+        if self.p_work > 0.75:
+            print("Warning: High Value of p_work.")
+            print(
+                "Think about decreasing n_anchors or n_samples,"
+                + " or using BruteForce."
+            )
 
         if anchor_picker is None:
             anchor_picker = MaxMinAnchorPicker()
@@ -151,6 +164,8 @@ class Annchor:
         self.verbose = verbose
         self.locality = locality
         self.loc_thresh = loc_thresh
+        self.loc_min = 10 * self.n_neighbors if loc_min is None else loc_min
+        self.loc_min = np.clip(self.loc_min, 0, self.nx - 1)
         self.is_metric = is_metric
         self.niters = niters
         self.lookahead = lookahead
@@ -209,99 +224,69 @@ class Annchor:
         start = time.time()
 
         na = self.n_anchors
+        nn = self.n_neighbors
         nx = self.nx
 
         # locality is number of nearest anchors to use in set
         # locality_thresh is number of elements in common required
         # to consider a pair of elements for nn candidacy
         locality = self.locality
-        loc_thresh = self.loc_thresh
-        sid = np.argsort(self.D, axis=1)[:, :locality]
+        # loc_thresh = self.loc_thresh
+        self.sid = np.argsort(self.D, axis=1)[:, :locality]
+
+        A = np.zeros((na, nx)).astype(int)
+        for i in prange(self.sid.shape[0]):
+            for j in self.sid[i]:
+                A[j, i] = 1
+        self.Amatrix = A
 
         # Store candidate pairs in check
         # check[i] is a list of indices that are nn candidates for index i
-        check = Dict.empty(
-            key_type=types.int64,
-            value_type=types.int64[:],
+
+        self.check = get_check(
+            self.Amatrix, self.sid, self.loc_thresh, self.loc_min, nx
         )
 
-        ix = np.arange(nx, dtype=np.int64)
-        A = np.zeros((na, nx)).astype(int)
-        for i in prange(sid.shape[0]):
-            for j in sid[i]:
-                A[j, i] = 1
-        self.Amatrix = A
-        for i in prange(nx):
-            check[i] = ix[np.sum(A[sid[i], :], axis=0) >= loc_thresh]
-
-        self.check = check
-
-    def get_features(self):
-
-        start = time.time()
-        IJs = np.hstack([create_IJs(self.check, i) for i in range(self.nx)])
-        IJs = np.fliplr(IJs.T)
-        self.IJs = IJs
-        n = IJs.shape[0]
-
-        # IJs[:,0] should be sorted at this point
-        # assert np.all(IJs[:,0]==np.sort(IJs[:,0]))
-        #
-
-        isort = np.arange(n).astype(np.int64)
-        jsort = np.argsort(IJs[:, 1]).astype(np.int64)
-        fi = IJs[:, 0]
-        fj = IJs[jsort, 1]
-
-        ixs = np.arange(n - 1)[(fi[1:] - fi[:-1]).astype(bool)] + 1
-        ixs = np.insert(ixs, 0, 0)
-        ixs = np.append(ixs, ixs[-1] + 1)
-        jxs = np.arange(n - 1)[(fj[1:] - fj[:-1]).astype(bool)] + 1
-        jxs = np.insert(jxs, 0, 0)
-        jxs = np.append(jxs, ixs[-1] + 1)
-
-        ufi = np.unique(fi)
-        ufj = np.unique(fj)
-
-        I = {i: np.array([]).astype(np.int64) for i in range(self.nx)}
-        for i, j in enumerate(ufj):
-            I[j] = jsort[jxs[i] : jxs[i + 1]]
-        J = {i: np.array([]).astype(np.int64) for i in range(self.nx)}
-        for i, j in enumerate(ufi):
-            J[j] = isort[ixs[i] : ixs[i + 1]]
-
-        self.I = Dict.empty(
-            key_type=types.int64,
-            value_type=types.int64[:],
-        )
-        for i in range(self.nx):
-            self.I[i] = np.hstack([I[i], J[i]])
+        self.I, self.IJs = get_IJs_from_check(self.check, nx)
 
         if check_locality_size(self.I, self.nx, self.n_neighbors):
             raise Exception(
                 "Error: Not enough candidates in pool for all indices.\n"
-                + "Try again with lower loc_thresh."
+                + "Try again with higher locality."
             )
 
+    def get_features_IJ(self, IJs, I):
+        n = IJs.shape[0]
         dad = get_dad_ijs(IJs, self.D)
         bounds = get_bounds_njit_ijs(IJs, self.D)
-        W = bounds[:, 1] - bounds[:, 0]
+        # W = bounds[:, 1] - bounds[:, 0]
+
         anchors = np.zeros(shape=n)
         # anchors[(bounds[:, 1] - bounds[:, 0]) == 0] = 1
         for a in self.A:
-            anchors[self.I[a]] = 1
+            anchors[I[a]] = 1
 
-        self.features = np.vstack([bounds.T, dad, anchors]).T
+        features = np.vstack([bounds.T, dad, anchors]).T
 
-        self.feature_names = [
+        feature_names = [
             "lower bound",
             "upper bound",
             "double anchor distance",
             "is anchor",
         ]
 
-        i_is_anchor = self.feature_names.index("is anchor")
-        self.not_computed_mask = self.features[:, i_is_anchor] < 1
+        i_is_anchor = feature_names.index("is anchor")
+        not_computed_mask = features[:, i_is_anchor] < 1
+
+        return feature_names, features, not_computed_mask
+
+    def get_features(self):
+
+        (
+            self.feature_names,
+            self.features,
+            self.not_computed_mask,
+        ) = self.get_features_IJ(self.IJs, self.I)
 
     def get_sample(self):
 
@@ -465,7 +450,7 @@ class Annchor:
         self.RefineApprox[mapback] = exact
         self.not_computed_mask[mapback] = False
 
-    def update_anchor_points(self):
+    def update_anchor_points(self, timeout=10, chunk_size=200000):
         dis = Dict.empty(
             key_type=types.int64,
             value_type=types.int64[:],
@@ -484,22 +469,25 @@ class Annchor:
             dis[y] = dis[y][iy]
             ds[y] = self.RefineApprox[mask][iy]
 
-        bounds = update_bounds(self.IJs[mapback], dis, ds)
+        n = mapback.shape[0]
+        r = np.ceil(n / chunk_size).astype(int)
+        k = len(mapback[::r])
 
-        try:
-            if not self.anchor_picker.is_anchor_safe:
-                # If anchors are not in dataset, then we need to check if any
-                # of the original anchors gave the best bounds
-                bounds = np.vstack(
-                    [
-                        np.maximum(bounds[:, 0], self.features[mapback][:, 0]),
-                        np.minimum(bounds[:, 1], self.features[mapback][:, 1]),
-                    ]
-                ).T
-        except AttributeError:
-            pass
+        start = time.time()
+        for i in range(r):
+            _mapback = mapback[i * k : (i + 1) * k]
+            bounds = update_bounds(self.IJs[_mapback], dis, ds)
 
-        self.features[mapback, :2] = bounds
+            bounds = np.vstack(
+                [
+                    np.maximum(bounds[:, 0], self.features[_mapback][:, 0]),
+                    np.minimum(bounds[:, 1], self.features[_mapback][:, 1]),
+                ]
+            ).T
+
+            self.features[_mapback, :2] = bounds
+            if time.time() - start > timeout:
+                break
 
     def get_ann(self):
 
@@ -619,7 +607,7 @@ class Annchor:
 
         # Initialise sparse matrix
         D = dok_matrix((self.nx, self.nx), dtype=np.float64)
-
+        eps = np.nextafter(0, 1, dtype=np.float64)
         for i, (js, ds) in enumerate(zip(*self.neighbor_graph)):
             # i is an index into our data
             # js is the list of indices that annchor has determined to be
@@ -627,33 +615,87 @@ class Annchor:
             # ds is the list of distances corresponding to i,js
             for j, d in zip(js, ds):
                 # symmetric, so update both pairs (i,j) and (j,i)
-                D[i, j] = D[j, i] = d
+                D[i, j] = D[j, i] = d + eps
         return D
 
-    def get_nearest_enemies(self, y, nn=3):
+    def query(self, Q, nn=15, p_work=0.3, get_exact_query_ijs=None):
+
+        nq = len(Q)
+        na = self.n_anchors * nq
+        nbf = nq * self.nx
+        limit = ((nq * nn * 3) // 2 - 1 + na) / nbf
+        if p_work < limit:
+            print("Warning: p_work too low")
+            print("Increasing p_work to %5.3f" % limit)
+            p_work = limit
+
+        return query_(
+            self,
+            Q,
+            nn=nn,
+            p_work=p_work,
+            get_exact_query_ijs=get_exact_query_ijs,
+        )
+
+    def get_nearest_enemies(self, y, nn=3, loc_min=100):
         """get_nearest_enemies
         Returns the nearest enemy graph
         """
         nx = self.nx
+
+        assert len(y) == nx
+
+        def f(arr, i):
+            return arr[y != y[i]]
+
+        check = get_check(
+            self.Amatrix, self.sid, self.loc_thresh, loc_min, nx, f=f
+        )
+
+        for i in range(nx):
+            z = np.zeros(nx)
+            z[check[i]] = 1
+            z[self.check[i]] -= 1
+            check[i] = np.nonzero(z > 0)[0]
+        I, IJs = get_IJs_from_check(check, nx)
+
+        (feature_names, features, not_computed_mask) = self.get_features_IJ(
+            IJs, I
+        )
+        pred = self.regression.predict(features, feature_names)
+        ilb = feature_names.index("lower bound")
+        iub = feature_names.index("upper bound")
+        pred = np.clip(pred, features[:, ilb], features[:, iub])
+        nijs = len(self.IJs)
+        for i in prange(nx):
+            self.I[i] = np.hstack((self.I[i], I[i] + nijs))
+        self.IJs = np.vstack((self.IJs, IJs))
+        self.not_computed_mask = np.hstack(
+            (self.not_computed_mask, not_computed_mask)
+        )
+        self.RefineApprox = np.hstack((self.RefineApprox, pred))
+        self.features = np.vstack((self.features, features))
+
         RA = self.RefineApprox
         I = self.I
         not_computed_mask = self.not_computed_mask
         IJs = self.IJs
         get_exact_ijs = self.get_exact_ijs
 
-        ngi = np.zeros(shape=(nx, nn - 1), dtype=np.int64)
-        ngd = np.zeros(shape=(nx, nn - 1))
+        ngi = np.zeros(shape=(nx, nn), dtype=np.int64)
+        ngd = np.zeros(shape=(nx, nn))
 
         ixs = {}
         fis = {}
         for i in range(nx):
-
             f = IJs[I[i]]
             mask = f[:, 0] == i
             fis[i] = fi = f[:, 1] * mask + f[:, 0] * (1 - mask)
-            asort = np.argsort(RA[I[i]][y[fi] != y[i]])
-            ncm = not_computed_mask[I[i]][y[fi] != y[i]][asort][:50]
-            ixs[i] = I[i][y[fi] != y[i]][asort][:50][ncm]
+            label_mask = y[fi] != y[i]
+            asort = np.argsort(RA[I[i]][label_mask])
+            ncm = not_computed_mask[I[i]][label_mask][asort][:50]
+            ixs[i] = I[i][label_mask][asort][:50][ncm]
+
         ixs = np.hstack([ixs[i] for i in range(nx) if len(ixs[i]) > 0])
         d = get_exact_ijs(self.f, self.X, self.IJs[ixs])
         RA[ixs] = d
@@ -668,81 +710,120 @@ class Annchor:
             fi = fis[i]
 
             d[y[fi] == y[i]] += mx
-            t = np.partition(d, nn - 1)[nn - 1]
+            t = np.partition(d, nn - 1)[nn]
             mask = d <= t
-            iy = Ii[mask][np.argsort(d[mask])][: nn - 1]
+            iy = Ii[mask][np.argsort(d[mask])][:nn]
 
             ngd[i, :] = RA[iy]
-            ngi[i, :] = fi[mask][np.argsort(d[mask])][: nn - 1]
+            ngi[i, :] = fi[mask][np.argsort(d[mask])][:nn]
 
         self.nearest_enemy_graph = (ngi, ngd)
 
-    def query(self, Z, k=5, get_exact_query_ijs=None, k1=5, k2=25, eps=1.15):
+    def annchor_selective_subset(self, y, dne=None, alpha=0):
 
-        nz = Z.shape[0]
+        if dne is None:
+            try:
+                dne = self.nearest_enemy_graph[1][:, 0]
+            except AttributeError:
+                self.get_nearest_enemies(y)
+                dne = self.nearest_enemy_graph[1][:, 0]
 
-        if get_exact_query_ijs is None:
-            if self.get_exact_query_ijs is None:
-                self.get_exact_query_ijs = get_exact_query_ijs_(
-                    self.f, verbose=self.verbose, backend=self.backend
-                )
-        else:
-            self.get_exact_query_ijs = get_exact_query_ijs
-
-        ijs = np.array([(a, j) for j, z in enumerate(Z) for a in self.A])
-        aZ = self.get_exact_query_ijs(self.f, self.X, Z, ijs).reshape(
-            (nz, self.n_anchors)
-        )
-
-        s = np.argsort(aZ)[:, :k1]
-        iX = {i: self.A[_s] for i, _s in enumerate(s)}
-        dX = {i: aZ[i, s[i]] for i in range(nz)}
-
-        queue = {
-            i: np.unique(
-                self.neighbor_graph[0][ix, 1:k2].astype(int).flatten()
+        zero_dist_enemies = np.argwhere(dne == 0)
+        if len(zero_dist_enemies) > 0:
+            error = (
+                "Error: The following indices are distance zero from a point "
+                + " with a different label:\n"
             )
-            for i, ix in iX.items()
-        }
-        queue = {i: queue[i][~np.isin(queue[i], ix)] for i, ix in iX.items()}
+            for i in zero_dist_enemies:
+                error += "\t %d\n" % i
+            raise Exception(error)
 
-        while np.any([queue[i].shape[0] > 0 for i in range(nz)]):
+        alpha_dne = dne / (1 + alpha)
 
-            # print([len(queue[i]) for i in range(nz)])
+        ix = np.arange(len(self.X))
 
-            ijs = np.vstack(
-                [
-                    np.array([(_q, i) for _q in q])
-                    for i, q in queue.items()
-                    if len(q) > 0
-                ]
-            )
-            ds = self.get_exact_query_ijs(self.f, self.X, Z, ijs)
-            csum = np.cumsum([0] + [len(queue[i]) for i in range(nz)])
-            dqueue = {i: ds[csum[i] : csum[i + 1]] for i in range(nz)}
+        ngi, ngd = self.neighbor_graph
 
-            iX = {i: np.hstack([iX[i], queue[i]]) for i in range(nz)}
-            dX = {i: np.hstack([dX[i], dqueue[i]]) for i in range(nz)}
-            isort = {i: np.argsort(dx) for i, dx in dX.items()}
-            iX = {i: iX[i][isort[i]] for i in range(nz)}
-            dX = {i: dX[i][isort[i]] for i in range(nz)}
-
-            cos = [dX[i][k] * eps for i in range(nz)]
-            queue = {
-                i: np.unique(
-                    self.neighbor_graph[0][iX[i][dX[i] <= cos[i]], 1:k2]
-                    .astype(int)
-                    .flatten()
-                )
-                for i in range(nz)
-            }
-            queue = {i: queue[i][~np.isin(queue[i], iX[i])] for i in range(nz)}
-
-        res = (
-            np.vstack([iX[i][:k] for i in range(nz)]),
-            np.vstack([dX[i][:k] for i in range(nz)]),
+        ebuffer = np.array(
+            [
+                np.searchsorted(_ngd, _dne - 1e-6)
+                for _ngd, _dne in zip(ngd, alpha_dne)
+            ]
         )
-        return res
+        buffer = [_ngi[:eb] for _ngi, eb in zip(ngi, ebuffer)]
+        rss = ix[ebuffer == 1]
+
+        present = np.isin(ngi, rss)
+
+        amaxpresent = np.argmax(present, axis=1)
+        anypresent = np.any(present, axis=1)
+
+        rssbuffer = amaxpresent + ebuffer * (~anypresent)
+        done = np.array(rssbuffer < ebuffer)
+
+        rest = ix[~done]
+
+        while len(rest) > 0:
+            stack = np.hstack([buffer[t] for t in ix[~done]])
+            a, b = np.unique(stack, return_counts=True)
+            nxt = a[np.argmax(b)]
+
+            rss = np.append(rss, nxt)
+
+            mid = time.time()
+
+            # present = np.isin(ngi, rss[-1])
+            # return present,ngi,rss,ebuffer,done
+
+            present = np.isin(ngi[~done], rss[-1])
+
+            amaxpresent = np.argmax(present, axis=1)
+            anypresent = np.any(present, axis=1)
+
+            rssbuffer = amaxpresent + ebuffer[~done] * (~anypresent)
+            done[~done] += rssbuffer < ebuffer[~done]
+            rest = ix[~done]
+
+        dists = self.RefineApprox.copy()
+        iub = self.feature_names.index("upper bound")
+        dists[self.not_computed_mask] = self.features[
+            self.not_computed_mask, iub
+        ]
+
+        def get_full_ngi_ngd(i):
+            isort = np.argsort(dists[self.I[i]])
+            ngi = np.sum(self.IJs[self.I[i][isort]], axis=1) - i
+            ngd = dists[self.I[i]][isort]
+            return np.insert(ngi, 0, i).astype(int), np.insert(ngd, 0, 0)
+
+        res = [get_full_ngi_ngd(i) for i in tq(range(self.nx))]
+        ngi = [r[0] for r in res]
+        ngd = [r[1] for r in res]
+        ebuffer = np.array(
+            [
+                np.searchsorted(_ngd, _dne - 1e-6)
+                for _ngd, _dne in zip(ngd, alpha_dne)
+            ]
+        )
+        buffer = [_ngi[:eb] for _ngi, eb in zip(ngi, ebuffer)]
+        ssarr = np.array(
+            [
+                np.isin(rss, buffer[i], assume_unique=True)
+                for i in tq(range(self.nx))
+            ]
+        )
+        a = np.zeros(len(ssarr))
+        j = 0
+        for i in tq(range(len(rss))):
+            del_ssarr = np.delete(ssarr, i - j, axis=1)
+            m = np.min(np_sum(del_ssarr, axis=1))
+            if m != 0:
+                ssarr = del_ssarr
+                j += 1
+                a[i] = 1
+
+        #
+        return np.delete(rss, np.arange(len(ssarr))[a.astype(bool)])
 
     def alpha_rss(self, y, dne=None, alpha=0):
 
@@ -757,17 +838,16 @@ class Annchor:
         rss = [ix[0]]
 
         alpha_dne = dne / (1 + alpha)
+        self.rssDs = {}
         for i in ix:
             ds = self.get_exact_ijs(
-                self.f,
-                self.X,
-                np.array([[i, r] for r in rss])
+                self.f, self.X, np.array([[i, r] for r in rss])
             )
+            self.rssDs[i] = ds
             dnnR = np.min(ds)
             dne_alpha = alpha_dne[i]
             if (dnnR > dne_alpha) or np.isclose(dnnR, dne_alpha):
                 rss.append(i)
-        self.rss = np.array(rss)
         return np.array(rss)
 
 

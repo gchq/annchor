@@ -21,3 +21,11 @@ via pip (`pip install black`). Simply install and run in the project root. Note 
 ```bash
 black --line-length 79 ./
 ```
+
+### Testing
+
+Make sure that any contributions pass the unit tests in `annchor/tests`. The easiest way to do this is by running [pytest](https://docs.pytest.org/en/7.1.x/) on your repository before making a pull request.
+
+```bash
+pytest --cov=annchor annchor/tests
+```
