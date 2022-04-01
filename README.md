@@ -21,7 +21,7 @@ Results from ANNchor can easily be combined with other popular libraries in the 
 ## Installation
 Clone this repo and install with pip:
 ```bash
-pip install -e annchor/
+pip install git+https://github.com/gchq/annchor.git
 ```
 
 ## Basic Usage
