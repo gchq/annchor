@@ -85,7 +85,10 @@ class SimpleStratifiedLinearRegression:
             mask = (F > self.sample_bins[nbin]) * (
                 F <= self.sample_bins[nbin + 1]
             )
-            return self.LRs[nbin].predict(X[mask])
+            if X[mask].shape[0] > 0:
+                return self.LRs[nbin].predict(X[mask])
+            # if X[mask] is empty...
+            return np.array([])
 
         preds = Parallel(n_jobs=CPU_COUNT)(
             delayed(predict_bin)(nbin) for nbin in range(self.n_partitions)

@@ -157,7 +157,7 @@ def test_bad_pwork():
 
     ann = Annchor(X, "levenshtein", p_work=0.0)
 
-    assert ann.p_work == 2 * ann.n_anchors * ann.nx / ann.N
+    assert ann.p_work == (2 * (ann.na + ann.n_samples) + 1) / ann.N
 
 
 def test_function_input():
