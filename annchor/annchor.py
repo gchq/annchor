@@ -646,6 +646,7 @@ class Annchor:
         dim_err = "Label dimension mismatch: " + lens
         assert len(y) == nx, dim_err
         labels, counts = np.unique(y, return_counts=True)
+        assert len(labels)>1, "Data must have more than one label"
         count_err = "At least one label occurs fewer times " + (
             "than specified nn=%d" % nn
         )
