@@ -154,9 +154,32 @@ In general “loky” seems to be more robust, but occasionally
 </dd>
 </dl>
 <dl class="py method">
+<dt class="sig sig-object py" id="annchor.Annchor.annchor_selective_subset">
+<span class="sig-name descname"><span class="pre">annchor_selective_subset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dne</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor.annchor_selective_subset" title="Permalink to this definition"></a></dt>
+<dd><p>Generates a selective subset for X given labels y.</p>
+<dl class="simple">
+<dt>y: np.array, shape=(len(X),)</dt><dd><p>Data labels (corresponding to elements in X)</p>
+</dd>
+<dt>dne: tuple or None (optional, default=None)</dt><dd><p>The nearest enemy graph for X,y.
+dne[0] are the indices of the nearest enemies for points in X.
+dne[1] are the corresponding distances.</p>
+</dd>
+<dt>alpha: float (default=0)</dt><dd><p>Value for alpha-ss. The nearest enemy distance is multiplied by
+1/(1+alpha), to account for approximate nearest neighbour methods.
+In practice, larger alpha values make the subset more robust to
+errors at the expense of increasing the size of the subset.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>ss: np.array</dt><dd><p>The indices of X which form the selective subset.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="annchor.Annchor.fit">
 <span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor.fit" title="Permalink to this definition"></a></dt>
-<dd><p>Finds the approx nearest neighbour graph.</p>
+<dd><p>Computes the approx nearest neighbour graph.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -168,6 +191,27 @@ Anchors are stored in self.A, distances in self.D.</p>
 <dt>self.A: np.array, shape=(n_anchors,)</dt><dd><p>Array of anchor indices.</p>
 </dd>
 <dt>self.D: np.array, shape=(nx, n_anchors)</dt><dd><p>Array of distances to anchor points.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="annchor.Annchor.get_features_IJ">
+<span class="sig-name descname"><span class="pre">get_features_IJ</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">IJs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">I</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor.get_features_IJ" title="Permalink to this definition"></a></dt>
+<dd><p>Computes features for distances in IJs.</p>
+<dl class="simple">
+<dt>IJs: np.array, shape=(?,2)</dt><dd><p>Indices of distances for which we will find features.</p>
+</dd>
+<dt>I: numba.typed.Dict dict of arrays</dt><dd><p>I[i] is the array of indices into IJs which contain index i.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>feature_names: List</dt><dd><p>List of features names (as strings)</p>
+</dd>
+<dt>features: np.array</dt><dd><p>Array of features corresponding to distances in ijs</p>
+</dd>
+<dt>not_computed_mask: np.array</dt><dd><p>Array of bools indicating whether or not a distance in IJs
+has been explicitly computed.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -191,7 +235,18 @@ index j.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="annchor.Annchor.get_nearest_enemies">
 <span class="sig-name descname"><span class="pre">get_nearest_enemies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor.get_nearest_enemies" title="Permalink to this definition"></a></dt>
-<dd><p>Returns the nearest enemy graph</p>
+<dd><p>Computes the nearest enemy graph
+Result is stored in self.nearest_enemy_graph</p>
+<dl class="simple">
+<dt>y: np.array, shape=(len(X),)</dt><dd><p>Data labels (corresponding to elements in X)</p>
+</dd>
+<dt>nn: int &gt; 0</dt><dd><p>Desired number of nearest enemies</p>
+</dd>
+<dt>loc_min: int &gt; 0</dt><dd><p>Minimum number of points to store in locality (i.e. for each
+index we will compute features for at least loc_min points, if
+possible.)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -203,6 +258,27 @@ index j.</p>
 regression).
 G[i,:-1] are the features for sample pair i.
 G[i,-1] is the true distance for sample pair i.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="annchor.Annchor.query">
+<span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_work</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_exact_query_ijs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor.query" title="Permalink to this definition"></a></dt>
+<dd><p>Query new data against the existing index.</p>
+<dl class="simple">
+<dt>Q: np.array, shape=(n_samples, n_features)</dt><dd><p>The new data to query against X</p>
+</dd>
+<dt>nn: int &gt; 0</dt><dd><p>Desired number of nearest neighbours</p>
+</dd>
+<dt>p_work: 0.0 &lt; float &lt; 1.0</dt><dd><p>Fraction of brute force work to perform. A value of p_work=1 will
+carry out len(Q)*len(X) distance computations (equivalent to brute
+forcing the solution).</p>
+</dd>
+<dt>get_exact_query_ijs: function (optional, default None)</dt><dd><p>An optional user supplied function for evaluating the metric on an
+array of indices. Useful if you wish to supply your own
+parallelisation. get_exact_ijs(f,X,Z,IJ) is the function should
+return np.array([f(X[i],Z[j]) for i,j in IJ]).</p>
 </dd>
 </dl>
 </dd></dl>
