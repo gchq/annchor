@@ -604,7 +604,7 @@ def argpartition(a, k):
 
 
 @njit()
-def do_the_thing(nx, ncm, RA, I, nmin):
+def guarantee_nmin(nx, ncm, RA, I, nmin):
 
     l = np.arange(ncm.shape[0])
 

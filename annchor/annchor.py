@@ -256,6 +256,28 @@ class Annchor:
             )
 
     def get_features_IJ(self, IJs, I):
+
+        """
+        Computes features for distances in IJs.
+
+        Parameters
+        ----------
+        IJs: np.array, shape=(?,2)
+            Indices of distances for which we will find features.
+        I: numba.typed.Dict dict of arrays
+            I[i] is the array of indices into IJs which contain index i.
+
+        Outputs
+        -------
+        feature_names: List
+            List of features names (as strings)
+        features: np.array
+            Array of features corresponding to distances in ijs
+        not_computed_mask: np.array
+            Array of bools indicating whether or not a distance in IJs
+            has been explicitly computed.
+        """
+
         n = IJs.shape[0]
         dad = get_dad_ijs(IJs, self.D)
         bounds = get_bounds_njit_ijs(IJs, self.D)
@@ -383,7 +405,7 @@ class Annchor:
         self.thresh = thresh
 
         if it == 0:
-            self.RefineApprox = do_the_thing(
+            self.RefineApprox = guarantee_nmin(
                 self.nx,
                 self.not_computed_mask,
                 self.RefineApprox,
@@ -510,7 +532,7 @@ class Annchor:
     def fit(self):
 
         """
-        Finds the approx nearest neighbour graph.
+        Computes the approx nearest neighbour graph.
         """
 
         def timeit(item, origin, start):
@@ -601,7 +623,7 @@ class Annchor:
             timeit("get_ann", origin, start)
 
     def to_sparse_matrix(self):
-        """to_sparse_matrix
+        """
         Returns the K-NN graph as a dictionary of keys sparse distance matrix.
         """
 
@@ -619,6 +641,29 @@ class Annchor:
         return D
 
     def query(self, Q, nn=15, p_work=0.3, get_exact_query_ijs=None):
+        """
+        Query new data against the existing index.
+
+        Parameters
+        ----------
+        Q: np.array, shape=(n_samples, n_features)
+            The new data to query against X
+        nn: int > 0
+            Desired number of nearest neighbours
+        p_work: 0.0 < float < 1.0
+            Fraction of brute force work to perform. A value of p_work=1 will
+            carry out len(Q)*len(X) distance computations (equivalent to brute
+            forcing the solution).
+        get_exact_query_ijs: function (optional, default None)
+            An optional user supplied function for evaluating the metric on an
+            array of indices. Useful if you wish to supply your own
+            parallelisation. get_exact_ijs(f,X,Z,IJ) is the function should
+            return np.array([f(X[i],Z[j]) for i,j in IJ]).
+        """
+
+        if self.p_work > 1:
+            print("Warning: p_work should not exceed 1.  Setting it to 1.")
+            self.p_work = 1.0
 
         nq = len(Q)
         na = self.n_anchors * nq
@@ -638,15 +683,28 @@ class Annchor:
         )
 
     def get_nearest_enemies(self, y, nn=3, loc_min=100):
-        """get_nearest_enemies
-        Returns the nearest enemy graph
+        """
+        Computes the nearest enemy graph
+        Result is stored in self.nearest_enemy_graph
+
+        Parameters
+        ----------
+        y: np.array, shape=(len(X),)
+            Data labels (corresponding to elements in X)
+        nn: int > 0
+            Desired number of nearest enemies
+        loc_min: int > 0
+            Minimum number of points to store in locality (i.e. for each
+            index we will compute features for at least loc_min points, if
+            possible.)
+
         """
         nx = self.nx
         lens = "len(y)=%d, len(X)=%d" % (len(y), nx)
         dim_err = "Label dimension mismatch: " + lens
         assert len(y) == nx, dim_err
         labels, counts = np.unique(y, return_counts=True)
-        assert len(labels)>1, "Data must have more than one label"
+        assert len(labels) > 1, "Data must have more than one label"
         count_err = "At least one label occurs fewer times " + (
             "than specified nn=%d" % nn
         )
@@ -729,6 +787,28 @@ class Annchor:
         self.nearest_enemy_graph = (ngi, ngd)
 
     def annchor_selective_subset(self, y, dne=None, alpha=0):
+        """
+        Generates a selective subset for X given labels y.
+
+        Parameters
+        ----------
+        y: np.array, shape=(len(X),)
+            Data labels (corresponding to elements in X)
+        dne: tuple or None (optional, default=None)
+            The nearest enemy graph for X,y.
+            dne[0] are the indices of the nearest enemies for points in X.
+            dne[1] are the corresponding distances.
+        alpha: float (default=0)
+            Value for alpha-ss. The nearest enemy distance is multiplied by
+            1/(1+alpha), to account for approximate nearest neighbour methods.
+            In practice, larger alpha values make the subset more robust to
+            errors at the expense of increasing the size of the subset.
+
+        Outputs
+        -------
+        ss: np.array
+            The indices of X which form the selective subset.
+        """
 
         if dne is None:
             try:

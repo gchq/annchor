@@ -138,7 +138,7 @@ def select_refine_candidate_query_pairs(
 
     thresh = np.array([np.partition(QRA[QI[i]], nn)[nn] for i in range(nq)])
 
-    QRA = do_the_thing(
+    QRA = guarantee_nmin(
         nq,
         Qncm,
         QRA,
