@@ -468,14 +468,16 @@ def get_check(A, sid, loc_thresh, loc_min, nx, f=None):
     assymetric_arr = np.zeros(nx)
     for i in prange(nx):
         sum_Amatrix = np.sum(A[sid[i], :], axis=0)
-        _loc_thresh = -np.partition(-f(sum_Amatrix, i), loc_min)[loc_min]
+        f_sum_Amatrix = f(sum_Amatrix, i)
+        _loc_min = np.minimum(loc_min, len(f_sum_Amatrix) - 1)
+        _loc_thresh = -np.partition(-f_sum_Amatrix, _loc_min)[_loc_min]
 
         if _loc_thresh < loc_thresh:
-            check[i] = f(ix, i)[f(sum_Amatrix, i) >= _loc_thresh]
+            check[i] = f(ix, i)[f_sum_Amatrix >= _loc_thresh]
             assymetric_check = True
             assymetric_arr[i] = 1
         else:
-            check[i] = f(ix, i)[f(sum_Amatrix, i) >= loc_thresh]
+            check[i] = f(ix, i)[f_sum_Amatrix >= loc_thresh]
 
         # _checki = ix[sum_Amatrix >= _loc_thresh]
         # print(self.loc_thresh, len(check[i]),

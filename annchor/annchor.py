@@ -642,8 +642,14 @@ class Annchor:
         Returns the nearest enemy graph
         """
         nx = self.nx
-
-        assert len(y) == nx
+        lens = "len(y)=%d, len(X)=%d" % (len(y), nx)
+        dim_err = "Label dimension mismatch: " + lens
+        assert len(y) == nx, dim_err
+        labels, counts = np.unique(y, return_counts=True)
+        count_err = "At least one label occurs fewer times " + (
+            "than specified nn=%d" % nn
+        )
+        assert np.all(counts >= nn), count_err
 
         def f(arr, i):
             return arr[y != y[i]]
@@ -687,6 +693,7 @@ class Annchor:
 
         ixs = {}
         fis = {}
+        lixs = 0
         for i in range(nx):
             f = IJs[I[i]]
             mask = f[:, 0] == i
@@ -695,11 +702,12 @@ class Annchor:
             asort = np.argsort(RA[I[i]][label_mask])
             ncm = not_computed_mask[I[i]][label_mask][asort][:50]
             ixs[i] = I[i][label_mask][asort][:50][ncm]
-
-        ixs = np.hstack([ixs[i] for i in range(nx) if len(ixs[i]) > 0])
-        d = get_exact_ijs(self.f, self.X, self.IJs[ixs])
-        RA[ixs] = d
-        not_computed_mask[ixs] = False
+            lixs += len(ixs[i])
+        if lixs > 0:
+            ixs = np.hstack([ixs[i] for i in range(nx) if len(ixs[i]) > 0])
+            d = get_exact_ijs(self.f, self.X, self.IJs[ixs])
+            RA[ixs] = d
+            not_computed_mask[ixs] = False
 
         for i in prange(nx):
             Ii = I[np.int64(i)]
