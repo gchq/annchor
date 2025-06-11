@@ -1,0 +1,11 @@
+[tool.coverage.run]
+command_line = "-m pytest ."
+source = ["annchor"]
+relative_files = true
+
+
+[tool.coverage.report]
+sort = "Cover"
+exclude_also = [
+    "@abstractmethod$"
+]

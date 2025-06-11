@@ -24,8 +24,23 @@ black --line-length 79 ./
 
 ### Testing
 
-Make sure that any contributions pass the unit tests in `annchor/tests`. The easiest way to do this is by running [pytest](https://docs.pytest.org/en/7.1.x/) on your repository before making a pull request.
+Make sure that any contributions pass the unit tests in `annchor/tests`. First, install the testing dependencies:
 
-```bash
-pytest --cov=annchor annchor/tests
+```shell
+$ pip install .
+$ pip install pytest networkx
+```
+
+Then, run `pytest`:
+
+```shell
+$ pytest .
+```
+
+To collect and view code coverage:
+
+```shell
+$ pip install coverage
+$ coverage run
+$ coverage report
 ```
