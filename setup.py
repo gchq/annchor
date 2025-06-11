@@ -13,7 +13,7 @@ setup(
         "python-Levenshtein>=0.12.2",
         "pynndescent>=0.5.4",
         "scipy>=1.7.0",
-        "sklearn>=0.0",
+        "scikit-learn>=0.0",
         "tqdm>=4.61.2",
     ],
     package_data={"annchor": ["data/*.npz", "data/*.gz"]},
