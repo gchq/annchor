@@ -1,6 +1,10 @@
 <img align="left" src="https://github.com/gchq/annchor/raw/main/doc/images/logo.svg" width="300">
 
 # ANNchor
+
+![pre-release](https://img.shields.io/badge/pre--release-beta-red)
+![python](https://img.shields.io/badge/python-3.9-informational)
+
 A python library implementing ANNchor:<br>
 *k*-nearest neighbour graph construction for slow metrics.
 
