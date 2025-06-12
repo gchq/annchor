@@ -3,7 +3,7 @@
 # ANNchor
 
 ![pre-release](https://img.shields.io/badge/pre--release-beta-red)
-![python](https://img.shields.io/badge/python-3.9-informational)
+![python](https://img.shields.io/badge/python-3.9%20%7C%203.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-informational)
 
 A python library implementing ANNchor:<br>
 *k*-nearest neighbour graph construction for slow metrics.
