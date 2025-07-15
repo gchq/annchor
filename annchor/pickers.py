@@ -24,7 +24,7 @@ class MaxMinAnchorPicker:
         # D stores distances to anchor points
         # note: at this point D is shape (n_anchors, nx),
         #       but we transpose this after calculations.
-        D = np.zeros((na, nx)) + np.infty
+        D = np.zeros((na, nx)) + np.inf
 
         # A stores anchor indices
         A = np.zeros(na).astype(int)
@@ -65,7 +65,7 @@ class ExternalAnchorPicker:
         # D stores distances to anchor points
         # note: at this point D is shape (n_anchors, nx),
         #       but we transpose this after calculations.
-        D = np.zeros((na, nx)) + np.infty
+        D = np.zeros((na, nx)) + np.inf
 
         if ann.verbose:
 
@@ -95,7 +95,7 @@ class SelectedAnchorPicker:
         # D stores distances to anchor points
         # note: at this point D is shape (n_anchors, nx),
         #       but we transpose this after calculations.
-        D = np.zeros((na, nx)) + np.infty
+        D = np.zeros((na, nx)) + np.inf
 
         # A stores anchor indices
         A = self.A
@@ -116,7 +116,7 @@ class RandomAnchorPicker:
         # D stores distances to anchor points
         # note: at this point D is shape (n_anchors, nx),
         #       but we transpose this after calculations.
-        D = np.zeros((na, nx)) + np.infty
+        D = np.zeros((na, nx)) + np.inf
 
         # A stores anchor indices
         A = np.random.choice(np.arange(nx), na, replace=False)
