@@ -1,8 +1,8 @@
 ANNchor API Guide
 =================
 
-ANNchor contains two classes, the ANNchor base class :class:`Annchor`, and a
-brute force class :class:`BruteForce`.
+ANNchor contains two classes, the ANNchor base class :class:`~annchor.Annchor`, and a
+brute force class :class:`~annchor.BruteForce`.
 
 Annchor
 -------
