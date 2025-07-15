@@ -44,3 +44,20 @@ $ pip install coverage
 $ coverage run
 $ coverage report
 ```
+
+
+## Documentation
+
+To build the documentation, first install the pinned dependencies:
+
+```shell
+$ pip install -r doc/requirements.txt --no-deps
+```
+
+Then run the following:
+
+```shell
+$ python3 -m sphinx -b html doc/source doc/build
+```
+
+The built documentation can then be opened at [`doc/build/index.html`](doc/build/index.html).
