@@ -19,7 +19,7 @@ jobs:
         run: |
           set -eu
           python -m pip install --upgrade pip
-          python -m pip install . pytest networkx coverage
+          python -m pip install ".[test]" coverage
       - name: Run tests
         run: |
           set -eu

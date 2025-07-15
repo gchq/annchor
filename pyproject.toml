@@ -1,8 +1,59 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "annchor"
+version = "1.1.0"
+description = "Fast k-NN graph construction for slow metrics"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+]
+authors = [
+    {name = "Jonathan H", email = "oss@gchq.gov.uk"},
+]
+dependencies = [
+    "joblib>=1.0.1",
+    "numba>=0.55.1",
+    "numpy<2,>=1.18",
+    "pynndescent>=0.5.4",
+    "python-Levenshtein>=0.12.2",
+    "scikit-learn>=0.0",
+    "scipy>=1.7.0",
+    "tqdm>=4.61.2",
+]
+license = {text = "BSD License"}
+
+[project.optional-dependencies]
+test = [
+    "networkx",
+    "pytest",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/gchq/annchor"
+"Documentation" = "https://gchq.github.io/annchor/"
+"Repository" = "https://github.com/gchq/annchor"
+"Bug Tracker" = "https://github.com/gchq/annchor/issues"
+
+[tool.setuptools]
+packages = [
+    "annchor",
+]
+
+[tool.setuptools.package-data]
+annchor = ["data/*.npz", "data/*.gz"]
+
+
 [tool.coverage.run]
 command_line = "-m pytest ."
 source = ["annchor"]
 relative_files = true
-
 
 [tool.coverage.report]
 sort = "Cover"
