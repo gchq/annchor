@@ -306,7 +306,7 @@ def get_bounds_alt(disi, disj, dsi, dsj):
     """
     Convoluted function to get upper/lower bounds quickly.
     """
-    ub, lb = np.infty, 0
+    ub, lb = np.inf, 0
     j0 = 0
     for i in range(disi.shape[0]):
         for j in range(j0, disj.shape[0]):
