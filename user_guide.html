@@ -1,20 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ANNchor User Guide (v1.1.0) &mdash; ANNchor  documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/doctools.js"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -27,12 +28,16 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html">
-            <img src="_static/logo_yellow.svg" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="index.html">
+            
+              <img src="_static/logo_yellow.svg" class="logo" alt="Logo"/>
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -83,8 +88,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>ANNchor User Guide (v1.1.0)</li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">ANNchor User Guide (v1.1.0)</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/user_guide.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -95,7 +100,7 @@
            <div itemprop="articleBody">
              
   <section id="annchor-user-guide-v1-1-0">
-<h1>ANNchor User Guide (v1.1.0)<a class="headerlink" href="#annchor-user-guide-v1-1-0" title="Permalink to this headline"></a></h1>
+<h1>ANNchor User Guide (v1.1.0)<a class="headerlink" href="#annchor-user-guide-v1-1-0" title="Link to this heading"></a></h1>
 <p>Using ANNchor to find <em>k</em>-NN graphs is relatively straightforward.
 Let’s take a look at the general structure</p>
 <div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">annchor</span>
@@ -121,7 +126,7 @@ the run-times quoted below will vary by machine: we used a MacBook Pro with
 2 GHz Quad-Core Intel i5 processor and 16 GB RAM. Any computations involving
 numba may want to be run twice to eliminate numba-jit compile times.</p>
 <section id="example-wasserstein">
-<h2>Example: Wasserstein<a class="headerlink" href="#example-wasserstein" title="Permalink to this headline"></a></h2>
+<h2>Example: Wasserstein<a class="headerlink" href="#example-wasserstein" title="Link to this heading"></a></h2>
 <p>Wasserstein distance, also known as Earth Mover’s distance, is a metric for
 comparing probability distributions.
 Practically speaking, it is also quite useful for comparing 2D images.
@@ -135,8 +140,8 @@ brute force, nearest neighbour descent, and ANNchor.</p>
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 
-<span class="kn">from</span> <span class="nn">annchor</span> <span class="k">import</span> <span class="n">Annchor</span><span class="p">,</span> <span class="n">BruteForce</span><span class="p">,</span> <span class="n">compare_neighbor_graphs</span>
-<span class="kn">from</span> <span class="nn">annchor.datasets</span> <span class="k">import</span> <span class="n">load_digits</span><span class="p">,</span> <span class="n">load_digits_large</span>
+<span class="kn">from</span> <span class="nn">annchor</span> <span class="kn">import</span> <span class="n">Annchor</span><span class="p">,</span> <span class="n">BruteForce</span><span class="p">,</span> <span class="n">compare_neighbor_graphs</span>
+<span class="kn">from</span> <span class="nn">annchor.datasets</span> <span class="kn">import</span> <span class="n">load_digits</span><span class="p">,</span> <span class="n">load_digits_large</span>
 </pre></div>
 </div>
 <p>We’ll load the digits dataset and take a look.</p>
@@ -161,14 +166,15 @@ brute force, nearest neighbour descent, and ANNchor.</p>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<a class="reference internal image-reference" href="_images/digits.png"><img alt="sklearn digits (UCI ML repository)" class="align-center" src="_images/digits.png" style="width: 300px;" /></a>
+<a class="reference internal image-reference" href="_images/digits.png"><img alt="sklearn digits (UCI ML repository)" class="align-center" src="_images/digits.png" style="width: 300px;" />
+</a>
 <p>So we have a bunch of 8x8 images, 1797 to be exact.
 Let’s now import the Wasserstein distance. This implementation is borrowed
 from PyNNDescent, packaged with annchor for convenience. The cost matrix
 for the 8x8 images is supplied as a keyword argument.</p>
 <p>The Wasserstein metric is quite slow to compute - compare it to the
 Euclidean metric on our data.</p>
-<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynndescent.distances</span> <span class="k">import</span> <span class="n">kantorovich</span>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynndescent.distances</span> <span class="kn">import</span> <span class="n">kantorovich</span>
 <span class="c1"># kantorovich is just another name for the wasserstein distance</span>
 
 <span class="n">randX</span> <span class="o">=</span> <span class="k">lambda</span> <span class="p">:</span> <span class="n">X</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">nx</span><span class="p">)]</span>
@@ -183,7 +189,7 @@ Euclidean metric on our data.</p>
 <p>So Wasserstein is clocking in at around 20 times slower than Euclidean: We’re
 firmly in the territory of slow metrics.</p>
 <section id="brute-force-approach">
-<h3>Brute Force Approach<a class="headerlink" href="#brute-force-approach" title="Permalink to this headline"></a></h3>
+<h3>Brute Force Approach<a class="headerlink" href="#brute-force-approach" title="Link to this heading"></a></h3>
 <p>If we wanted to brute-force the <em>k</em>-NN graph, then we must make around 1.6 million
 calls to the metric. Let’s try that, with a little  help from numba, and see how it goes</p>
 <div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
@@ -210,14 +216,14 @@ calls to the metric. Let’s try that, with a little  help from numba, and see h
 <p>Reasonably slow, but does have the merit of  giving the exact answer.</p>
 </section>
 <section id="nearest-neighbor-descent">
-<h3>Nearest Neighbor Descent<a class="headerlink" href="#nearest-neighbor-descent" title="Permalink to this headline"></a></h3>
+<h3>Nearest Neighbor Descent<a class="headerlink" href="#nearest-neighbor-descent" title="Link to this heading"></a></h3>
 <p>Now let’s try a state-of-the-art <em>k</em>-NN graph construction method, Nearest
 Neighbour Descent.
 In particular, we’ll use the PyNNDescent python implementation (which is also
 used in the popular python library UMAP). We should expect this to do better
 than the brute force method.</p>
-<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynndescent</span> <span class="k">import</span> <span class="n">NNDescent</span>
-<span class="kn">from</span> <span class="nn">numba</span> <span class="k">import</span> <span class="n">njit</span>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynndescent</span> <span class="kn">import</span> <span class="n">NNDescent</span>
+<span class="kn">from</span> <span class="nn">numba</span> <span class="kn">import</span> <span class="n">njit</span>
 
 <span class="nd">@njit</span><span class="p">()</span>
 <span class="k">def</span> <span class="nf">wasserstein</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
@@ -243,7 +249,7 @@ than the brute force method.</p>
 <p>Not bad, we trimmed 38 seconds from the run-time for a minimal hit to accuracy.</p>
 </section>
 <section id="annchor">
-<h3>ANNchor<a class="headerlink" href="#annchor" title="Permalink to this headline"></a></h3>
+<h3>ANNchor<a class="headerlink" href="#annchor" title="Link to this heading"></a></h3>
 <p>How does ANNchor compare? Remember, we are competing with 83s and 69s for brute
 force and PyNNDescent respectively. Can we do better?</p>
 <div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
@@ -275,13 +281,13 @@ force and PyNNDescent respectively. Can we do better?</p>
 PyNNDescent, with comparable accuracy!</p>
 </section>
 <section id="a-larger-data-set">
-<h3>A Larger Data Set<a class="headerlink" href="#a-larger-data-set" title="Permalink to this headline"></a></h3>
+<h3>A Larger Data Set<a class="headerlink" href="#a-larger-data-set" title="Link to this heading"></a></h3>
 <p>What if we up the size of the data set? The previous set was quite small, so it’s
 important to see what happens when things get a bit bigger. Not much bigger, of course,
 since we don’t want to be waiting forever to run these tests!</p>
 <p>Let’s try the full UCI digits data set, 5620 8x8 images (<a class="reference external" href="https://archive.ics.uci.edu/ml/datasets/optical+recognition+of+handwritten+digits">https://archive.ics.uci.edu/ml/datasets/optical+recognition+of+handwritten+digits</a>).</p>
 <div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load the data</span>
-<span class="kn">from</span> <span class="nn">annchor.datasets</span> <span class="k">import</span> <span class="n">load_digits_large</span>
+<span class="kn">from</span> <span class="nn">annchor.datasets</span> <span class="kn">import</span> <span class="n">load_digits_large</span>
 
 <span class="n">k</span><span class="o">=</span><span class="mi">25</span>
 
@@ -336,7 +342,7 @@ since we don’t want to be waiting forever to run these tests!</p>
 </section>
 </section>
 <section id="example-levenshtein">
-<h2>Example: Levenshtein<a class="headerlink" href="#example-levenshtein" title="Permalink to this headline"></a></h2>
+<h2>Example: Levenshtein<a class="headerlink" href="#example-levenshtein" title="Link to this heading"></a></h2>
 <p>Levenshtein distance (or Edit distance) is a metric on strings. It is the number
 of insertions, substitutions and deletions required to change one word into an-
 other; for example, ‘cat’ is changed to ‘hat’ by substitution of the ‘c’ for an ‘h’,
@@ -360,7 +366,8 @@ small number of edits from the last added string. In this way, the filament is m
 by traversing what is essentially a 1D path through the space of strings. The clouds
 and filaments can be clearly seen in a UMAP projection of the string data set, shown
 in below.</p>
-<a class="reference internal image-reference" href="_images/strings.png"><img alt="The string data set." class="align-center" src="_images/strings.png" style="width: 300px;" /></a>
+<a class="reference internal image-reference" href="_images/strings.png"><img alt="The string data set." class="align-center" src="_images/strings.png" style="width: 300px;" />
+</a>
 <p>A typical Levenshtein distance in this data set took about 33 times as
 long as calculating Euclidean distance on vectors of comparable length.
 It’s also worth noting that there aren’t any numba compiled Levenshtein
@@ -370,7 +377,7 @@ stick this problem directly into UMAP.</p>
 <div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">from</span> <span class="nn">annchor.datasets</span> <span class="k">import</span> <span class="n">load_strings</span>
+<span class="kn">from</span> <span class="nn">annchor.datasets</span> <span class="kn">import</span> <span class="n">load_strings</span>
 
 <span class="n">strings_data</span> <span class="o">=</span> <span class="n">load_strings</span><span class="p">()</span>
 <span class="n">X</span> <span class="o">=</span> <span class="n">strings_data</span><span class="p">[</span><span class="s1">&#39;X&#39;</span><span class="p">]</span>
@@ -403,12 +410,12 @@ stick this problem directly into UMAP.</p>
 </div>
 <p>Let’s look at some different ways of computing the 15-NN graph.</p>
 <section id="brute-force">
-<h3>Brute Force<a class="headerlink" href="#brute-force" title="Permalink to this headline"></a></h3>
+<h3>Brute Force<a class="headerlink" href="#brute-force" title="Link to this heading"></a></h3>
 <p>The brute force method is the same as above - compute the all-pairs distance matrix.
 Since we don’t have the help of numba this time round, we will use joblib to do
 some parallelisation.</p>
-<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">annchor</span> <span class="k">import</span> <span class="n">BruteForce</span>
-<span class="kn">from</span> <span class="nn">annchor</span> <span class="k">import</span> <span class="n">compare_neighbor_graphs</span>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">annchor</span> <span class="kn">import</span> <span class="n">BruteForce</span>
+<span class="kn">from</span> <span class="nn">annchor</span> <span class="kn">import</span> <span class="n">compare_neighbor_graphs</span>
 
 <span class="n">k</span> <span class="o">=</span> <span class="mi">15</span>
 
@@ -433,7 +440,7 @@ some parallelisation.</p>
 <p>Quite slow, especially when we consider that there are only 1600 strings in the data set!</p>
 </section>
 <section id="hnsw-nmslib">
-<h3>HNSW (nmslib)<a class="headerlink" href="#hnsw-nmslib" title="Permalink to this headline"></a></h3>
+<h3>HNSW (nmslib)<a class="headerlink" href="#hnsw-nmslib" title="Link to this heading"></a></h3>
 <p>The nmslib implementation of HNSW is another state-of-the-art <em>k</em>-NN library,
 one of the few out there that can deal with Levenshtein distances. You might give
 this a go if you don’t want to do brute force, but how does it get on?</p>
@@ -481,7 +488,7 @@ It also boasts quick query times once the index has been created; but for <em>k<
 construction the index creation time is very important.</p>
 </section>
 <section id="id1">
-<h3>ANNchor<a class="headerlink" href="#id1" title="Permalink to this headline"></a></h3>
+<h3>ANNchor<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
 <p>Now it’s ANNchor’s turn! How does it do?</p>
 <div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 <span class="n">ann</span> <span class="o">=</span> <span class="n">Annchor</span><span class="p">(</span><span class="n">X</span><span class="p">,</span>
@@ -512,7 +519,7 @@ construction the index creation time is very important.</p>
 </section>
 </section>
 <section id="example-shortest-path-distance">
-<h2>Example: Shortest Path Distance<a class="headerlink" href="#example-shortest-path-distance" title="Permalink to this headline"></a></h2>
+<h2>Example: Shortest Path Distance<a class="headerlink" href="#example-shortest-path-distance" title="Link to this heading"></a></h2>
 <p>In this example, we want to showcase one of the worst possible scenarios: a
 custom distance function which is slow, and not easy to compile with numba.
 Why is this the worst case? Well, because it is a custom distance we can’t use
@@ -533,7 +540,7 @@ metric!).</p>
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nkx</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">from</span> <span class="nn">annchor.datasets</span> <span class="k">import</span> <span class="n">load_graph_sp</span>
+<span class="kn">from</span> <span class="nn">annchor.datasets</span> <span class="kn">import</span> <span class="n">load_graph_sp</span>
 
 <span class="n">k</span><span class="o">=</span><span class="mi">15</span>
 
@@ -562,7 +569,8 @@ metric!).</p>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<a class="reference internal image-reference" href="_images/graph_sp.png"><img alt="Shortest Path Graph data set" class="align-center" src="_images/graph_sp.png" style="width: 500px;" /></a>
+<a class="reference internal image-reference" href="_images/graph_sp.png"><img alt="Shortest Path Graph data set" class="align-center" src="_images/graph_sp.png" style="width: 500px;" />
+</a>
 <p>Our graph is a partition graph (10 partitions) with 800 edges, where edges inside
 the partitions have lower weight than edges between partitions.
 The colour highlighting shows the edge-weights: darker is smaller.
@@ -582,10 +590,10 @@ edges.</p>
 <p>That’s quite slow - around 250 times as slow as the Euclidean distance we calculated earlier!
 Now let’s compare our options: brute-force and ANNchor.</p>
 <section id="id2">
-<h3>Brute Force<a class="headerlink" href="#id2" title="Permalink to this headline"></a></h3>
+<h3>Brute Force<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
 <p>Given that we can’t use PyNNDescent or nmslib, we may well use brute-force simply because there’s not another option available to us.</p>
-<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">annchor</span> <span class="k">import</span> <span class="n">BruteForce</span>
-<span class="kn">from</span> <span class="nn">annchor</span> <span class="k">import</span> <span class="n">compare_neighbor_graphs</span>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">annchor</span> <span class="kn">import</span> <span class="n">BruteForce</span>
+<span class="kn">from</span> <span class="nn">annchor</span> <span class="kn">import</span> <span class="n">compare_neighbor_graphs</span>
 
 <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
@@ -608,9 +616,9 @@ Now let’s compare our options: brute-force and ANNchor.</p>
 <p>That’s about 5 minutes. Remember, we only have 800 points in our data set! Imagine how badly this approach will scale.</p>
 </section>
 <section id="id3">
-<h3>ANNchor<a class="headerlink" href="#id3" title="Permalink to this headline"></a></h3>
+<h3>ANNchor<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
 <p>ANNchor should take this problem in its stride. Let’s see how it compares.</p>
-<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">annchor</span> <span class="k">import</span> <span class="n">Annchor</span>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">annchor</span> <span class="kn">import</span> <span class="n">Annchor</span>
 
 <span class="n">k</span><span class="o">=</span><span class="mi">15</span>
 

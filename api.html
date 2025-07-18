@@ -1,20 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ANNchor API Guide &mdash; ANNchor  documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/doctools.js"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -26,12 +27,16 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html">
-            <img src="_static/logo_yellow.svg" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="index.html">
+            
+              <img src="_static/logo_yellow.svg" class="logo" alt="Logo"/>
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -47,9 +52,22 @@
 <p class="caption" role="heading"><span class="caption-text">API Reference:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">ANNchor API Guide</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#annchor">Annchor</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#utility-functions">Utility Functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#data-sets">Data sets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#annchor">Annchor</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#annchor.Annchor"><code class="docutils literal notranslate"><span class="pre">Annchor</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#annchor.BruteForce"><code class="docutils literal notranslate"><span class="pre">BruteForce</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#utility-functions">Utility Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#annchor.compare_neighbor_graphs"><code class="docutils literal notranslate"><span class="pre">compare_neighbor_graphs()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#data-sets">Data sets</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#annchor.datasets.load_digits"><code class="docutils literal notranslate"><span class="pre">load_digits()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#annchor.datasets.load_digits_large"><code class="docutils literal notranslate"><span class="pre">load_digits_large()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#annchor.datasets.load_graph_sp"><code class="docutils literal notranslate"><span class="pre">load_graph_sp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#annchor.datasets.load_strings"><code class="docutils literal notranslate"><span class="pre">load_strings()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -67,8 +85,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>ANNchor API Guide</li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">ANNchor API Guide</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/api.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -79,15 +97,17 @@
            <div itemprop="articleBody">
              
   <section id="annchor-api-guide">
-<h1>ANNchor API Guide<a class="headerlink" href="#annchor-api-guide" title="Permalink to this headline"></a></h1>
+<h1>ANNchor API Guide<a class="headerlink" href="#annchor-api-guide" title="Link to this heading"></a></h1>
 <p>ANNchor contains two classes, the ANNchor base class <code class="xref py py-class docutils literal notranslate"><span class="pre">Annchor</span></code>, and a
 brute force class <code class="xref py py-class docutils literal notranslate"><span class="pre">BruteForce</span></code>.</p>
 <section id="annchor">
-<h2>Annchor<a class="headerlink" href="#annchor" title="Permalink to this headline"></a></h2>
+<h2>Annchor<a class="headerlink" href="#annchor" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="annchor.Annchor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">annchor.</span></span><span class="sig-name descname"><span class="pre">Annchor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_anchors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_neighbors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_work</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anchor_picker</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampler</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regression</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_predictor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">locality</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc_thresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_exact_ijs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'loky'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">niters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lookahead</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">annchor.</span></span><span class="sig-name descname"><span class="pre">Annchor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_anchors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_neighbors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_work</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anchor_picker</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampler</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regression</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_predictor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">locality</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc_thresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_exact_ijs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'loky'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">niters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lookahead</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor" title="Link to this definition"></a></dt>
 <dd><p>Quickly computes the approximate k-NN graph for slow metrics</p>
+<section id="parameters">
+<h3>Parameters<a class="headerlink" href="#parameters" title="Link to this heading"></a></h3>
 <dl>
 <dt>X: np.array or list (required)</dt><dd><p>The data set for which we want to find the k-NN graph.</p>
 </dd>
@@ -155,8 +175,10 @@ In general “loky” seems to be more robust, but occasionally
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="annchor.Annchor.annchor_selective_subset">
-<span class="sig-name descname"><span class="pre">annchor_selective_subset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dne</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor.annchor_selective_subset" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">annchor_selective_subset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dne</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor.annchor_selective_subset" title="Link to this definition"></a></dt>
 <dd><p>Generates a selective subset for X given labels y.</p>
+<section id="id1">
+<h4>Parameters<a class="headerlink" href="#id1" title="Link to this heading"></a></h4>
 <dl class="simple">
 <dt>y: np.array, shape=(len(X),)</dt><dd><p>Data labels (corresponding to elements in X)</p>
 </dd>
@@ -170,21 +192,25 @@ In practice, larger alpha values make the subset more robust to
 errors at the expense of increasing the size of the subset.</p>
 </dd>
 </dl>
+</section>
+<section id="outputs">
+<h4>Outputs<a class="headerlink" href="#outputs" title="Link to this heading"></a></h4>
 <dl class="simple">
 <dt>ss: np.array</dt><dd><p>The indices of X which form the selective subset.</p>
 </dd>
 </dl>
+</section>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="annchor.Annchor.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor.fit" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor.fit" title="Link to this definition"></a></dt>
 <dd><p>Computes the approx nearest neighbour graph.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="annchor.Annchor.get_anchors">
-<span class="sig-name descname"><span class="pre">get_anchors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor.get_anchors" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_anchors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor.get_anchors" title="Link to this definition"></a></dt>
 <dd><p>Gets the anchors and distances to anchors.
 Anchors are stored in self.A, distances in self.D.</p>
 <dl class="simple">
@@ -197,14 +223,19 @@ Anchors are stored in self.A, distances in self.D.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="annchor.Annchor.get_features_IJ">
-<span class="sig-name descname"><span class="pre">get_features_IJ</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">IJs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">I</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor.get_features_IJ" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_features_IJ</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">IJs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">I</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor.get_features_IJ" title="Link to this definition"></a></dt>
 <dd><p>Computes features for distances in IJs.</p>
+<section id="id2">
+<h4>Parameters<a class="headerlink" href="#id2" title="Link to this heading"></a></h4>
 <dl class="simple">
 <dt>IJs: np.array, shape=(?,2)</dt><dd><p>Indices of distances for which we will find features.</p>
 </dd>
 <dt>I: numba.typed.Dict dict of arrays</dt><dd><p>I[i] is the array of indices into IJs which contain index i.</p>
 </dd>
 </dl>
+</section>
+<section id="id3">
+<h4>Outputs<a class="headerlink" href="#id3" title="Link to this heading"></a></h4>
 <dl class="simple">
 <dt>feature_names: List</dt><dd><p>List of features names (as strings)</p>
 </dd>
@@ -214,17 +245,18 @@ Anchors are stored in self.A, distances in self.D.</p>
 has been explicitly computed.</p>
 </dd>
 </dl>
+</section>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="annchor.Annchor.get_locality">
-<span class="sig-name descname"><span class="pre">get_locality</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor.get_locality" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_locality</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor.get_locality" title="Link to this definition"></a></dt>
 <dd><p>Uses basic permutation/set method to find candidate nearest neighbours.</p>
 <dl class="simple">
 <dt>Current Technique (Use something better in future):</dt><dd><p>For each point i, find the set S_i of its nearest l=locality anchor
 points.
 For each other point j, calculate (S_i intersect S_j).
-Only consider pairs ij where <a href="#id1"><span class="problematic" id="id2">|(S_i intersect S_j)|</span></a>&gt;=loc_thresh.</p>
+Only consider pairs ij where <a href="#id16"><span class="problematic" id="id17">|(S_i intersect S_j)|</span></a>&gt;=loc_thresh.</p>
 </dd>
 <dt>self.check: Dict, keys=int64, val=int64[:]</dt><dd><p>check[i] is the array of candidate nearest neighbour indices for
 index j.</p>
@@ -234,9 +266,11 @@ index j.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="annchor.Annchor.get_nearest_enemies">
-<span class="sig-name descname"><span class="pre">get_nearest_enemies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor.get_nearest_enemies" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_nearest_enemies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor.get_nearest_enemies" title="Link to this definition"></a></dt>
 <dd><p>Computes the nearest enemy graph
 Result is stored in self.nearest_enemy_graph</p>
+<section id="id4">
+<h4>Parameters<a class="headerlink" href="#id4" title="Link to this heading"></a></h4>
 <dl class="simple">
 <dt>y: np.array, shape=(len(X),)</dt><dd><p>Data labels (corresponding to elements in X)</p>
 </dd>
@@ -247,11 +281,12 @@ index we will compute features for at least loc_min points, if
 possible.)</p>
 </dd>
 </dl>
+</section>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="annchor.Annchor.get_sample">
-<span class="sig-name descname"><span class="pre">get_sample</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor.get_sample" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_sample</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor.get_sample" title="Link to this definition"></a></dt>
 <dd><p>Gets the sample of pairwise distances on which to train dhat/errors.</p>
 <dl class="simple">
 <dt>self.G: np.array, shape=(n_samples,3)</dt><dd><p>Array storing the sample distances and features (for future
@@ -264,8 +299,10 @@ G[i,-1] is the true distance for sample pair i.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="annchor.Annchor.query">
-<span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_work</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_exact_query_ijs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor.query" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_work</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_exact_query_ijs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor.query" title="Link to this definition"></a></dt>
 <dd><p>Query new data against the existing index.</p>
+<section id="id5">
+<h4>Parameters<a class="headerlink" href="#id5" title="Link to this heading"></a></h4>
 <dl class="simple">
 <dt>Q: np.array, shape=(n_samples, n_features)</dt><dd><p>The new data to query against X</p>
 </dd>
@@ -281,20 +318,24 @@ parallelisation. get_exact_ijs(f,X,Z,IJ) is the function should
 return np.array([f(X[i],Z[j]) for i,j in IJ]).</p>
 </dd>
 </dl>
+</section>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="annchor.Annchor.to_sparse_matrix">
-<span class="sig-name descname"><span class="pre">to_sparse_matrix</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor.to_sparse_matrix" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_sparse_matrix</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#annchor.Annchor.to_sparse_matrix" title="Link to this definition"></a></dt>
 <dd><p>Returns the K-NN graph as a dictionary of keys sparse distance matrix.</p>
 </dd></dl>
 
+</section>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="annchor.BruteForce">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">annchor.</span></span><span class="sig-name descname"><span class="pre">BruteForce</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_exact_ijs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'loky'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#annchor.BruteForce" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">annchor.</span></span><span class="sig-name descname"><span class="pre">BruteForce</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_exact_ijs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'loky'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#annchor.BruteForce" title="Link to this definition"></a></dt>
 <dd><p>Computes the approximate k-NN graph by brute force</p>
+<section id="id6">
+<h3>Parameters<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
 <dl>
 <dt>X: np.array or list (required)</dt><dd><p>The data set for which we want to find the k-NN graph.</p>
 </dd>
@@ -325,21 +366,22 @@ In general “loky” seems to be more robust, but occasionally
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="annchor.BruteForce.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#annchor.BruteForce.fit" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#annchor.BruteForce.fit" title="Link to this definition"></a></dt>
 <dd><p>get_neighbor_graph</p>
 <p>Gets the k-NN graph from the all pairs distance matrix</p>
 </dd></dl>
 
+</section>
 </dd></dl>
 
 </section>
 <section id="utility-functions">
-<h2>Utility Functions<a class="headerlink" href="#utility-functions" title="Permalink to this headline"></a></h2>
+<h2>Utility Functions<a class="headerlink" href="#utility-functions" title="Link to this heading"></a></h2>
 <p>The annchor package also includes some utility functions, e.g. finding
 neighbor graph accuracy.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="annchor.compare_neighbor_graphs">
-<span class="sig-prename descclassname"><span class="pre">annchor.</span></span><span class="sig-name descname"><span class="pre">compare_neighbor_graphs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nng_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nng_2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_neighbors</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#annchor.compare_neighbor_graphs" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">annchor.</span></span><span class="sig-name descname"><span class="pre">compare_neighbor_graphs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nng_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nng_2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_neighbors</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#annchor.compare_neighbor_graphs" title="Link to this definition"></a></dt>
 <dd><p>Compares accuracy of k-NN graphs. The second graph is compared against the
 first.
 This measure of accuracy accounts for cases where the indices differ but
@@ -348,6 +390,8 @@ the distances are equivalent.</p>
 <p>and     nng_2[0][0]=[0, 1, 2, 4], nng_1[0][1]=[0, 1, 1, 2],</p>
 <p>There would be zero incorrect NN pairs, since both ix=3 and ix=4 are valid
 4th nearest neighbors.</p>
+<section id="id7">
+<h3>Parameters<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>nng_1: nearest neighbour graph (tuple of np.array)</dt><dd><p>The first nearest neighbour graph, (indices, distances).</p>
 </dd>
@@ -356,24 +400,33 @@ the distances are equivalent.</p>
 <dt>n_neighbors: int</dt><dd><p>The number of nearest neighbors to consider</p>
 </dd>
 </dl>
+</section>
+<section id="returns">
+<h3>Returns<a class="headerlink" href="#returns" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>err: int</dt><dd><p>The number of incorrect NN pairs.</p>
 </dd>
 </dl>
+</section>
 </dd></dl>
 
 </section>
 <section id="data-sets">
-<h2>Data sets<a class="headerlink" href="#data-sets" title="Permalink to this headline"></a></h2>
+<h2>Data sets<a class="headerlink" href="#data-sets" title="Link to this heading"></a></h2>
 <p>ANNchor comes with various data sets for benchmarking.</p>
-<span class="target" id="module-annchor.datasets"></span><dl class="py function">
+<dl class="py function" id="module-annchor.datasets">
 <dt class="sig sig-object py" id="annchor.datasets.load_digits">
-<span class="sig-prename descclassname"><span class="pre">annchor.datasets.</span></span><span class="sig-name descname"><span class="pre">load_digits</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#annchor.datasets.load_digits" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">annchor.datasets.</span></span><span class="sig-name descname"><span class="pre">load_digits</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#annchor.datasets.load_digits" title="Link to this definition"></a></dt>
 <dd><p>Loads the UCI OCR digits data test set (1797 8x8 images).</p>
 <p><a class="reference external" href="https://archive.ics.uci.edu/ml/datasets/optical+recognition+of+handwritten+digits">https://archive.ics.uci.edu/ml/datasets/optical+recognition+of+handwritten+digits</a></p>
 <p>Dua, D. and Graff, C. (2019). UCI Machine Learning Repository
 [<a class="reference external" href="http://archive.ics.uci.edu/ml">http://archive.ics.uci.edu/ml</a>]. Irvine, CA: University of California,
 School of Information and Computer Science.</p>
+<section id="id8">
+<h3>Parameters<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+</section>
+<section id="id9">
+<h3>Returns<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
 <dl>
 <dt>digits_data: dict, keys=[‘X’, ‘y’, ‘neighbor_graph’]</dt><dd><p>The string data set.</p>
 <p>digits_data[‘X’] is an np.array ints, shape=(1797,64)</p>
@@ -388,16 +441,22 @@ i.e. digits_data[‘neighbor_graph’][0][i][j] is the jth smallest
 distance to index i.</p>
 </dd>
 </dl>
+</section>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="annchor.datasets.load_digits_large">
-<span class="sig-prename descclassname"><span class="pre">annchor.datasets.</span></span><span class="sig-name descname"><span class="pre">load_digits_large</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#annchor.datasets.load_digits_large" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">annchor.datasets.</span></span><span class="sig-name descname"><span class="pre">load_digits_large</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#annchor.datasets.load_digits_large" title="Link to this definition"></a></dt>
 <dd><p>Loads the full (train+test) UCI OCR digits data set (5620 8x8 images).</p>
 <p><a class="reference external" href="https://archive.ics.uci.edu/ml/datasets/optical+recognition+of+handwritten+digits">https://archive.ics.uci.edu/ml/datasets/optical+recognition+of+handwritten+digits</a></p>
 <p>Dua, D. and Graff, C. (2019). UCI Machine Learning Repository
 [<a class="reference external" href="http://archive.ics.uci.edu/ml">http://archive.ics.uci.edu/ml</a>]. Irvine, CA: University of California,
 School of Information and Computer Science.</p>
+<section id="id10">
+<h3>Parameters<a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
+</section>
+<section id="id11">
+<h3>Returns<a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
 <dl>
 <dt>digits_data: dict, keys=[‘X’, ‘y’, ‘neighbor_graph’]</dt><dd><p>The string data set.</p>
 <p>digits_data[‘X’] is an np.array ints, shape=(5620,64)</p>
@@ -412,15 +471,21 @@ i.e. digits_data[‘neighbor_graph’][0][i][j] is the jth smallest
 distance to index i.</p>
 </dd>
 </dl>
+</section>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="annchor.datasets.load_graph_sp">
-<span class="sig-prename descclassname"><span class="pre">annchor.datasets.</span></span><span class="sig-name descname"><span class="pre">load_graph_sp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#annchor.datasets.load_graph_sp" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">annchor.datasets.</span></span><span class="sig-name descname"><span class="pre">load_graph_sp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#annchor.datasets.load_graph_sp" title="Link to this definition"></a></dt>
 <dd><p>Loads the graph shortest path data set (800 vertices from a weighted
 graph).
 There are 10 clusters of vertices. The intra-cluster distances are shorter
 on average than the inter-cluster distances.</p>
+<section id="id12">
+<h3>Parameters<a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
+</section>
+<section id="id13">
+<h3>Returns<a class="headerlink" href="#id13" title="Link to this heading"></a></h3>
 <dl>
 <dt>graph_sp_data: dict, keys=[‘X’, ‘y’, ‘neighbor_graph’]</dt><dd><p>The string data set.</p>
 <p>graph_sp_data[‘X’] is an np.array of vertex indices, shape=(800,)</p>
@@ -435,13 +500,19 @@ i.e. graph_sp_data[‘neighbor_graph’][0][i][j] is the jth smallest
 distance to index i.</p>
 </dd>
 </dl>
+</section>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="annchor.datasets.load_strings">
-<span class="sig-prename descclassname"><span class="pre">annchor.datasets.</span></span><span class="sig-name descname"><span class="pre">load_strings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#annchor.datasets.load_strings" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">annchor.datasets.</span></span><span class="sig-name descname"><span class="pre">load_strings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#annchor.datasets.load_strings" title="Link to this definition"></a></dt>
 <dd><p>Loads the string data set (1600 strings, length ~500). There are
 8 clusters of two types: clouds (labels 0-4) and filaments (labels 5-7).</p>
+<section id="id14">
+<h3>Parameters<a class="headerlink" href="#id14" title="Link to this heading"></a></h3>
+</section>
+<section id="id15">
+<h3>Returns<a class="headerlink" href="#id15" title="Link to this heading"></a></h3>
 <dl>
 <dt>strings_data: dict, keys=[‘X’, ‘y’, ‘neighbor_graph’]</dt><dd><p>The string data set.</p>
 <p>strings_data[‘X’] is an np.array of strings, shape=(1600,)</p>
@@ -456,6 +527,7 @@ i.e. strings_data[‘neighbor_graph’][0][i][j] is the jth smallest
 distance to index i.</p>
 </dd>
 </dl>
+</section>
 </dd></dl>
 
 </section>
