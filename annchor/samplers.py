@@ -136,7 +136,7 @@ class SimpleStratifiedSampler(Sampler):
         q3 = np.partition(sample_feature, iq3)[iq3]
 
         sample_bins = np.linspace(q1, q3, self.n_partitions - 1)
-        sample_bins = np.hstack([-np.infty, sample_bins, np.infty])
+        sample_bins = np.hstack([-np.inf, sample_bins, np.inf])
         return sample_bins, n_samples
 
 
@@ -166,7 +166,7 @@ class ClusterSampler(Sampler):
 
         partitions = np.sort(partitions.flatten())
         sample_bins = partitions[1:-1:2]
-        sample_bins = np.hstack([-np.infty, sample_bins, np.infty])
+        sample_bins = np.hstack([-np.inf, sample_bins, np.inf])
         return sample_bins, n_samples
 
 

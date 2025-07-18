@@ -55,7 +55,7 @@ class SimpleStratifiedLinearRegression:
             q3 = np.partition(F, iq3)[iq3]
 
             sample_bins = np.linspace(q1, q3, self.n_partitions - 1)
-            self.sample_bins = np.hstack([-np.infty, sample_bins, np.infty])
+            self.sample_bins = np.hstack([-np.inf, sample_bins, np.inf])
         else:
             self.n_partitions = sample_bins.shape[0] - 1
             self.sample_bins = sample_bins
