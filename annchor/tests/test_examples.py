@@ -137,7 +137,7 @@ def test_custom_anchor_picker():
             # D stores distances to anchor points
             # note: at this point D is shape (n_anchors, nx),
             #       but we transpose this after calculations.
-            D = np.zeros((na, nx)) + np.infty
+            D = np.zeros((na, nx)) + np.inf
 
             v = lambda f: f
 

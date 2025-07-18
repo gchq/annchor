@@ -39,7 +39,7 @@ class SimpleStratifiedErrorRegression:
             q3 = np.partition(sample_feature, iq3)[iq3]
 
             sample_bins = np.linspace(q1, q3, self.n_partitions - 1)
-            self.partition_bins = np.hstack([-np.infty, sample_bins, np.infty])
+            self.partition_bins = np.hstack([-np.inf, sample_bins, np.inf])
         else:
             self.n_partitions = sample_bins.shape[0] - 1
             self.partition_bins = sample_bins
