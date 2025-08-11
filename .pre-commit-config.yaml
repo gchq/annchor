@@ -15,6 +15,10 @@ repos:
     hooks:
       - id: black
         language_version: python3.13
+  - repo: https://github.com/jumanjihouse/pre-commit-hooks
+    rev: 3.0.0
+    hooks:
+      - id: require-ascii
   - repo: https://github.com/Lucas-C/pre-commit-hooks
     rev: v1.5.5
     hooks:
