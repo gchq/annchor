@@ -213,8 +213,8 @@ class Annchor:
         Current Technique (Use something better in future):
             For each point i, find the set S_i of its nearest l=locality anchor
             points.
-            For each other point j, calculate (S_i intersect S_j).
-            Only consider pairs ij where |(S_i intersect S_j)|>=loc_thresh.
+            For each other point j, calculate ``(S_i intersect S_j)``.
+            Only consider pairs ij where ``|(S_i intersect S_j)|>=loc_thresh``.
 
         self.check: Dict, keys=int64, val=int64[:]
             check[i] is the array of candidate nearest neighbour indices for

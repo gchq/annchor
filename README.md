@@ -1,4 +1,4 @@
-<img align="left" src="https://github.com/gchq/annchor/raw/main/doc/images/logo.svg" width="300">
+<img align="left" src="https://github.com/gchq/annchor/raw/main/doc/source/images/logo.svg" width="300">
 
 # ANNchor
 
@@ -136,7 +136,7 @@ fig,ax = plt.subplots(figsize=(7,7))
 ax.scatter(*T.T,alpha=0.1)
 plt.show()
 ```
-<img align="center" src="https://github.com/gchq/annchor/raw/main/doc/images/strings_no_col.png" width="500">
+<img align="center" src="https://github.com/gchq/annchor/raw/main/doc/source/images/strings_no_col.png" width="500">
 
 Finally the structure of the data set is clear to us! There are 8 clusters of two distinct varieties: filaments and clouds.
 
