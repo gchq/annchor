@@ -28,3 +28,8 @@ repos:
     rev: "0.33.2"
     hooks:
       - id: check-github-workflows
+  - repo: https://github.com/regebro/pyroma
+    rev: "5.0"
+    hooks:
+      - id: pyroma
+        args: ["-d", "--min=10", "."]
