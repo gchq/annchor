@@ -1,8 +1,6 @@
 # (C) Crown Copyright GCHQ
-import os
 import numpy as np
 from numba import njit
-import scipy
 import Levenshtein as lev
 
 

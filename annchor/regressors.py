@@ -1,6 +1,4 @@
 # (C) Crown Copyright GCHQ
-from abc import ABC, abstractmethod
-
 import numpy as np
 
 
@@ -8,10 +6,6 @@ from joblib import Parallel, delayed
 from sklearn.linear_model import LinearRegression
 import os
 from annchor.utils import *
-from numba import njit, prange, types
-from numba.typed import Dict
-
-from tqdm.auto import tqdm as tq
 
 CPU_COUNT = os.cpu_count()
 

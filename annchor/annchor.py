@@ -1,10 +1,9 @@
 # (C) Crown Copyright GCHQ
-import os
 import numpy as np
 import time
 
-from numba import njit, prange, types, typeof
-from numba.typed import Dict, List
+from numba import prange, types
+from numba.typed import Dict
 from numba.core.registry import CPUDispatcher
 
 from collections import Counter

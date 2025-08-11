@@ -1,7 +1,6 @@
 # (C) Crown Copyright GCHQ
 import numpy as np
 from numba import njit
-import Levenshtein as lev
 from pynndescent.distances import kantorovich
 import networkx as nkx
 

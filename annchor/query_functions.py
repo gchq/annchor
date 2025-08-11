@@ -3,7 +3,6 @@ import numpy as np
 
 from numba import njit, prange, types
 from numba.typed import Dict
-from numba.core.registry import CPUDispatcher
 
 from annchor.utils import *
 
