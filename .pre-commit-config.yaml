@@ -1,6 +1,44 @@
 repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+        exclude_types: ["svg"]
+      - id: check-yaml
+      - id: end-of-file-fixer
+  - repo: https://github.com/google/yamlfmt
+    rev: v0.17.2
+    hooks:
+      - id: yamlfmt
   - repo: https://github.com/psf/black-pre-commit-mirror
     rev: 25.1.0
     hooks:
       - id: black
         language_version: python3.13
+  - repo: https://github.com/jumanjihouse/pre-commit-hooks
+    rev: 3.0.0
+    hooks:
+      - id: require-ascii
+  - repo: https://github.com/Lucas-C/pre-commit-hooks
+    rev: v1.5.5
+    hooks:
+      - id: forbid-crlf
+      - id: forbid-tabs
+  - repo: "https://github.com/python-jsonschema/check-jsonschema"
+    rev: "0.33.2"
+    hooks:
+      - id: check-github-workflows
+  - repo: https://github.com/regebro/pyroma
+    rev: "5.0"
+    hooks:
+      - id: pyroma
+        args: ["-d", "--min=10", "."]
+  - repo: https://github.com/johannsdg/pre-commit-license-headers
+    rev: v0.1.0
+    hooks:
+      - id: check-license-headers
+        types: [python]
+        args:
+          - --template
+          - (C) Crown Copyright [OWNER]
+          - --owner=GCHQ

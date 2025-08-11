@@ -1,3 +1,4 @@
+# (C) Crown Copyright GCHQ
 from abc import ABC, abstractmethod
 
 import numpy as np
