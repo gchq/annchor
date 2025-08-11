@@ -1,10 +1,9 @@
 # (C) Crown Copyright GCHQ
+import os
+
 import numpy as np
-
-
 from joblib import Parallel, delayed
 from sklearn.linear_model import LinearRegression
-import os
 
 CPU_COUNT = os.cpu_count()
 

@@ -1,11 +1,11 @@
 # (C) Crown Copyright GCHQ
-import numpy as np
+import os
 from typing import TYPE_CHECKING
 
-import os
-from annchor.utils import np_min
-
+import numpy as np
 from tqdm.auto import tqdm as tq
+
+from annchor.utils import np_min
 
 if TYPE_CHECKING:
     from annchor import Annchor

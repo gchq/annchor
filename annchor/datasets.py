@@ -1,5 +1,6 @@
 # (C) Crown Copyright GCHQ
 import os
+
 import numpy as np
 
 package_directory = os.path.dirname(os.path.abspath(__file__))

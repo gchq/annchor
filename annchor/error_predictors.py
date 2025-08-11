@@ -1,9 +1,7 @@
 # (C) Crown Copyright GCHQ
-import numpy as np
-
-
 import os
 
+import numpy as np
 
 CPU_COUNT = os.cpu_count()
 

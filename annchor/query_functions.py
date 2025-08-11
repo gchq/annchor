@@ -1,15 +1,14 @@
 # (C) Crown Copyright GCHQ
 import numpy as np
-
 from numba import njit, prange, types
 from numba.typed import Dict
 
 from annchor.utils import (
-    np_argmin,
-    guarantee_nmin,
-    get_probs,
     get_exact_query_ijs_,
     get_nn,
+    get_probs,
+    guarantee_nmin,
+    np_argmin,
 )
 
 

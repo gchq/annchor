@@ -1,5 +1,6 @@
 # (C) Crown Copyright GCHQ
 import numpy as np
+
 from annchor.distances import euclidean, levenshtein
 
 

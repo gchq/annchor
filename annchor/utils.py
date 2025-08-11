@@ -1,20 +1,17 @@
 # (C) Crown Copyright GCHQ
-import numpy as np
-
-from numba import njit, prange, types, typeof
-from numba.typed import Dict, List
-from numba.core.registry import CPUDispatcher
-
-from joblib import Parallel, delayed
-
 import os
+from multiprocessing.context import TimeoutError
+
+import numpy as np
+from joblib import Parallel, delayed
+from numba import njit, prange, typeof, types
+from numba.core.registry import CPUDispatcher
+from numba.typed import Dict, List
+from pynndescent.distances import kantorovich
+from scipy.spatial.distance import cosine
 from tqdm.auto import tqdm as tq
 
 from annchor.distances import euclidean, levenshtein
-from pynndescent.distances import kantorovich
-from scipy.spatial.distance import cosine
-
-from multiprocessing.context import TimeoutError
 
 CPU_COUNT = os.cpu_count()
 

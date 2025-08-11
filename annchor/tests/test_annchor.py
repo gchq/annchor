@@ -1,12 +1,11 @@
 # (C) Crown Copyright GCHQ
+import networkx as nkx
 import numpy as np
 from numba import njit
 from pynndescent.distances import kantorovich
-import networkx as nkx
 
 from annchor import Annchor, BruteForce, compare_neighbor_graphs
-from annchor import Annchor, compare_neighbor_graphs
-from annchor.datasets import load_digits, load_strings, load_graph_sp
+from annchor.datasets import load_digits, load_graph_sp, load_strings
 
 # Set interation count for tests with optional iterations
 niters = 1

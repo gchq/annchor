@@ -1,13 +1,12 @@
 # (C) Crown Copyright GCHQ
+import os
 from abc import ABC, abstractmethod
 
 import numpy as np
-
-
-import os
-from annchor.utils import loop_partitions
 from numba import types
 from numba.typed import Dict
+
+from annchor.utils import loop_partitions
 
 CPU_COUNT = os.cpu_count()
 
