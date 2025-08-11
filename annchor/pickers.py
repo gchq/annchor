@@ -1,10 +1,14 @@
 # (C) Crown Copyright GCHQ
 import numpy as np
+from typing import TYPE_CHECKING
 
 import os
-from annchor.utils import *
+from annchor.utils import np_min
 
 from tqdm.auto import tqdm as tq
+
+if TYPE_CHECKING:
+    from annchor import Annchor
 
 CPU_COUNT = os.cpu_count()
 

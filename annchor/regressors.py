@@ -5,7 +5,6 @@ import numpy as np
 from joblib import Parallel, delayed
 from sklearn.linear_model import LinearRegression
 import os
-from annchor.utils import *
 
 CPU_COUNT = os.cpu_count()
 

@@ -3,7 +3,6 @@ import numpy as np
 
 
 import os
-from annchor.utils import *
 
 
 CPU_COUNT = os.cpu_count()

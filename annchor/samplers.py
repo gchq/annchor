@@ -5,7 +5,7 @@ import numpy as np
 
 
 import os
-from annchor.utils import *
+from annchor.utils import loop_partitions
 from numba import types
 from numba.typed import Dict
 

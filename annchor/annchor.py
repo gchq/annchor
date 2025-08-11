@@ -4,18 +4,32 @@ import time
 
 from numba import prange, types
 from numba.typed import Dict
-from numba.core.registry import CPUDispatcher
 
 from collections import Counter
 
-from annchor.utils import *
-from annchor.pickers import *
-from annchor.samplers import *
-from annchor.regressors import *
-from annchor.error_predictors import *
-from annchor.query_functions import *
+from annchor.utils import (
+    get_function_from_input,
+    get_exact_ijs_,
+    test_parallelisation,
+    get_check,
+    get_dad_ijs,
+    get_IJs_from_check,
+    check_locality_size,
+    get_bounds_njit_ijs,
+    update_bounds,
+    np_sum,
+    guarantee_nmin,
+    get_probs,
+    get_nn,
+)
+from annchor.pickers import MaxMinAnchorPicker
+from annchor.samplers import SimpleStratifiedSampler, NothingToSample
+from annchor.regressors import SimpleStratifiedLinearRegression
+from annchor.error_predictors import SimpleStratifiedErrorRegression
+from annchor.query_functions import query_
 
 from scipy.sparse import dok_matrix
+from tqdm.auto import tqdm as tq
 
 
 class Annchor:

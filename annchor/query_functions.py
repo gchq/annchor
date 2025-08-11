@@ -4,7 +4,13 @@ import numpy as np
 from numba import njit, prange, types
 from numba.typed import Dict
 
-from annchor.utils import *
+from annchor.utils import (
+    np_argmin,
+    guarantee_nmin,
+    get_probs,
+    get_exact_query_ijs_,
+    get_nn,
+)
 
 
 def get_query_anchor_dists(ann, Q):
