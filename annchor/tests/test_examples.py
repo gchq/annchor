@@ -51,9 +51,7 @@ def test_query_example():
         "Return the most common item from array arr"
         return Counter(arr).most_common(1)[0][0]
 
-    y_pred = np.array(
-        [get_most_common(y_train[Q[0][i]]) for i in range(len(X_test))]
-    )
+    y_pred = np.array([get_most_common(y_train[Q[0][i]]) for i in range(len(X_test))])
 
     assert np.sum(y_pred == y_test) / len(y_test) >= 0.95
 
@@ -117,9 +115,7 @@ def test_custom_anchor_picker():
         def __init__(self, A):
             # Initialise our anchor picker
             self.A = A  # Init our class with the list of pre-chosen points (A)
-            self.is_anchor_safe = (
-                False  # If your anchors do not come from the set X
-            )
+            self.is_anchor_safe = False  # If your anchors do not come from the set X
             # then is_anchor_safe should be False
 
         def get_anchors(self, ann: "Annchor"):

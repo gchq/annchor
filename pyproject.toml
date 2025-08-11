@@ -54,6 +54,10 @@ packages = [
 annchor = ["data/*.npz", "data/*.gz"]
 
 
+[tool.black]
+line-length = 88
+
+
 [tool.coverage.run]
 command_line = "-m pytest ."
 source = ["annchor"]

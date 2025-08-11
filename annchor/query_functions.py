@@ -193,9 +193,7 @@ def query_(ann, Q, nn=15, p_work=0.3, get_exact_query_ijs=None):
     nq = len(Q)
     QD = get_query_anchor_dists(ann, Q)
     check = get_query_locality(ann, QD)
-    IJs, QI, Qfeatures, Q_not_computed_mask = get_query_features(
-        ann, QD, check
-    )
+    IJs, QI, Qfeatures, Q_not_computed_mask = get_query_features(ann, QD, check)
     Qpred = ann.regression.predict(Qfeatures, ann.feature_names)
     ilb = ann.feature_names.index("lower bound")
     iub = ann.feature_names.index("upper bound")

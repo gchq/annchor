@@ -19,7 +19,6 @@ from scipy.sparse import dok_matrix
 
 
 class Annchor:
-
     """Annchor
 
     Quickly computes the approximate k-NN graph for slow metrics
@@ -182,14 +181,11 @@ class Annchor:
         else:
             self.get_exact_ijs = get_exact_ijs
 
-        test_parallelisation(
-            self.get_exact_ijs, self.f, self.X, self.nx, backend, s=20
-        )
+        test_parallelisation(self.get_exact_ijs, self.f, self.X, self.nx, backend, s=20)
 
         self.get_exact_query_ijs = None
 
     def get_anchors(self):
-
         """
         Gets the anchors and distances to anchors.
         Anchors are stored in self.A, distances in self.D.
@@ -206,7 +202,6 @@ class Annchor:
         self.evals += evals
 
     def get_locality(self):
-
         """
         Uses basic permutation/set method to find candidate nearest neighbours.
 
@@ -256,7 +251,6 @@ class Annchor:
             )
 
     def get_features_IJ(self, IJs, I):
-
         """
         Computes features for distances in IJs.
 
@@ -311,7 +305,6 @@ class Annchor:
         ) = self.get_features_IJ(self.IJs, self.I)
 
     def get_sample(self):
-
         """
         Gets the sample of pairwise distances on which to train dhat/errors.
 
@@ -358,9 +351,7 @@ class Annchor:
 
         ilb = self.feature_names.index("lower bound")
         iub = self.feature_names.index("upper bound")
-        self.pred = np.clip(
-            self.pred, self.features[:, ilb], self.features[:, iub]
-        )
+        self.pred = np.clip(self.pred, self.features[:, ilb], self.features[:, iub])
 
         # if we don't satisfy the triangle inequality we should
         # put in the anchor point distances explicitly
@@ -388,19 +379,14 @@ class Annchor:
             sample_bins=self.sample_bins,
         )
 
-        self.errors = self.error_predictor.predict(
-            self.features, self.feature_names
-        )
+        self.errors = self.error_predictor.predict(self.features, self.feature_names)
 
     def select_refine_candidate_pairs(self, w=0.5, it=0):
 
         nn = self.n_neighbors
 
         thresh = np.array(
-            [
-                np.partition(self.RefineApprox[self.I[i]], nn)[nn]
-                for i in range(self.nx)
-            ]
+            [np.partition(self.RefineApprox[self.I[i]], nn)[nn] for i in range(self.nx)]
         )
         self.thresh = thresh
 
@@ -413,12 +399,8 @@ class Annchor:
                 3 * nn // 2,
             )
 
-        p0 = (thresh[self.IJs[:, 0]] - self.RefineApprox)[
-            self.not_computed_mask
-        ]
-        p1 = (thresh[self.IJs[:, 1]] - self.RefineApprox)[
-            self.not_computed_mask
-        ]
+        p0 = (thresh[self.IJs[:, 0]] - self.RefineApprox)[self.not_computed_mask]
+        p1 = (thresh[self.IJs[:, 1]] - self.RefineApprox)[self.not_computed_mask]
         p = np.max(np.vstack([p0, p1]), axis=0)
 
         errs = Dict.empty(
@@ -460,9 +442,9 @@ class Annchor:
             self.not_computed_mask
         ][self.next]
 
-        mapback = np.arange(self.not_computed_mask.shape[0])[
-            self.not_computed_mask
-        ][self.candidates]
+        mapback = np.arange(self.not_computed_mask.shape[0])[self.not_computed_mask][
+            self.candidates
+        ]
 
         IJs = self.IJs[mapback]
 
@@ -530,7 +512,6 @@ class Annchor:
         )
 
     def fit(self):
-
         """
         Computes the approx nearest neighbour graph.
         """
@@ -713,9 +694,7 @@ class Annchor:
         def f(arr, i):
             return arr[y != y[i]]
 
-        check = get_check(
-            self.Amatrix, self.sid, self.loc_thresh, loc_min, nx, f=f
-        )
+        check = get_check(self.Amatrix, self.sid, self.loc_thresh, loc_min, nx, f=f)
 
         for i in range(nx):
             z = np.zeros(nx)
@@ -724,9 +703,7 @@ class Annchor:
             check[i] = np.nonzero(z > 0)[0]
         I, IJs = get_IJs_from_check(check, nx)
 
-        (feature_names, features, not_computed_mask) = self.get_features_IJ(
-            IJs, I
-        )
+        (feature_names, features, not_computed_mask) = self.get_features_IJ(IJs, I)
         pred = self.regression.predict(features, feature_names)
         ilb = feature_names.index("lower bound")
         iub = feature_names.index("upper bound")
@@ -735,9 +712,7 @@ class Annchor:
         for i in prange(nx):
             self.I[i] = np.hstack((self.I[i], I[i] + nijs))
         self.IJs = np.vstack((self.IJs, IJs))
-        self.not_computed_mask = np.hstack(
-            (self.not_computed_mask, not_computed_mask)
-        )
+        self.not_computed_mask = np.hstack((self.not_computed_mask, not_computed_mask))
         self.RefineApprox = np.hstack((self.RefineApprox, pred))
         self.features = np.vstack((self.features, features))
 
@@ -834,10 +809,7 @@ class Annchor:
         ngi, ngd = self.neighbor_graph
 
         ebuffer = np.array(
-            [
-                np.searchsorted(_ngd, _dne - 1e-6)
-                for _ngd, _dne in zip(ngd, alpha_dne)
-            ]
+            [np.searchsorted(_ngd, _dne - 1e-6) for _ngd, _dne in zip(ngd, alpha_dne)]
         )
         buffer = [_ngi[:eb] for _ngi, eb in zip(ngi, ebuffer)]
         rss = ix[ebuffer == 1]
@@ -875,9 +847,7 @@ class Annchor:
 
         dists = self.RefineApprox.copy()
         iub = self.feature_names.index("upper bound")
-        dists[self.not_computed_mask] = self.features[
-            self.not_computed_mask, iub
-        ]
+        dists[self.not_computed_mask] = self.features[self.not_computed_mask, iub]
 
         def get_full_ngi_ngd(i):
             isort = np.argsort(dists[self.I[i]])
@@ -889,17 +859,11 @@ class Annchor:
         ngi = [r[0] for r in res]
         ngd = [r[1] for r in res]
         ebuffer = np.array(
-            [
-                np.searchsorted(_ngd, _dne - 1e-6)
-                for _ngd, _dne in zip(ngd, alpha_dne)
-            ]
+            [np.searchsorted(_ngd, _dne - 1e-6) for _ngd, _dne in zip(ngd, alpha_dne)]
         )
         buffer = [_ngi[:eb] for _ngi, eb in zip(ngi, ebuffer)]
         ssarr = np.array(
-            [
-                np.isin(rss, buffer[i], assume_unique=True)
-                for i in tq(range(self.nx))
-            ]
+            [np.isin(rss, buffer[i], assume_unique=True) for i in tq(range(self.nx))]
         )
         a = np.zeros(len(ssarr))
         j = 0
@@ -929,9 +893,7 @@ class Annchor:
         alpha_dne = dne / (1 + alpha)
         self.rssDs = {}
         for i in ix:
-            ds = self.get_exact_ijs(
-                self.f, self.X, np.array([[i, r] for r in rss])
-            )
+            ds = self.get_exact_ijs(self.f, self.X, np.array([[i, r] for r in rss]))
             self.rssDs[i] = ds
             dnnR = np.min(ds)
             dne_alpha = alpha_dne[i]
@@ -941,7 +903,6 @@ class Annchor:
 
 
 class BruteForce:
-
     """BruteForce
 
     Computes the approximate k-NN graph by brute force
@@ -997,9 +958,7 @@ class BruteForce:
         else:
             self.get_exact_ijs = get_exact_ijs
 
-        test_parallelisation(
-            self.get_exact_ijs, self.f, self.X, self.nx, backend, s=20
-        )
+        test_parallelisation(self.get_exact_ijs, self.f, self.X, self.nx, backend, s=20)
 
     def fit(self):
         """get_neighbor_graph
@@ -1024,7 +983,6 @@ class BruteForce:
 
 
 def compare_neighbor_graphs(nng_1, nng_2, n_neighbors):
-
     """compare_neighbor_graphs
 
     Compares accuracy of k-NN graphs. The second graph is compared against the

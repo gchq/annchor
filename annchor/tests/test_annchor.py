@@ -223,26 +223,16 @@ def test_brute_force():
 
     small_neighbor_graph = (
         np.array(
-            [
-                neighbor_graph[0][i][neighbor_graph[0][i] < 500][:10]
-                for i in range(500)
-            ]
+            [neighbor_graph[0][i][neighbor_graph[0][i] < 500][:10] for i in range(500)]
         ),
         np.array(
-            [
-                neighbor_graph[1][i][neighbor_graph[0][i] < 500][:10]
-                for i in range(500)
-            ]
+            [neighbor_graph[1][i][neighbor_graph[0][i] < 500][:10] for i in range(500)]
         ),
     )
 
-    bruteforce = BruteForce(
-        X[:500], "wasserstein", func_kwargs={"cost_matrix": M}
-    )
+    bruteforce = BruteForce(X[:500], "wasserstein", func_kwargs={"cost_matrix": M})
     bruteforce.fit()
 
-    error = compare_neighbor_graphs(
-        small_neighbor_graph, bruteforce.neighbor_graph, 10
-    )
+    error = compare_neighbor_graphs(small_neighbor_graph, bruteforce.neighbor_graph, 10)
 
     assert error == 0
