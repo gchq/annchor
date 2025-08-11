@@ -7,6 +7,16 @@ list see the documentation:
 https://www.sphinx-doc.org/en/master/usage/configuration.html
 """
 
+from pathlib import Path
+import sys
+
+CONF_FILE_PATH = Path(__file__).absolute()
+SOURCE_FOLDER_PATH = CONF_FILE_PATH.parent
+DOCS_FOLDER_PATH = SOURCE_FOLDER_PATH.parent
+REPO_FOLDER_PATH = DOCS_FOLDER_PATH.parent
+
+sys.path.extend([str(DOCS_FOLDER_PATH), str(SOURCE_FOLDER_PATH), str(REPO_FOLDER_PATH)])
+
 
 # -- Project information -----------------------------------------------------
 
