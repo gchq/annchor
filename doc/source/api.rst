@@ -16,7 +16,7 @@ Annchor
 Utility Functions
 ----------------------
 
-The annchor package also includes some utility functions, e.g. finding 
+The annchor package also includes some utility functions, e.g. finding
 neighbor graph accuracy.
 
 .. autofunction:: annchor.compare_neighbor_graphs
@@ -29,4 +29,3 @@ ANNchor comes with various data sets for benchmarking.
 
 .. automodule:: annchor.datasets
    :members:
-

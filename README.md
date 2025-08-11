@@ -15,7 +15,7 @@ For user guide and documentation visit [gchq.github.io/annchor](https://gchq.git
 <br></br>
 
 ## What is ANNchor?
-ANNchor is a python library which constructs approximate *k*-nearest neighbour graphs for slow metrics. 
+ANNchor is a python library which constructs approximate *k*-nearest neighbour graphs for slow metrics.
 The *k*-NN graph is an extremely useful data structure that appears in a wide variety of applications, for example: clustering, dimensionality reduction, visualisation and exploratory data analysis (EDA). However, if we want to use a slow metric, these *k*-NN graphs can take an exceptionally long time to compute.
 Typical slow metrics include the Wasserstein metric (Earth Mover's distance) applied to images, and Levenshtein (Edit) distance on long strings, where the time taken to compute these distances is significantly longer than a typical Euclidean distance.
 
@@ -94,7 +94,7 @@ xvepnposhktvmutozuhkbqarqsbxjrhxuumofmtyaaeesbeuhf...
 
 We see a data set consisting of long strings. A closer inspection may indicate some structure, but it is not obvious at this stage.
 
-We use ANNchor to find the 25-nearest neighbour graph. Levenshtein distance is included in Annchor, and can be called by using the string 'levenshtein' 
+We use ANNchor to find the 25-nearest neighbour graph. Levenshtein distance is included in Annchor, and can be called by using the string 'levenshtein'
 (we could also define the levenshtein function beforehand and pass that to Annchor instead). We will specify that we want to do no more than 12% of the brute force work (since the data set is size 1600, brute force would be 1600x1599/2=1279200 calls to the metric, so we will make around ~153500 to the metric). To get accurate timing information, bear in mind that the first run will be slower than future runs due to the numba.jit compile time.
 
 ```python
@@ -117,7 +117,7 @@ ANNchor Time: 34.299 seconds
 ANNchor Accuracy: 0 incorrect NN pairs (0.000%)
 ```
 
-Not bad! 
+Not bad!
 
 We can continue to use ANNchor in a typical EDA pipeline. Let's find the UMAP projection of our data set:
 
@@ -147,4 +147,3 @@ These packages can be installed via:
 ```bash
 pip install -r annchor/Examples/requirements.txt
 ```
-
