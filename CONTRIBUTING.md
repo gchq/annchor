@@ -13,14 +13,26 @@ You are welcome to contribute towards the ANNchor codebase (e.g bug-fixes, docs,
 Please fork the project, make your changes, and submit a pull request to the main repository.
 Make sure to include clear details about the purpose of your pull request.
 
+### Pre-commit
+
+Please make use of the [pre-commit checks](https://pre-commit.com/), which should be installed before any new code is
+committed:
+
+```shell
+$ pip install pre-commit
+$ pre-commit install
+```
+
+To run the checks at any time:
+
+```shell
+$ pre-commit run --all-files
+```
+
 ### Code formatting
 
-ANNchor uses the [black code formatter](https://github.com/python/black), which can be installed
-via pip (`pip install black`). Simply install and run in the project root. Note that we run black with a maximum line length of 79.
+ANNchor uses the [black code formatter](https://github.com/python/black), which is run automatically by `pre-commit`.
 
-```bash
-black --line-length 79 ./
-```
 
 ### Testing
 
