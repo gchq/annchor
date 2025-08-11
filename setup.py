@@ -1,3 +1,4 @@
+# (C) Crown Copyright GCHQ
 from setuptools import setup
 
 

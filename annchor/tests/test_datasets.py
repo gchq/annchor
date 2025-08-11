@@ -1,3 +1,4 @@
+# (C) Crown Copyright GCHQ
 import sys
 import numpy as np
 import numba

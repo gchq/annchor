@@ -1,3 +1,4 @@
+# (C) Crown Copyright GCHQ
 from collections import Counter
 
 from numba import njit

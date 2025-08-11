@@ -1,3 +1,4 @@
+# (C) Crown Copyright GCHQ
 import numpy as np
 
 from numba import njit, prange, types, typeof

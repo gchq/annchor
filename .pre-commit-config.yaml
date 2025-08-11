@@ -33,3 +33,12 @@ repos:
     hooks:
       - id: pyroma
         args: ["-d", "--min=10", "."]
+  - repo: https://github.com/johannsdg/pre-commit-license-headers
+    rev: v0.1.0
+    hooks:
+      - id: check-license-headers
+        types: [python]
+        args:
+          - --template
+          - (C) Crown Copyright [OWNER]
+          - --owner=GCHQ
