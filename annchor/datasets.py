@@ -5,7 +5,6 @@ package_directory = os.path.dirname(os.path.abspath(__file__))
 
 
 def load_digits():
-
     """load_digits
 
     Loads the UCI OCR digits data test set (1797 8x8 images).
@@ -47,7 +46,6 @@ def load_digits():
 
 
 def load_digits_large():
-
     """load_digits_large
 
     Loads the full (train+test) UCI OCR digits data set (5620 8x8 images).
@@ -89,7 +87,6 @@ def load_digits_large():
 
 
 def load_strings():
-
     """load_strings
 
     Loads the string data set (1600 strings, length ~500). There are
@@ -126,7 +123,6 @@ def load_strings():
 
 
 def load_graph_sp():
-
     """load_graph_sp
 
     Loads the graph shortest path data set (800 vertices from a weighted
@@ -165,8 +161,7 @@ def load_graph_sp():
 
         data = np.load(os.path.join(package_directory, "data", "graph.npz"))
         edge_list = [
-            "%d %d %s" % (i, j, w)
-            for (i, j), w in zip(data["edges"], data["weights"])
+            "%d %d %s" % (i, j, w) for (i, j), w in zip(data["edges"], data["weights"])
         ]
         G = nkx.readwrite.edgelist.parse_edgelist(
             edge_list, nodetype=int, data=(("w", float),)

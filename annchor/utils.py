@@ -68,9 +68,9 @@ def get_function_from_input(func, func_kwargs):
             "levenshtein": levenshtein,
             "wasserstein": None,
         }
-        assert (
-            func in allowed_strings
-        ), "Error: The string must be one of {}".format(allowed_strings)
+        assert func in allowed_strings, "Error: The string must be one of {}".format(
+            allowed_strings
+        )
 
         if func == "wasserstein":
             assert (
@@ -541,9 +541,7 @@ def get_IJs_from_check(check, nx):
 
 
 @njit
-def sample_partition(
-    indices, sample_feature, sample_bins, nbin, bin_size, remainder
-):
+def sample_partition(indices, sample_feature, sample_bins, nbin, bin_size, remainder):
     mask = (sample_feature >= sample_bins[nbin]) * (
         sample_feature < sample_bins[nbin + 1]
     )
@@ -552,9 +550,7 @@ def sample_partition(
     ixmask = indices[mask]
     if ixmask.shape[0] < (bin_size + (nbin < remainder)):
         return ixmask
-    return np.random.choice(
-        ixmask, size=(bin_size + (nbin < remainder)), replace=False
-    )
+    return np.random.choice(ixmask, size=(bin_size + (nbin < remainder)), replace=False)
 
 
 @njit

@@ -16,16 +16,12 @@ CPU_COUNT = os.cpu_count()
 
 
 class SimpleStratifiedErrorRegression:
-    def __init__(
-        self, partition_feature_name="double anchor distance", n_partitions=7
-    ):
+    def __init__(self, partition_feature_name="double anchor distance", n_partitions=7):
         self.n_partitions = n_partitions
         self.partition_feature_name = partition_feature_name
         self.labels = range(n_partitions)
 
-    def fit(
-        self, sample_features, feature_names, sample_error, sample_bins=None
-    ):
+    def fit(self, sample_features, feature_names, sample_error, sample_bins=None):
 
         i_feature = feature_names.index(self.partition_feature_name)
 

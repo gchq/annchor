@@ -87,9 +87,7 @@ class Sampler(ABC):
         sample_feature = features[not_computed_mask][:, i_feature]
         indices = np.arange(not_computed_mask.shape[0])[not_computed_mask]
 
-        sample_bins, new_n_samples = self.get_partition(
-            sample_feature, n_samples
-        )
+        sample_bins, new_n_samples = self.get_partition(sample_feature, n_samples)
         if new_n_samples != n_samples:
             print(
                 "Warning: n_samples has changed from %d to %d."
@@ -111,9 +109,7 @@ class Sampler(ABC):
 
 
 class SimpleStratifiedSampler(Sampler):
-    def __init__(
-        self, partition_feature_name="double anchor distance", n_partitions=7
-    ):
+    def __init__(self, partition_feature_name="double anchor distance", n_partitions=7):
         super().__init__(partition_feature_name, n_partitions)
 
     def get_partition(self, sample_feature, n_samples):
@@ -141,9 +137,7 @@ class SimpleStratifiedSampler(Sampler):
 
 
 class ClusterSampler(Sampler):
-    def __init__(
-        self, partition_feature_name="double anchor distance", n_partitions=5
-    ):
+    def __init__(self, partition_feature_name="double anchor distance", n_partitions=5):
         super().__init__(partition_feature_name, n_partitions)
 
     def get_partition(self, sample_feature, n_samples):

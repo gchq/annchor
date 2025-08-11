@@ -40,9 +40,7 @@ class SimpleStratifiedLinearRegression:
 
         i_partition_feature = feature_names.index(self.partition_feature_name)
         i_features = [
-            i
-            for i, name in enumerate(feature_names)
-            if name in self.reg_feature_names
+            i for i, name in enumerate(feature_names) if name in self.reg_feature_names
         ]
 
         F = sample_features[:, i_partition_feature]
@@ -61,20 +59,14 @@ class SimpleStratifiedLinearRegression:
             self.sample_bins = sample_bins
 
         for nbin in range(self.n_partitions):
-            mask = (F > self.sample_bins[nbin]) * (
-                F <= self.sample_bins[nbin + 1]
-            )
-            self.LRs[nbin].fit(
-                sample_features[mask][:, i_features], sample_y[mask]
-            )
+            mask = (F > self.sample_bins[nbin]) * (F <= self.sample_bins[nbin + 1])
+            self.LRs[nbin].fit(sample_features[mask][:, i_features], sample_y[mask])
 
     def predict(self, features, feature_names):
 
         i_partition_feature = feature_names.index(self.partition_feature_name)
         i_features = [
-            i
-            for i, name in enumerate(feature_names)
-            if name in self.reg_feature_names
+            i for i, name in enumerate(feature_names) if name in self.reg_feature_names
         ]
 
         X = features[:, i_features]
@@ -82,9 +74,7 @@ class SimpleStratifiedLinearRegression:
         F = features[:, i_partition_feature]
 
         def predict_bin(nbin):
-            mask = (F > self.sample_bins[nbin]) * (
-                F <= self.sample_bins[nbin + 1]
-            )
+            mask = (F > self.sample_bins[nbin]) * (F <= self.sample_bins[nbin + 1])
             if X[mask].shape[0] > 0:
                 return self.LRs[nbin].predict(X[mask])
             # if X[mask] is empty...
@@ -95,9 +85,7 @@ class SimpleStratifiedLinearRegression:
         )
 
         for nbin, pred in enumerate(preds):
-            mask = (F > self.sample_bins[nbin]) * (
-                F <= self.sample_bins[nbin + 1]
-            )
+            mask = (F > self.sample_bins[nbin]) * (F <= self.sample_bins[nbin + 1])
             y[mask] = pred
             # self.LRs[nbin].predict(X[mask])
         return y
