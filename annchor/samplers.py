@@ -137,8 +137,6 @@ class ClusterSampler(Sampler):
         super().__init__(partition_feature_name, n_partitions)
 
     def get_partition(self, sample_feature, n_samples):
-        n = sample_feature.shape[0]
-
         from sklearn.cluster import KMeans
 
         kmeans = KMeans(n_clusters=self.n_partitions)

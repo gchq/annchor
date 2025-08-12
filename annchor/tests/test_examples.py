@@ -136,7 +136,10 @@ def test_custom_anchor_picker():
             #       but we transpose this after calculations.
             D = np.zeros((na, nx)) + np.inf
 
-            v = lambda f: f
+            def _identity(f):
+                return f
+
+            v = _identity
 
             # loop over our data set and calculate distance to anchor points
             for i in v(range(na)):
@@ -144,7 +147,8 @@ def test_custom_anchor_picker():
                 D[i] = np.array([ann.f(x, self.A[i]) for x in ann.X])
 
             # Returns 3-tuple (A,D,n_evals)
-            # A = array of indices of anchor points if they are in our data set, otherwise empty array
+            # A = array of indices of anchor points if they are in our data set,
+            #     otherwise empty array
             # D = array of distances to anchor points
             # n_evals = number of calls to the metric
             return np.array([]), D.T, na * nx
@@ -167,7 +171,7 @@ def test_custom_anchor_picker():
     )
     assert n_errors == 0
 
-    # Now let's try picking the centers of our data clusters and using those as the anchors
+    # Let's try picking the centers of our data clusters and using those as the anchors
     center_anchor_picker = ExternalAnchorPicker(centers)
     annchor_center = Annchor(
         X,

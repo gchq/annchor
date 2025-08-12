@@ -21,14 +21,12 @@ def get_query_anchor_dists(ann, Q):
 
 
 def get_query_locality(ann, QD):
-    na = ann.n_anchors
     nq = len(QD)
     ix = np.arange(ann.nx, dtype=np.int64)
     # locality is number of nearest anchors to use in set
     # locality_thresh is number of elements in common required
     # to consider a pair of elements for nn candidacy
     locality = ann.locality
-    loc_thresh = ann.loc_thresh
     sid = np.argsort(QD, axis=1)[:, :locality]
 
     check = Dict.empty(
@@ -279,7 +277,6 @@ def query_dm(Q, P, DP, f, query_parallel, k=0, alpha=1.2, init=0):
     nevals += len(ijs)
 
     dm = da[:, np.newaxis]
-    di = a[:, -1].copy()
 
     M = (da[:, np.newaxis] - DP[a[:, -1], :])[:, :, np.newaxis]
     lM = np.linalg.norm(M, axis=2)

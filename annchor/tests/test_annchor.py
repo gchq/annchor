@@ -146,9 +146,6 @@ def test_graph_sp(seed=42, niters=niters):
 
 def test_bad_pwork():
 
-    # Set k-NN, metric
-    k = 15
-
     X = load_strings()["X"]
 
     ann = Annchor(X, "levenshtein", p_work=1.1)

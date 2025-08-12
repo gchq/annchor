@@ -228,10 +228,7 @@ class Annchor:
             index j.
 
         """
-        start = time.time()
-
         na = self.n_anchors
-        nn = self.n_neighbors
         nx = self.nx
 
         # locality is number of nearest anchors to use in set
@@ -340,7 +337,7 @@ class Annchor:
         )
         self.sample_features = self.features[self.sample_ixs]
 
-        self.sample_ijs = sample_ijs = self.IJs[self.sample_ixs]
+        self.sample_ijs = self.IJs[self.sample_ixs]
 
         self.sample_y = self.get_exact_ijs(self.f, self.X, self.sample_ijs)
 
@@ -842,8 +839,6 @@ class Annchor:
             nxt = a[np.argmax(b)]
 
             rss = np.append(rss, nxt)
-
-            mid = time.time()
 
             # present = np.isin(ngi, rss[-1])
             # return present,ngi,rss,ebuffer,done
