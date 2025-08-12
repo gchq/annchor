@@ -1,9 +1,9 @@
 # (C) Crown Copyright GCHQ
 from collections import Counter
 
-from numba import njit
 import numpy as np
-from sklearn.datasets import make_moons, make_blobs
+from numba import njit
+from sklearn.datasets import make_blobs, make_moons
 from sklearn.model_selection import train_test_split
 
 from annchor import Annchor, BruteForce, compare_neighbor_graphs

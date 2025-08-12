@@ -71,3 +71,7 @@ sort = "Cover"
 exclude_also = [
     "@abstractmethod$"
 ]
+
+
+[tool.isort]
+profile = "black"

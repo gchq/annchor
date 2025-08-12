@@ -1,11 +1,15 @@
 # (C) Crown Copyright GCHQ
 import numpy as np
-
 from numba import njit, prange, types
 from numba.typed import Dict
-from numba.core.registry import CPUDispatcher
 
-from annchor.utils import *
+from annchor.utils import (
+    get_exact_query_ijs_,
+    get_nn,
+    get_probs,
+    guarantee_nmin,
+    np_argmin,
+)
 
 
 def get_query_anchor_dists(ann, Q):

@@ -1,18 +1,11 @@
 # (C) Crown Copyright GCHQ
-import sys
-import numpy as np
+import networkx as nx
 import numba
-
-from annchor.datasets import (
-    load_digits,
-    load_strings,
-    load_digits_large,
-    load_graph_sp,
-)
-from annchor.distances import levenshtein
+import numpy as np
 from pynndescent.distances import kantorovich
 
-import networkx as nx
+from annchor.datasets import load_digits, load_digits_large, load_graph_sp, load_strings
+from annchor.distances import levenshtein
 
 
 def test_digits():
