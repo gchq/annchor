@@ -2,7 +2,7 @@
 
 # ANNchor
 
-![version](https://img.shields.io/badge/version-1.1.0-informational)
+![version](https://img.shields.io/badge/version-1.1.1-informational)
 ![python](https://img.shields.io/badge/python-3.9%20%7C%203.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-informational)
 ![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=orange)
 
@@ -10,7 +10,7 @@ A python library implementing ANNchor:<br>
 *k*-nearest neighbour graph construction for slow metrics.
 
 ## User Guide
-For user guide and documentation visit [gchq.github.io/annchor](https://gchq.github.io/annchor)
+For user guide and documentation visit [https://annchor.readthedocs.io](https://annchor.readthedocs.io)
 
 <br></br>
 
