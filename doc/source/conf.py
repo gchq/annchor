@@ -23,6 +23,7 @@ sys.path.extend([str(DOCS_FOLDER_PATH), str(SOURCE_FOLDER_PATH), str(REPO_FOLDER
 project = "ANNchor"
 copyright = "2021, GCHQ"
 author = "Jonathan H"
+version = "v1.1.1"
 
 
 # -- General configuration ---------------------------------------------------
