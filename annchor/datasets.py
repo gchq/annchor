@@ -169,7 +169,7 @@ def load_graph_sp():
             edge_list, nodetype=int, data=(("w", float),)
         )
 
-    except ImportError as E:
+    except ImportError:
         raise Exception("Error: load_graph_sp requires networkx.")
 
     return {

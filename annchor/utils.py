@@ -543,8 +543,6 @@ def sample_partition(indices, sample_feature, sample_bins, nbin, bin_size, remai
     mask = (sample_feature >= sample_bins[nbin]) * (
         sample_feature < sample_bins[nbin + 1]
     )
-    n_mask = np.sum(mask)
-
     ixmask = indices[mask]
     if ixmask.shape[0] < (bin_size + (nbin < remainder)):
         return ixmask

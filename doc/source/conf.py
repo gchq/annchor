@@ -7,8 +7,8 @@ list see the documentation:
 https://www.sphinx-doc.org/en/master/usage/configuration.html
 """
 
-from pathlib import Path
 import sys
+from pathlib import Path
 
 CONF_FILE_PATH = Path(__file__).absolute()
 SOURCE_FOLDER_PATH = CONF_FILE_PATH.parent
