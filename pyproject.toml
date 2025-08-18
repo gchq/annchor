@@ -44,7 +44,7 @@ test = [
 
 [project.urls]
 "Homepage" = "https://github.com/gchq/annchor"
-"Documentation" = "https://gchq.github.io/annchor/"
+"Documentation" = "https://annchor.readthedocs.io"
 "Repository" = "https://github.com/gchq/annchor"
 "Bug Tracker" = "https://github.com/gchq/annchor/issues"
 
