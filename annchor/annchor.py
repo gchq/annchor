@@ -42,7 +42,8 @@ class Annchor:
     func: function, numba-jitted function or string (required)
         The metric under which the k-NN graph should be evaluated.
         This can be a user supplied function or a string.
-        Currently supported string arguments are
+        Currently supported string arguments are:
+
             * euclidean
             * cosine
             * levenshtein
@@ -921,7 +922,8 @@ class BruteForce:
     func: function, numba-jitted function (required) or string.
         The metric under which the k-NN graph should be evaluated.
         This can be a user supplied function or a string.
-        Currently supported string arguments are
+        Currently supported string arguments are:
+
             * euclidean
             * cosine
             * levenshtein
