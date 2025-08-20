@@ -7,18 +7,14 @@ package_directory = os.path.dirname(os.path.abspath(__file__))
 
 
 def load_digits():
-    """load_digits
-
-    Loads the UCI OCR digits data test set (1797 8x8 images).
+    """
+    Load the UCI OCR digits data test set (1797 8x8 images).
 
     https://archive.ics.uci.edu/ml/datasets/optical+recognition+of+handwritten+digits
 
     Dua, D. and Graff, C. (2019). UCI Machine Learning Repository
     [http://archive.ics.uci.edu/ml]. Irvine, CA: University of California,
     School of Information and Computer Science.
-
-    Parameters
-    ----------
 
     Returns
     -------
@@ -48,18 +44,14 @@ def load_digits():
 
 
 def load_digits_large():
-    """load_digits_large
-
-    Loads the full (train+test) UCI OCR digits data set (5620 8x8 images).
+    """
+    Load the full (train+test) UCI OCR digits data set (5620 8x8 images).
 
     https://archive.ics.uci.edu/ml/datasets/optical+recognition+of+handwritten+digits
 
     Dua, D. and Graff, C. (2019). UCI Machine Learning Repository
     [http://archive.ics.uci.edu/ml]. Irvine, CA: University of California,
     School of Information and Computer Science.
-
-    Parameters
-    ----------
 
     Returns
     -------
@@ -89,13 +81,10 @@ def load_digits_large():
 
 
 def load_strings():
-    """load_strings
+    """
+    Load the string data set (1600 strings, length ~500).
 
-    Loads the string data set (1600 strings, length ~500). There are
-    8 clusters of two types: clouds (labels 0-4) and filaments (labels 5-7).
-
-    Parameters
-    ----------
+    There are 8 clusters of two types: clouds (labels 0-4) and filaments (labels 5-7).
 
     Returns
     -------
@@ -125,15 +114,11 @@ def load_strings():
 
 
 def load_graph_sp():
-    """load_graph_sp
+    """
+    Load the graph shortest path data set (800 vertices from a weighted graph).
 
-    Loads the graph shortest path data set (800 vertices from a weighted
-    graph).
     There are 10 clusters of vertices. The intra-cluster distances are shorter
     on average than the inter-cluster distances.
-
-    Parameters
-    ----------
 
     Returns
     -------

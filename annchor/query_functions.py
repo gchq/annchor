@@ -73,21 +73,20 @@ def get_query_features(ann, QD, check):
 @njit(fastmath=True)
 def get_query_dad_ijs(IJs, D, QD):
     """
-    Calculates the double anchor distance for query pair (i,j).
-
+    Calculate the double anchor distance for query pair (i,j).
 
     Parameters
     ----------
-    IJs: np.array, shape=(?,2)
-        Array of i,j pairs
-    D: np.array, shape=(nx,na)
-        Array of distances to anchor points
-    QD: np.array, shape=(nx,na)
-        Array of query distances to anchor points
+    IJs : np.array, shape=(?,2)
+        Array of i,j pairs.
+    D : np.array, shape=(nx,na)
+        Array of distances to anchor points.
+    QD : np.array, shape=(nx,na)
+        Array of query distances to anchor points.
 
-    Outputs
+    Returns
     -------
-    dad: np.array, shape=(?,)
+    np.array, shape=(?,)
         Array of double anchor distances for pairs in IJs.
     """
     n = IJs.shape[0]
@@ -105,18 +104,18 @@ def get_query_dad_ijs(IJs, D, QD):
 @njit(parallel=True, fastmath=True)
 def get_query_bounds_njit_ijs(IJs, D, QD):
     """
-    Calculates the triangle inequality bounds for query pair (i,j).
+    Calculate the triangle inequality bounds for query pair (i,j).
 
     Parameters
     ----------
-    IJs: np.array, shape=(?,2)
-        Array of i,j pairs
-    D: np.array, shape=(nx,na)
-        Array of distances to anchor points
-    QD: np.array, shape=(nx,na)
-        Array of query distances to anchor points
+    IJs : np.array, shape=(?,2)
+        Array of i,j pairs.
+    D : np.array, shape=(nx,na)
+        Array of distances to anchor points.
+    QD : np.array, shape=(nx,na)
+        Array of query distances to anchor points.
 
-    Outputs
+    Returns
     -------
     bounds: np.array, shape=(?,2)
         Array of lower and upper bounds for pairs in IJs.
