@@ -45,10 +45,10 @@ class Annchor:
         This can be a user supplied function or a string.
         Currently supported string arguments are:
 
-            * euclidean
-            * cosine
-            * levenshtein
-            * wasserstein  (requires cost_matrix kwarg)
+        * euclidean
+        * cosine
+        * levenshtein
+        * wasserstein  (requires cost_matrix kwarg)
     func_kwargs : dict (optional, default None)
         Dictionary of keyword arguments for the metric.
     n_anchors : int (optional, default 20)
@@ -926,9 +926,9 @@ class BruteForce:
         This can be a user supplied function or a string.
         Currently supported string arguments are:
 
-            * euclidean
-            * cosine
-            * levenshtein
+        * euclidean
+        * cosine
+        * levenshtein
     func_kwargs : dict (optional, default None)
         Dictionary of keyword arguments for the metric.
     verbose : bool

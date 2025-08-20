@@ -29,8 +29,8 @@ version = "v1.1.1"
 # -- General configuration ---------------------------------------------------
 
 extensions = [
-    "sphinx.ext.autodoc",
     "sphinx_rtd_theme",
+    "sphinx.ext.napoleon",
 ]
 
 html_theme = "sphinx_rtd_theme"
