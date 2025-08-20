@@ -48,11 +48,11 @@ def test_query_example():
 
     assert 1 - (errs / total) >= 0.99
 
-    def get_most_common(arr):
+    def _get_most_common(arr):
         "Return the most common item from array arr"
         return Counter(arr).most_common(1)[0][0]
 
-    y_pred = np.array([get_most_common(y_train[Q[0][i]]) for i in range(len(X_test))])
+    y_pred = np.array([_get_most_common(y_train[Q[0][i]]) for i in range(len(X_test))])
 
     assert np.sum(y_pred == y_test) / len(y_test) >= 0.95
 

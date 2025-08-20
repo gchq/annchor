@@ -90,4 +90,5 @@ checks = [
 ]
 exclude = [  # don't report on objects that match any of these regex
     "__init__",
+    "\\._.*$",  # ignore all private objects, e.g. 'def _inner(self):'
 ]
