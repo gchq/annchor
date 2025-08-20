@@ -75,3 +75,19 @@ exclude_also = [
 
 [tool.isort]
 profile = "black"
+
+
+
+[tool.numpydoc_validation]
+checks = [
+    "all",  # report on all checks, except the below
+    "EX01",  # No examples section found
+    "SA01",  # See Also section not found
+    "ES01",  # No extended summary found
+    "PR07",  # Parameter "x" has no description
+    "GL08",  # The object does not have a docstring
+    "RT01",  # No Returns section found
+]
+exclude = [  # don't report on objects that match any of these regex
+    "__init__",
+]

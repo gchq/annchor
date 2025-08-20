@@ -31,15 +31,16 @@ from annchor.utils import (
 
 
 class Annchor:
-    """Annchor
+    """
+    Annchor.
 
-    Quickly computes the approximate k-NN graph for slow metrics
+    Quickly computes the approximate k-NN graph for slow metrics.
 
     Parameters
     ----------
-    X: np.array or list (required)
+    X : np.array or list (required)
         The data set for which we want to find the k-NN graph.
-    func: function, numba-jitted function or string (required)
+    func : function, numba-jitted function or str (required)
         The metric under which the k-NN graph should be evaluated.
         This can be a user supplied function or a string.
         Currently supported string arguments are:
@@ -48,57 +49,58 @@ class Annchor:
             * cosine
             * levenshtein
             * wasserstein  (requires cost_matrix kwarg)
-    func_kwargs: dict (optional, default None)
-        Dictionary of keyword arguments for the metric
-    n_anchors: int (optional, default 20)
+    func_kwargs : dict (optional, default None)
+        Dictionary of keyword arguments for the metric.
+    n_anchors : int (optional, default 20)
         The number of anchor points. Increasing the number of anchors
         increases the k-NN graph accuracy at the expense of speed.
-    n_neighbors: int (optional, default 15)
+    n_neighbors : int (optional, default 15)
         The number of nearest neighbors to compute (i.e. the value of k
         for the k-NN graph).
-    n_samples: int (optional, default 5000)
+    n_samples : int (optional, default 5000)
         The number of sample distances used to compute the error distribution
         (E = d-dhat).
-    p_work: float (optional, default 0.1)
+    p_work : float (optional, default 0.1)
         The approximate percentage of brute force calculations which
         we are willing to make.
-    anchor_picker: AnchorPicker (optional, default MaxMinAnchorPicker())
+    anchor_picker : AnchorPicker (optional, default MaxMinAnchorPicker())
         The anchor picker class which specifies the anchor points.
-    sampler: Sampler (optional, default SimpleStratifiedSampler())
+    sampler : Sampler (optional, default SimpleStratifiedSampler())
         The sampler class which chooses the sample pairs.
-    regression: Regression
+    regression : Regression
         (optional, default SimpleStratifiedLinearRegression())
         The regression class which predicts distances from features.
-    error_predictor: ErrorRegression
+    error_predictor : ErrorRegression
         (optional, default SimpleStratifiedErrorRegression())
         The error regression class which predicts error distributions.
-    locality: int (optional, default 5)
+    random_seed : int
+    locality : int (optional, default 5)
         The number of anchor points to use in the permutation based k-NN
         (dhat) step.
-    loc_thresh: int (optional, default 1)
+    loc_thresh : int (optional, default 1)
         The minimum number of anchors in common for which we allow an item
         into NN_x.
-    loc_min: int (optional, default 10*n_neighbors)
-        The minimum number of points in NN_x
-    verbose: bool (optional, default False)
+    loc_min : int (optional, default 10*n_neighbors)
+        The minimum number of points in NN_x.
+    verbose : bool (optional, default False)
         Set verbose=True for more interim output.
-    is_metric: bool (optional, default True)
+    is_metric : bool (optional, default True)
         Set is_metric=False if the metric may violate the triangle inequality.
         With is_metric=True, predictions are clipped between upper/lower
         bounds, which may not be accurate if triangle inequality is violated.
-    get_exact_ijs: function (optional, default None)
+    get_exact_ijs : function (optional, default None)
         An optional user supplied function for evaluating the metric on an
         array of indices. Useful if you wish to supply your own
         parallelisation.
         get_exact_ijs(f,X,IJ) should return
         np.array([f(X[i],X[j] for i,j in IJ]).
-    backend: string (optional, default "loky")
+    backend : str (optional, default "loky")
         Specifies the joblib Parallel backend.
         Can be "loky" or "multiprocessing"
         In general "loky" seems to be more robust, but occasionally
-        "multiprocessing" can be significantly faster
-
-
+        "multiprocessing" can be significantly faster.
+    niters : int
+    lookahead : int
     """
 
     def __init__(
@@ -200,14 +202,14 @@ class Annchor:
 
     def get_anchors(self):
         """
-        Gets the anchors and distances to anchors.
+        Get the anchors and distances to anchors.
+
         Anchors are stored in self.A, distances in self.D.
 
         self.A: np.array, shape=(n_anchors,)
             Array of anchor indices.
         self.D: np.array, shape=(nx, n_anchors)
             Array of distances to anchor points.
-
         """
 
         self.A, self.D, evals = self.anchor_picker.get_anchors(self)
@@ -216,7 +218,7 @@ class Annchor:
 
     def get_locality(self):
         """
-        Uses basic permutation/set method to find candidate nearest neighbours.
+        Use basic permutation/set method to find candidate nearest neighbours.
 
         Current Technique (Use something better in future):
             For each point i, find the set S_i of its nearest l=locality anchor
@@ -227,7 +229,6 @@ class Annchor:
         self.check: Dict, keys=int64, val=int64[:]
             check[i] is the array of candidate nearest neighbour indices for
             index j.
-
         """
         na = self.n_anchors
         nx = self.nx
@@ -262,22 +263,22 @@ class Annchor:
 
     def get_features_IJ(self, IJs, I):
         """
-        Computes features for distances in IJs.
+        Compute features for distances in IJs.
 
         Parameters
         ----------
-        IJs: np.array, shape=(?,2)
+        IJs : np.array, shape=(?,2)
             Indices of distances for which we will find features.
-        I: numba.typed.Dict dict of arrays
+        I : numba.typed.Dict dict of arrays
             I[i] is the array of indices into IJs which contain index i.
 
-        Outputs
+        Returns
         -------
-        feature_names: List
-            List of features names (as strings)
-        features: np.array
-            Array of features corresponding to distances in ijs
-        not_computed_mask: np.array
+        feature_names : List
+            List of features names (as strings).
+        features : np.array
+            Array of features corresponding to distances in ijs.
+        not_computed_mask : np.array
             Array of bools indicating whether or not a distance in IJs
             has been explicitly computed.
         """
@@ -316,7 +317,7 @@ class Annchor:
 
     def get_sample(self):
         """
-        Gets the sample of pairwise distances on which to train dhat/errors.
+        Get the sample of pairwise distances on which to train dhat/errors.
 
         self.G: np.array, shape=(n_samples,3)
             Array storing the sample distances and features (for future
@@ -523,7 +524,7 @@ class Annchor:
 
     def fit(self):
         """
-        Computes the approx nearest neighbour graph.
+        Compute the approx nearest neighbour graph.
         """
 
         def timeit(item, origin, start):
@@ -615,7 +616,7 @@ class Annchor:
 
     def to_sparse_matrix(self):
         """
-        Returns the K-NN graph as a dictionary of keys sparse distance matrix.
+        Return the K-NN graph as a dictionary of keys sparse distance matrix.
         """
 
         # Initialise sparse matrix
@@ -637,15 +638,15 @@ class Annchor:
 
         Parameters
         ----------
-        Q: np.array, shape=(n_samples, n_features)
-            The new data to query against X
-        nn: int > 0
-            Desired number of nearest neighbours
-        p_work: 0.0 < float < 1.0
+        Q : np.array, shape=(n_samples, n_features)
+            The new data to query against X.
+        nn : int > 0
+            Desired number of nearest neighbours.
+        p_work : 0.0 < float < 1.0
             Fraction of brute force work to perform. A value of p_work=1 will
             carry out len(Q)*len(X) distance computations (equivalent to brute
             forcing the solution).
-        get_exact_query_ijs: function (optional, default None)
+        get_exact_query_ijs : function (optional, default None)
             An optional user supplied function for evaluating the metric on an
             array of indices. Useful if you wish to supply your own
             parallelisation. get_exact_ijs(f,X,Z,IJ) is the function should
@@ -675,20 +676,20 @@ class Annchor:
 
     def get_nearest_enemies(self, y, nn=3, loc_min=100):
         """
-        Computes the nearest enemy graph
-        Result is stored in self.nearest_enemy_graph
+        Compute the nearest enemy graph.
+
+        The result is stored in self.nearest_enemy_graph.
 
         Parameters
         ----------
-        y: np.array, shape=(len(X),)
-            Data labels (corresponding to elements in X)
-        nn: int > 0
-            Desired number of nearest enemies
-        loc_min: int > 0
+        y : np.array, shape=(len(X),)
+            Data labels (corresponding to elements in X).
+        nn : int > 0
+            Desired number of nearest enemies.
+        loc_min : int > 0
             Minimum number of points to store in locality (i.e. for each
             index we will compute features for at least loc_min points, if
-            possible.)
-
+            possible).
         """
         nx = self.nx
         lens = "len(y)=%d, len(X)=%d" % (len(y), nx)
@@ -773,25 +774,25 @@ class Annchor:
 
     def annchor_selective_subset(self, y, dne=None, alpha=0):
         """
-        Generates a selective subset for X given labels y.
+        Generate a selective subset for X given labels y.
 
         Parameters
         ----------
-        y: np.array, shape=(len(X),)
-            Data labels (corresponding to elements in X)
-        dne: tuple or None (optional, default=None)
+        y : np.array, shape=(len(X),)
+            Data labels (corresponding to elements in X).
+        dne : tuple or None (optional, default=None)
             The nearest enemy graph for X,y.
             dne[0] are the indices of the nearest enemies for points in X.
             dne[1] are the corresponding distances.
-        alpha: float (default=0)
+        alpha : float (default=0)
             Value for alpha-ss. The nearest enemy distance is multiplied by
             1/(1+alpha), to account for approximate nearest neighbour methods.
             In practice, larger alpha values make the subset more robust to
             errors at the expense of increasing the size of the subset.
 
-        Outputs
+        Returns
         -------
-        ss: np.array
+        np.array
             The indices of X which form the selective subset.
         """
 
@@ -911,15 +912,16 @@ class Annchor:
 
 
 class BruteForce:
-    """BruteForce
+    """
+    BruteForce.
 
-    Computes the approximate k-NN graph by brute force
+    Computes the approximate k-NN graph by brute force.
 
     Parameters
     ----------
-    X: np.array or list (required)
+    X : np.array or list
         The data set for which we want to find the k-NN graph.
-    func: function, numba-jitted function (required) or string.
+    func : function, numba-jitted function or str
         The metric under which the k-NN graph should be evaluated.
         This can be a user supplied function or a string.
         Currently supported string arguments are:
@@ -927,19 +929,20 @@ class BruteForce:
             * euclidean
             * cosine
             * levenshtein
-    func_kwargs: dict (optional, default None)
-        Dictionary of keyword arguments for the metric
-    get_exact_ijs: function (optional, default None)
+    func_kwargs : dict (optional, default None)
+        Dictionary of keyword arguments for the metric.
+    verbose : bool
+    get_exact_ijs : function (optional, default None)
         An optional user supplied function for evaluating the metric on an
         array of indices. Useful if you wish to supply your own
         parallelisation.
         get_exact_ijs(f,X,IJ) should return
         np.array([f(X[i],X[j] for i,j in IJ]).
-    backend: string (optional, default "loky")
+    backend : str (optional, default "loky")
         Specifies the joblib Parallel backend.
         Can be "loky" or "multiprocessing"
         In general "loky" seems to be more robust, but occasionally
-        "multiprocessing" can be significantly faster
+        "multiprocessing" can be significantly faster.
     """
 
     def __init__(
@@ -970,11 +973,7 @@ class BruteForce:
         test_parallelisation(self.get_exact_ijs, self.f, self.X, self.nx, backend, s=20)
 
     def fit(self):
-        """get_neighbor_graph
-
-        Gets the k-NN graph from the all pairs distance matrix
-
-        """
+        """Get the k-NN graph from the all pairs distance matrix."""
 
         IJs = np.array(
             [(i, j) for i in range(self.nx - 1) for j in range(i + 1, self.nx)]
@@ -992,10 +991,10 @@ class BruteForce:
 
 
 def compare_neighbor_graphs(nng_1, nng_2, n_neighbors):
-    """compare_neighbor_graphs
+    """
+    Compare the accuracy of two k-NN graphs.
 
-    Compares accuracy of k-NN graphs. The second graph is compared against the
-    first.
+    The second graph is compared against the first.
     This measure of accuracy accounts for cases where the indices differ but
     the distances are equivalent.
 
@@ -1008,18 +1007,17 @@ def compare_neighbor_graphs(nng_1, nng_2, n_neighbors):
 
     Parameters
     ----------
-    nng_1: nearest neighbour graph (tuple of np.array)
+    nng_1 : nearest neighbour graph (tuple of np.array)
         The first nearest neighbour graph, (indices, distances).
-    nng_2: nearest neighbour graph (tuple of np.array)
-        The second nearest neighbour graph, (indices, distances)..
-    n_neighbors: int
-        The number of nearest neighbors to consider
+    nng_2 : nearest neighbour graph (tuple of np.array)
+        The second nearest neighbour graph, (indices, distances).
+    n_neighbors : int
+        The number of nearest neighbors to consider.
 
     Returns
     -------
     err: int
         The number of incorrect NN pairs.
-
     """
 
     nx = nng_1[0].shape[0]
