@@ -21,8 +21,16 @@ int_list_dtype = typeof(List(np.arange(4)))
 @njit
 def np_apply_along_axis(func1d, axis, arr):
     """
+    Apply a function along a specific axis of an array.
+
     Numba support for numpy funcs with axis option.
     From github user joelrich: (https://github.com/numba/numba/issues/1269).
+
+    Parameters
+    ----------
+    func1d : function
+    axis : int
+    arr : numpy.array
     """
     assert arr.ndim == 2
     assert axis in [0, 1]
@@ -107,20 +115,24 @@ def get_function_from_input(func, func_kwargs):
 
 def get_exact_ijs_(f, parallel=True, verbose=False, backend="loky"):
     """
+    Return a partial distance function.
+
     Takes the metric f and returns the function get_exact_ijs(f,X,IJ), which
     calculates the distances between pairs given in array IJ.
 
     Parameters
     ----------
-    f: function
+    f : function
         The metric. Takes two points from the data set and calculates their
         distance.
+    parallel : bool
+    verbose : bool
+    backend : str
 
-
-    Outputs
+    Returns
     -------
-    get_exact_ijs: function
-        get_exact_ijs(f,X,IJ) is the function that returns distances between
+    function
+        The partial get_exact_ijs(f,X,IJ) is the function that returns distances between
         pairs given in array IJ,
         i.e. np.array([f(X[i],X[j]) for i,j in IJ]).
     """
@@ -177,19 +189,25 @@ def get_exact_ijs_(f, parallel=True, verbose=False, backend="loky"):
 
 def get_exact_query_ijs_(f, parallel=True, verbose=False, backend="loky"):
     """
-    Takes the metric f and returns the function
-    get_exact_query_ijs(f,X, Z, IJ), which calculates the distances between
+    Take the metric f and return a query function.
+
+    Return get_exact_query_ijs(f,X, Z, IJ), which calculates the distances between
     pairs X[i], Z[j] given in array IJ.
+
     Parameters
     ----------
-    f: function
+    f : function
         The metric. Takes two points from the data set and calculates their
         distance.
-    Outputs
+    parallel : bool
+    verbose : bool
+    backend : str
+
+    Returns
     -------
-    get_exact_ijs: function
-        get_exact_ijs(f,X,Z,IJ) is the function that returns distances between
-        pairs given in array IJ,
+    function
+        The partial get_exact_ijs(f,X,Z,IJ) is the function that returns distances
+        between pairs given in array IJ,
         i.e. np.array([f(X[i],Z[j]) for i,j in IJ]).
     """
     if not parallel:
@@ -272,19 +290,18 @@ def test_parallelisation(get_exact_ijs, f, X, nx, backend, s=20):
 @njit(parallel=True, fastmath=True)
 def get_bounds_njit_ijs(IJs, D):
     """
-    Calculates the triangle inequality bounds for pair (i,j).
+    Calculate the triangle inequality bounds for pair (i,j).
 
     Parameters
     ----------
-    IJs: np.array, shape=(?,2)
-        Array of i,j pairs
-    D: np.array, shape=(nx,na)
-        Array of distances to anchor points
+    IJs : np.array, shape=(?,2)
+        Array of i,j pairs.
+    D : np.array, shape=(nx,na)
+        Array of distances to anchor points.
 
-
-    Outputs
+    Returns
     -------
-    bounds: np.array, shape=(?,2)
+    np.array, shape=(?,2)
         Array of lower and upper bounds for pairs in IJs.
     """
 
@@ -303,6 +320,13 @@ def get_bounds_njit_ijs(IJs, D):
 def get_bounds_alt(disi, disj, dsi, dsj):
     """
     Convoluted function to get upper/lower bounds quickly.
+
+    Parameters
+    ----------
+    disi : np.array
+    disj : np.array
+    dsi : np.array
+    dsj : np.array
     """
     ub, lb = np.inf, 0
     j0 = 0
@@ -324,20 +348,20 @@ def get_bounds_alt(disi, disj, dsi, dsj):
 @njit(parallel=True)
 def update_bounds(IJs, dis, ds):
     """
-    Updates the bounds on distances i,j in IJ.
+    Update the bounds on distances i,j in IJ.
 
     Parameters
     ----------
-    IJs: np.array, shape=(?,2)
-        Array of i,j pairs
-    dis: numba.typed.Dict
-        Dict of computed pair indices (sorted by dist)
-    ds: numba.typed.Dict
-        Dict of computed pair distances (sorted by dist)
+    IJs : np.array, shape=(?,2)
+        Array of i,j pairs.
+    dis : numba.typed.Dict
+        Dict of computed pair indices (sorted by dist).
+    ds : numba.typed.Dict
+        Dict of computed pair distances (sorted by dist).
 
-    Outputs
+    Returns
     -------
-    bounds: np.array, shape=(?,2)
+    np.array, shape=(?,2)
         Array of upper/lower bounds for pairs in IJs.
     """
 
@@ -353,19 +377,18 @@ def update_bounds(IJs, dis, ds):
 @njit(fastmath=True)
 def get_dad_ijs(IJs, D):
     """
-    Calculates the double anchor distance for pair (i,j).
+    Calculate the double anchor distance for pair (i,j).
 
     Parameters
     ----------
-    IJs: np.array, shape=(?,2)
-        Array of i,j pairs
-    D: np.array, shape=(nx,na)
-        Array of distances to anchor points
+    IJs : np.array, shape=(?,2)
+        Array of i,j pairs.
+    D : np.array, shape=(nx,na)
+        Array of distances to anchor points.
 
-
-    Outputs
+    Returns
     -------
-    dad: np.array, shape=(?,)
+    np.array, shape=(?,)
         Array of double anchor distances for pairs in IJs.
     """
     n = IJs.shape[0]
@@ -381,32 +404,31 @@ def get_dad_ijs(IJs, D):
 @njit(parallel=True)
 def get_nn(nx, nn, RA, IJs, I, not_computed_mask):
     """
-    Calculates the nearest neighbor graph.
+    Calculate the nearest neighbor graph.
 
     Parameters
     ----------
-    nx: int
+    nx : int
         Number of points in the data set.
-    nn: int
+    nn : int
         Number of nearest neighbors.
-    RA: np.array
-        Array of refine approximate distances
-    IJs: np.array
-        Array of pairs i,j corresponding to the approx distances
-    I: dict
+    RA : np.array
+        Array of refine approximate distances.
+    IJs : np.array
+        Array of pairs i,j corresponding to the approx distances.
+    I : dict
         Dictionary mapping indices of the data set to indices in IJs/RA.
+    not_computed_mask : np.array
 
-
-    Outputs
+    Returns
     -------
     ngi: np.array, shape=(nx,nn)
-        neighbor graph indices.
+        Neighbor graph indices.
         ngi[i][j] is the index of the jth closest point to index i.
 
     ngd: np.array, shape=(nx,nn)
-        neighbor graph distances.
+        Neighbor graph distances.
         ngd[i][j] is the distance of the jth closest point to index i.
-
     """
     ngi = np.zeros(shape=(nx, nn - 1), dtype=np.int64)
     ngd = np.zeros(shape=(nx, nn - 1))

@@ -18,6 +18,7 @@ class NothingToSample(Exception):
 class Sampler(ABC):
     """
     Abstract base class for Samplers.
+
     They need to implement two methods, get_partition and sample_partition:
      * get_partition(sample_feature, n_samples) should return a
      pair (sample_bins, new_n_samples)
@@ -26,6 +27,11 @@ class Sampler(ABC):
     This base class implements sample_partition in a simple way, so descendants
     may either implement get_partition only, or optionally override
     sample_partition as well.
+
+    Parameters
+    ----------
+    partition_feature_name : str
+    n_partitions : int
     """
 
     def __init__(self, partition_feature_name, n_partitions):
