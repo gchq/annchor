@@ -165,7 +165,7 @@ def get_exact_ijs_(f, parallel=True, verbose=False, backend="loky"):
             def get_exact(f, X, IJ):
 
                 fIJ = np.array(
-                    Parallel(n_jobs=CPU_COUNT, backend=backend, timeout=30)(
+                    Parallel(n_jobs=CPU_COUNT, backend=backend)(
                         delayed(f)(X[i], X[j]) for i, j in tq(IJ, leave=False)
                     )
                 )
@@ -177,7 +177,7 @@ def get_exact_ijs_(f, parallel=True, verbose=False, backend="loky"):
             def get_exact(f, X, IJ):
 
                 fIJ = np.array(
-                    Parallel(n_jobs=CPU_COUNT, backend=backend, timeout=30)(
+                    Parallel(n_jobs=CPU_COUNT, backend=backend)(
                         delayed(f)(X[i], X[j]) for i, j in IJ
                     )
                 )
@@ -239,7 +239,7 @@ def get_exact_query_ijs_(f, parallel=True, verbose=False, backend="loky"):
             def get_exact_query(f, X, Z, IJ):
 
                 fIJ = np.array(
-                    Parallel(n_jobs=CPU_COUNT, backend=backend, timeout=30)(
+                    Parallel(n_jobs=CPU_COUNT, backend=backend)(
                         delayed(f)(X[i], Z[j]) for i, j in tq(IJ, leave=False)
                     )
                 )
@@ -251,7 +251,7 @@ def get_exact_query_ijs_(f, parallel=True, verbose=False, backend="loky"):
             def get_exact_query(f, X, Z, IJ):
 
                 fIJ = np.array(
-                    Parallel(n_jobs=CPU_COUNT, backend=backend, timeout=30)(
+                    Parallel(n_jobs=CPU_COUNT, backend=backend)(
                         delayed(f)(X[i], Z[j]) for i, j in IJ
                     )
                 )
