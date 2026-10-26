@@ -77,11 +77,15 @@ def test_annchor_selective_subset():
 
     # First data set
     ssx = annX.annchor_selective_subset(y=y, alpha=0)
-    assert len(ssx) == 90
+    assert 0 < len(ssx) < len(X)
+    nearest_x = ssx[np.argmin(np.linalg.norm(X[:, None] - X[ssx], axis=2), axis=1)]
+    assert np.array_equal(y[nearest_x], y)
 
     # Second data set
     ssu = annU.annchor_selective_subset(y=v, alpha=0)
-    assert len(ssu) == 16
+    assert 0 < len(ssu) < len(U)
+    nearest_u = ssu[np.argmin(np.linalg.norm(U[:, None] - U[ssu], axis=2), axis=1)]
+    assert np.array_equal(v[nearest_u], v)
 
 
 def test_custom_anchor_picker():
